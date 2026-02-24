@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warehouse - Dark Mode</title>
+    <title>Warehouse</title>
     <style>
         /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
         body { margin: 0; overflow: hidden; background-color: #0E1324; }
@@ -33,7 +33,7 @@
     
     <!-- path -->
     <div class="absolute top-[14%] left-[10%]">
-        <%- include('../partials/path', {path : "คลังสินค้า"}) %>
+        <%- include('../partials/path', {path : "คลังสินค้า", }) %>
     </div>
 
     <div class="absolute top-[20%] left-[10%] text-white">
@@ -50,10 +50,13 @@
 
     <!-- add warehouse -->
     <div class="absolute top-[15%] right-[10%]">
-        <button class="bg-[#EA7987] w-[165px] h-[60px] rounded-xl flex items-center justify-center gap-3">
-            <i class="fa-solid fa-warehouse text-white text-[35px]"></i>
-            <p class="text-white font-bold text-[20px]">เพิ่มคลัง</p>
-        </button>
+		<a href="/warehouse_management/create">
+			<button class="bg-[#EA7987] w-[165px] h-[60px] rounded-xl flex items-center justify-center gap-3">
+				<i class="fa-solid fa-warehouse text-white text-[35px]"></i>
+				<p class="text-white font-bold text-[20px]">เพิ่มคลัง</p>
+			</button>
+		</a>
+
     </div>
 
     <!-- popup -->

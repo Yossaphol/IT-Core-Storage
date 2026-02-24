@@ -27,6 +27,10 @@ app.get('/warehouse_management', (req, res) => {
   res.render('warehouse_management/wh_overview');
 });
 
+app.get('/warehouse_management/create', (req, res) => {
+  res.render('warehouse_management/wh_creating')
+})
+
 app.get('/receiving', (req, res) => {
   res.render('goods_reception/receiving');
 });

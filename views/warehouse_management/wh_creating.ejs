@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Warehouse</title>
+    <style>
+        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
+        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        canvas { display: block; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="relative z-20 pointer-events-none">
+        <%- include('../partials/header_with_path', { path1 : "การจัดการคลัง", url_1 : "/warehouse_management", path2 : "เพิ่มคลังสินค้า", url_2 : "/warehouse_management/create"}) %>
+    </div>
+    <div class="absolute top-[17%] left-[10%]">
+        <p class="text-white text-[40px]">เพิ่มคลังสินค้า</p>
+        <p class="text-white text-[14px]">เพิ่ม ข้อมูลคลังสินค้า ได้ที่นี่</p>
+    </div>
+    <div class="w-[790px] h-[790px] bg-white absolute left-[25%] top-[30%] rounded-[30px]">
+        <div>
+            <p>ชื่อคลัง</p>
+            
+        </div>
+    </div>
+</body>
+</html>
