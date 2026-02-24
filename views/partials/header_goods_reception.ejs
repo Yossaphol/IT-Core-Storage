@@ -1,0 +1,40 @@
+<div class="flex bg-transparent">
+
+	<!-- Sidebar -->
+    <div class="flex flex-col w-[110px] h-screen items-center gap-20 pt-10 pb-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20">
+        <div class="text-white font-bold text-[14px] h-10">
+            <div class="w-[6.86px] h-[5.95px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px]"></div>
+            <a href="/">
+				<p>IT CORE</p>
+            	<p>STORAGE</p>
+			</a>
+        </div>
+
+		
+        <div class="flex flex-col justify-between h-80 items-center ">
+            <i class="fa-solid fa-box text-white text-[40px] hover:text-[#838CF1] cursor-pointer"></i>
+            <i class="fa-solid fa-warehouse text-white text-[35px] hover:text-[#838CF1] cursor-pointer"></i>
+            <i class="fa-solid fa-list-check text-white text-[40px] hover:text-[#838CF1] cursor-pointer"></i>
+            <i class="fa-solid fa-clock-rotate-left text-white text-[40px] hover:text-[#838CF1] cursor-pointer"></i>
+            <i class="fa-solid fa-chart-area text-white text-[40px] hover:text-[#838CF1] cursor-pointer"></i>
+        </div>
+        <div class="flex flex-col items-center justify-between h-20 mt-auto">
+            <img src="/images/user.png" class="w-[40px] h-[40px] cursor-pointer">
+            <i class="fa-solid fa-arrow-right-from-bracket text-red-500 text-[25px] cursor-pointer"></i>
+        </div>
+    </div>
+
+	<!-- Search bar -->
+    <div class="w-full h-[100px] flex items-center justify-between pr-10 gap-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20">
+        <div class="path">
+            <p class="text-[#999]">
+                <a href="/" class="text-white">ภาพรวมสินค้าคงคลัง</a>
+                >
+                <a href="<%= currentPath %>" class="text-white">
+                    <%= currentPath.replace('/', '') || 'dashboard' %>
+                </a>
+            </p>
+        </div>
+        <i class="fa-solid fa-screwdriver-wrench text-white text-[40px] hover:text-[#838CF1] cursor-pointer"></i>
+    </div>
+</div>

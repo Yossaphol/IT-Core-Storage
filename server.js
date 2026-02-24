@@ -9,6 +9,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+app.use((req, res, next) => {
+    res.locals.currentPath = req.path;
+    next();
+});
+
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 
@@ -23,6 +28,18 @@ app.get('/', (req, res) => {
 
 app.get('/warehouse_management', (req, res) => {
   res.render('warehouse_management/wh_overview');
+});
+
+app.get('/receiving', (req, res) => {
+  res.render('goods_reception/receiving');
+});
+
+app.get('/issuing', (req, res) => {
+  res.render('goods_reception/issuing');
+});
+
+app.get('/adjustment', (req, res) => {
+  res.render('goods_reception/adjustment');
 });
 
 // database testing

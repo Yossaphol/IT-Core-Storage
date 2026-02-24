@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjustment</title>
+    <style>
+        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
+        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        canvas { display: block; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <!-- three.js container -->
+    <div id="three-container" class="fixed inset-0 z-0"></div>
+    <!-- header.ejs -->
+    <div class="relative z-20 pointer-events-none">
+        <%- include('../partials/header_goods_reception') %>
+    </div>
+</body>
+</html>
