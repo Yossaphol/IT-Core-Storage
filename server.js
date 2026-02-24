@@ -1,8 +1,9 @@
 require("dotenv").config();
 const express = require("express");
-const { Pool } = require("pg");
 const cors = require("cors");
 const path = require("path");
+const pool = require("./db");
+const warehouseAPI = require("./api/warehouse.api");
 
 const app = express();
 app.use(cors());
@@ -17,10 +18,6 @@ app.use((req, res, next) => {
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
 
 app.get('/', (req, res) => {
   res.render('index')
@@ -42,16 +39,11 @@ app.get('/adjustment', (req, res) => {
   res.render('goods_reception/adjustment');
 });
 
-// database testing
-app.get("/products", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM products ORDER BY prod_id DESC");
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Database error" });
-  }
-});
+// all warehouse
+app.get("/api/warehouses", warehouseAPI.getAllWarehouses);
+
+// one warehouse
+app.get("/api/warehouses/:id", warehouseAPI.getWarehouseById);
 
 const PORT = 3000;
 app.listen(PORT, () => {

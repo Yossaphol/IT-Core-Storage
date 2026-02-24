@@ -103,70 +103,118 @@ function createAddTextTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
-for (let i = 0; i < totalItems; i++) {
-    const col = i % columnsPerRow;
-    const row = Math.floor(i / columnsPerRow);
+// ดึงข้อมูลและสร้าง warehouse จาก database
+async function loadWarehouses() {
+  try {
+    const response = await fetch("/api/warehouses");
+    const warehouses = await response.json();
+
+    const columnsPerRow = 3;
+    const totalItems = warehouses.length + 1;
+    const totalRows = Math.ceil(totalItems / columnsPerRow);
+
+    warehouses.forEach((wh, i) => {
+
+      const col = i % columnsPerRow;
+      const row = Math.floor(i / columnsPerRow);
+
+      const posX = (col - (columnsPerRow - 1) / 2) * spacingX;
+      const posZ = (row - (totalRows - 1) / 2) * spacingZ;
+
+      const warehouseModel = new Warehouse_model(posX, posZ, wh.wh_id);
+
+      scene.add(warehouseModel.group);
+      stockZones.push(warehouseModel.hitZone);
+    });
+
+    createAddButton(warehouses.length, columnsPerRow, totalRows);
+
+  } catch (err) {
+    console.error("Load warehouse error:", err);
+  }
+}
+
+// สร้างพื้นที่สำหรับกดเพิ่ม warehouse
+function createAddButton(index, columnsPerRow, totalRows) {
+
+    const col = index % columnsPerRow;
+    const row = Math.floor(index / columnsPerRow);
 
     const posX = (col - (columnsPerRow - 1) / 2) * spacingX;
     const posZ = (row - (totalRows - 1) / 2) * spacingZ;
 
-    if (i < stockCountFromDB) {
-        // สร้างโกดังปกติพร้อมรถบรรทุก
-        const wh_model = new Warehouse_model(posX, posZ, i+1);
-        scene.add(wh_model.group);
-        stockZones.push(wh_model.hitZone);
-    } else {
-        // สร้างปุ่ม "+เพิ่ม" ในลำดับท้ายสุด
-        const addGroup = new THREE.Group();
-        addGroup.position.set(posX, 0, posZ);
-        
-        // หมุนองศาให้หันไปในทิศเดียวกับโกดังเป๊ะๆ
-        addGroup.rotation.y = Math.PI / 18;
+    const addGroup = new THREE.Group();
+    addGroup.position.set(posX, 0, posZ);
+    addGroup.rotation.y = Math.PI / 18;
 
-        // ปรับขนาดกรอบให้เท่ากับ wh_model.js อันใหม่
-        const blockWidth = 11.0; 
-        const blockDepth = 14.0;
+    const blockWidth = 11.0;
+    const blockDepth = 14.0;
 
-        // 1. พื้นที่รองรับการคลิก/Hover (Hit Zone)
-        const hitGeo = new THREE.PlaneGeometry(blockWidth, blockDepth);
-        const addHitZone = new THREE.Mesh(hitGeo, new THREE.MeshBasicMaterial({ visible: false }));
-        addHitZone.rotation.x = -Math.PI / 2;
-        addHitZone.position.y = 0.1;
-        addGroup.add(addHitZone);
+    const hitGeo = new THREE.PlaneGeometry(blockWidth, blockDepth);
+    const addHitZone = new THREE.Mesh(
+    hitGeo,
+    new THREE.MeshBasicMaterial({ visible: false })
+    );
 
-        // 2. กรอบนีออน (แสดงค้างไว้ตลอด แต่อ่อนลงนิดนึงเวลาไม่ Hover)
-        const addBorderMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.3 });
-        const borderGroup = new THREE.Group();
-        const thickness = 0.3; const height = 0.1;
-        const hGeo = new THREE.BoxGeometry(blockWidth + thickness, height, thickness);
-        const vGeo = new THREE.BoxGeometry(thickness, height, blockDepth - thickness);
+    addHitZone.rotation.x = -Math.PI / 2;
+    addHitZone.position.y = 0.1;
 
-        const top = new THREE.Mesh(hGeo, addBorderMat); top.position.set(0, height/2, -blockDepth/2);
-        const bottom = new THREE.Mesh(hGeo, addBorderMat); bottom.position.set(0, height/2, blockDepth/2);
-        const left = new THREE.Mesh(vGeo, addBorderMat); left.position.set(-blockWidth/2, height/2, 0);
-        const right = new THREE.Mesh(vGeo, addBorderMat); right.position.set(blockWidth/2, height/2, 0);
-        
-        borderGroup.add(top, bottom, left, right);
-        addGroup.add(borderGroup);
+    addGroup.add(addHitZone);
 
-        // 3. แผ่นป้ายข้อความ (Plane for Text)
-        const textMat = new THREE.MeshBasicMaterial({ 
-            map: createAddTextTexture(), 
-            transparent: true, 
-            side: THREE.DoubleSide,
-            depthWrite: false // ป้องกันการทับซ้อนแปลกๆ บนพื้น
-        });
-        const textPlane = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), textMat);
-        textPlane.rotation.x = -Math.PI / 2;
-        textPlane.position.y = 0.15; // ยกขึ้นมาให้ลอยอยู่เหนือพื้นเล็กน้อย
-        addGroup.add(textPlane);
+    const borderMat = new THREE.MeshBasicMaterial({
+    color: 0x00e5ff,
+    transparent: true,
+    opacity: 0.3
+    });
 
-        // ส่งผ่าน Material ไปใน userData ให้สามารถเอาไป Animate ตอน Hover ได้
-        addHitZone.userData = { isAddButton: true, borderMat: addBorderMat };
+    const borderGroup = new THREE.Group();
+    const thickness = 0.3;
+    const height = 0.1;
 
-        scene.add(addGroup);
-        stockZones.push(addHitZone);
-    }
+    const hGeo = new THREE.BoxGeometry(blockWidth + thickness, height, thickness);
+    const vGeo = new THREE.BoxGeometry(thickness, height, blockDepth - thickness);
+
+    const top = new THREE.Mesh(hGeo, borderMat);
+    top.position.set(0, height / 2, -blockDepth / 2);
+
+    const bottom = new THREE.Mesh(hGeo, borderMat);
+    bottom.position.set(0, height / 2, blockDepth / 2);
+
+    const left = new THREE.Mesh(vGeo, borderMat);
+    left.position.set(-blockWidth / 2, height / 2, 0);
+
+    const right = new THREE.Mesh(vGeo, borderMat);
+    right.position.set(blockWidth / 2, height / 2, 0);
+
+    borderGroup.add(top, bottom, left, right);
+    addGroup.add(borderGroup);
+
+    // ข้อความ
+    const textMat = new THREE.MeshBasicMaterial({
+    map: createAddTextTexture(),
+    transparent: true,
+    side: THREE.DoubleSide,
+    depthWrite: false
+    });
+
+    const textPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(8, 8),
+    textMat
+    );
+
+    textPlane.rotation.x = -Math.PI / 2;
+    textPlane.position.y = 0.15;
+
+    addGroup.add(textPlane);
+
+    // hover
+    addHitZone.userData = {
+    isAddButton: true,
+    borderMat: borderMat
+    };
+
+    scene.add(addGroup);
+    stockZones.push(addHitZone);
 }
 
 // ==========================================
@@ -265,16 +313,22 @@ window.addEventListener('mouseup', (event) => {
         if (userData.stockInstance && window.openStockPopup) {
 
             const stock = userData.stockInstance;
-            const randomCurrent = Math.floor(Math.random() * 1000) + 1;
+            
+            fetch(`/api/warehouses/${stock.id}`)
+            .then(res => res.json())
+            .then(data => {
 
-            window.openStockPopup({
-                name: 'A' + stock.id,
-                id: 'A' + String(stock.id).padStart(3, '0'),
-                manager: 'William Saliba',
-                location: 'WH1-S1-A' + stock.id,
-                current: randomCurrent,
-                max: 1000
-            });
+                window.openStockPopup({
+                    name: data.wh_name,
+                    id: 'A' + String(data.wh_id).padStart(3, '0'),
+                    manager: data.manager_name,
+                    location: data.location,
+                    current: data.current,
+                    max: data.capacity
+                });
+
+            })
+            .catch(err => console.error(err));
         }
 
         // add new warehouse
@@ -289,4 +343,5 @@ window.addEventListener('mouseup', (event) => {
     }
 });
 
+loadWarehouses();
 animate();
