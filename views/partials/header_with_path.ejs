@@ -37,10 +37,21 @@
     <div class="pl-10">
         <p class="text-[#999] flex gap-3">
             <a href="/" class="text-white">ภาพรวมสินค้าคงคลัง</a>
-            >
-            <a href="<%= currentPath %>" class="text-white capitalize">
-                <%= path1 %>
-            </a>
+
+            <% if (path1) { %>
+                >
+                <a href="<%= url_1 %>" class="text-white capitalize">
+                    <%= path1 %>
+                </a>
+            <% } %>
+
+            <% if (typeof path2 !== 'undefined' && path2) { %>
+                >
+                <a href="<%= typeof url_2 !== 'undefined' ? url_2 : '#' %>" 
+                class="text-white capitalize">
+                    <%= path2 %>
+                </a>
+            <% } %>
         </p>
     </div>
 
