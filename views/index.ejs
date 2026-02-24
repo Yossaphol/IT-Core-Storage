@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Stock Overview</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -13,9 +13,32 @@
 		*{
 			font-family: "Prompt", sans-serif;
 		}
+		body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        canvas { display: block; }
 	</style>
 </head>
 <body>
-    <%- include('partials/header') %>
+	<div id="three-container" class="fixed inset-0 z-0"></div>
+
+	<div class="relative z-20 pointer-events-none">
+		<%- include('partials/header') %>
+	</div>
+	<script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "gsap": "https://unpkg.com/gsap@3.12.5/index.js"
+            }
+        }
+    </script>
+
+	<div>
+		<p>ข้อมูล ณ คลังสินค้า <wh_id></p>
+		<p>สินค้าคงคลังทั้งหมด <st_count></p>
+		<p class="text-">คลิกที่ชั้นวางเพื่อดูรายละเอียด</p>
+	</div>
+
+    <script type="module" src="/view_stock/main.js"></script>
 </body>
 </html>
