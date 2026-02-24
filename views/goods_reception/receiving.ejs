@@ -4,22 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receiving</title>
-    <style>
-        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
-        body { margin: 0; overflow: hidden; background-color: #0E1324; }
-        canvas { display: block; }
-    </style>
+    <link rel="stylesheet" href="/css/goods_reception/receiving_issue_adjust.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <!-- three.js container -->
-    <div id="three-container" class="fixed inset-0 z-0"></div>
-    <!-- header.ejs -->
     <div class="relative z-20 pointer-events-none">
         <%- include('../partials/header_goods_reception') %>
     </div>
+    <div class="ml-[110px] pt-[120px] px-16 relative z-10 text-white">
+    <!-- Title + Button -->
+    <div class="flex justify-between items-center mb-10">
+        <h1 class="text-3xl font-semibold">
+            สินค้ารอเข้าคลัง
+            <span class="text-base text-gray-400 font-normal">
+                (กรณีคลังเต็มหรือไม่พร้อม)
+            </span>
+        </h1>
 
-    
+        <button class="bg-yellow-500 hover:bg-yellow-400 text-black font-medium px-6 py-3 rounded-xl flex items-center gap-2 transition text-white">
+            <i class="fa-solid fa-plus"></i>
+            เพิ่มสินค้า
+        </button>
+    </div>
+
+    <!-- Card Section -->
+    <div class="border border-dashed border-blue-500/40 rounded-2xl p-8 mb-16 overflow-x-auto">
+        <div class="grid grid-flow-col auto-cols-max gap-10">
+            
+            <!-- Card -->
+            <div class="relative w-[350px] h-[420px] rounded-2xl overflow-hidden">
+
+    <!-- Background Image -->
+    <div class="absolute inset-0 
+                bg-[url('/images/ram000.jpg')] 
+                bg-cover bg-center">
+    </div>
+
+    <!-- Gradient Overlay -->
+    <div class="absolute inset-0 
+                bg-gradient-to-t 
+                from-[#0E1324]/90 
+                via-[#0E1324]/60 
+                to-transparent">
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 p-6 text-white flex flex-col justify-end h-full">
+        
+        <span class="bg-blue-800 px-3 py-1 text-xs rounded-md w-fit mb-4">
+            RAM
+        </span>
+
+        <h3 class="text-3xl font-bold">CORSAIR</h3>
+
+        <div class="flex justify-between mt-4 text-lg">
+            <div>
+                <p class="text-gray-300 text-sm">จำนวน</p>
+                <p class="text-4xl font-semibold">47</p>
+            </div>
+
+            <div class="text-right">
+                <p class="text-gray-300 text-sm">วันที่รับเข้า</p>
+                <p class="text-3xl font-semibold">18/2/2569</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <h2 class="text-xl font-semibold mb-6">รายการล่าสุด</h2>
+
+    <div class="bg-[#16233B] rounded-xl overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-[#203354] text-gray-300 text-sm">
+                <tr>
+                    <th class="p-4">ID</th>
+                    <th class="p-4">สินค้า</th>
+                    <th class="p-4">เจ้าหน้าที่รับ</th>
+                    <th class="p-4">ผู้ส่ง</th>
+                    <th class="p-4">จำนวน</th>
+                    <th class="p-4">วันที่-เวลา รับเข้า</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-sm">
+                <tr class="border-t border-white/5 hover:bg-white/5">
+                    <td class="p-4">1</td>
+                    <td class="p-4 flex items-center gap-3">
+                        <img src="/images/user.png" class="w-8 h-8 rounded-full">
+                        อดัม ราชาเทพ
+                    </td>
+                    <td class="p-4">สมชาย ใจงาม</td>
+                    <td class="p-4">สมปอง ใจดี</td>
+                    <td class="p-4">10000</td>
+                    <td class="p-4">20/1/2569 14:30</td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+
+</div>
 </body>
 </html>
