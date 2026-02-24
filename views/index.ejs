@@ -33,12 +33,16 @@
         }
     </script>
 
-	<div>
-		<p>ข้อมูล ณ คลังสินค้า <wh_id></p>
-		<p>สินค้าคงคลังทั้งหมด <st_count></p>
-		<p class="text-">คลิกที่ชั้นวางเพื่อดูรายละเอียด</p>
+	<div class="absolute top-[20%] left-[10%] text-white">
+		<p>ข้อมูล ณ คลังสินค้า [wh_id]</p>
+		<p>สินค้าคงคลังทั้งหมด [st_count]</p>
+		<p class="text-[#989898]">คลิกที่ชั้นวางเพื่อดูรายละเอียด</p>
 	</div>
 
+	<div class="absolute bottom-[5%] left-[10%] flex gap-10">
+		<p class="text-[#989898]"> <i class="fa-solid fa-arrow-pointer" style="color: rgb(255, 255, 255);"></i> คลิกค้างแล้วลาก เพื่อย้ายมุมมอง</p>
+		<p class="text-[#989898]"><i class="fa-solid fa-computer-mouse" style="color: rgb(255, 255, 255);"></i> เลื่อนล้อเมาส์ เพื่อซูมเข้า-ออก</p>
+	</div>
     <script type="module" src="/view_stock/main.js"></script>
 </body>
 </html>
