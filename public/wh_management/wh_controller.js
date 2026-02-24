@@ -1,7 +1,7 @@
 // main.js
 import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
-import { StockBlock } from './StockBlock.js';
+import {Warehouse_model } from './wh_model.js';
 import gsap from 'gsap'; 
 
 // ==========================================
@@ -112,9 +112,9 @@ for (let i = 0; i < totalItems; i++) {
 
     if (i < stockCountFromDB) {
         // สร้างโกดังปกติพร้อมรถบรรทุก
-        const stockBlock = new StockBlock(posX, posZ);
-        scene.add(stockBlock.group);
-        stockZones.push(stockBlock.hitZone);
+        const wh_model = new Warehouse_model(posX, posZ, i+1);
+        scene.add(wh_model.group);
+        stockZones.push(wh_model.hitZone);
     } else {
         // สร้างปุ่ม "+เพิ่ม" ในลำดับท้ายสุด
         const addGroup = new THREE.Group();
@@ -123,7 +123,7 @@ for (let i = 0; i < totalItems; i++) {
         // หมุนองศาให้หันไปในทิศเดียวกับโกดังเป๊ะๆ
         addGroup.rotation.y = Math.PI / 18;
 
-        // ปรับขนาดกรอบให้เท่ากับ StockBlock.js อันใหม่
+        // ปรับขนาดกรอบให้เท่ากับ wh_model.js อันใหม่
         const blockWidth = 11.0; 
         const blockDepth = 14.0;
 
@@ -237,5 +237,56 @@ function animate() {
 
     renderer.render(scene, camera);
 }
+
+// display popup
+let mouseDownPosition = new THREE.Vector2();
+
+window.addEventListener('mousedown', (event) => {
+    mouseDownPosition.x = event.clientX;
+    mouseDownPosition.y = event.clientY;
+});
+
+window.addEventListener('mouseup', (event) => {
+    const moveDistance = Math.sqrt(
+        Math.pow(event.clientX - mouseDownPosition.x, 2) + 
+        Math.pow(event.clientY - mouseDownPosition.y, 2)
+    );
+
+    if (moveDistance > 5) return;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(stockZones);
+
+    if (intersects.length > 0) {
+
+        const userData = intersects[0].object.userData;
+
+        // open warehouse detail
+        if (userData.stockInstance && window.openStockPopup) {
+
+            const stock = userData.stockInstance;
+            const randomCurrent = Math.floor(Math.random() * 1000) + 1;
+
+            window.openStockPopup({
+                name: 'A' + stock.id,
+                id: 'A' + String(stock.id).padStart(3, '0'),
+                manager: 'William Saliba',
+                location: 'WH1-S1-A' + stock.id,
+                current: randomCurrent,
+                max: 1000
+            });
+        }
+
+        // add new warehouse
+        else if (userData.isAddButton) {
+            console.log("Add Warehouse Clicked");
+        }
+
+    } else {
+        if (window.closePopup) {
+            window.closePopup();
+        }
+    }
+});
 
 animate();

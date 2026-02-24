@@ -15,8 +15,9 @@ const brightRoofColors = [
     0x9c88ff  // ม่วงสว่าง
 ];
 
-export class StockBlock {
-    constructor(x, z) {
+export class Warehouse_model {
+    constructor(x, z, id) {
+        this.id = id;
         this.group = new THREE.Group();
         this.group.position.set(x, 0, z);
         this.hitZone = null;
