@@ -1,11 +1,17 @@
 <div class="flex bg-transparent">
-    <div class="flex flex-col w-[110px] h-screen items-center gap-20 pt-10 pb-10 pointer-events-auto">
+
+	<!-- Sidebar -->
+    <div class="flex flex-col w-[110px] h-screen items-center gap-20 pt-10 pb-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20">
         <div class="text-white font-bold text-[14px] h-10">
             <div class="w-[6.86px] h-[5.95px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px]"></div>
-            <p>IT CORE</p>
-            <p>STORAGE</p>
+            <a href="/">
+				<p>IT CORE</p>
+            	<p>STORAGE</p>
+			</a>
         </div>
-        <div class="flex flex-col justify-between h-80 items-center">
+
+		
+        <div class="flex flex-col justify-between h-80 items-center ">
             <i class="fa-solid fa-box text-white text-[40px] hover:text-[#838CF1] cursor-pointer"></i>
             <i class="fa-solid fa-warehouse text-white text-[35px] hover:text-[#838CF1] cursor-pointer"></i>
             <i class="fa-solid fa-list-check text-white text-[40px] hover:text-[#838CF1] cursor-pointer"></i>
@@ -18,6 +24,7 @@
         </div>
     </div>
 
+	<!-- Search bar -->
     <div class="w-full h-[100px] flex items-center justify-center gap-10 pointer-events-auto">
         <div class="relative flex h-14 w-[878px] items-center overflow-hidden rounded-full border border-white bg-transparent">
             <input type="text" placeholder="ค้นหา ชื่อ, รหัสพนักงาน" 
