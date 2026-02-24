@@ -33,16 +33,76 @@
         }
     </script>
 
-	<div class="absolute top-[20%] left-[10%] text-white">
+	<div class="absolute top-[20%] left-[10%] text-white pointer-events-none">
 		<p>ข้อมูล ณ คลังสินค้า [wh_id]</p>
 		<p>สินค้าคงคลังทั้งหมด [st_count]</p>
 		<p class="text-[#989898]">คลิกที่ชั้นวางเพื่อดูรายละเอียด</p>
 	</div>
-
-	<div class="absolute bottom-[5%] left-[10%] flex gap-10">
+	
+	<div class="absolute bottom-[5%] left-[10%] flex gap-10 pointer-events-none">
 		<p class="text-[#989898]"> <i class="fa-solid fa-arrow-pointer" style="color: rgb(255, 255, 255);"></i> คลิกค้างแล้วลาก เพื่อย้ายมุมมอง</p>
 		<p class="text-[#989898]"><i class="fa-solid fa-computer-mouse" style="color: rgb(255, 255, 255);"></i> เลื่อนล้อเมาส์ เพื่อซูมเข้า-ออก</p>
 	</div>
+
+	<!-- popup -->
+	<div id="stock-popup" class="hidden absolute bottom-[12%] left-[10%] z-50 w-[320px] rounded-[16px] p-7 shadow-2xl backdrop-blur-md bg-gradient-to-b from-[#0E1324] to-[#36498A]/10  transition-all duration-300 transform scale-95 opacity-0 text-white">
+		<h2 class="text-[34px] font-bold leading-tight tracking-wide">
+			ชั้นวาง <span id="popup-stock-name">A1</span>
+		</h2>
+		<p class="text-[14px] italic text-white mb-4 font-light">ID: <span id="popup-stock-id">ST-A0001</span></p>		
+		<div class="h-[1px] w-full bg-[#63BBF2]/30 mb-5"></div>
+		<div class="space-y-2 mb-8 text-[17px]">
+			<p class="font-bold">ประเภท: <span id="popup-stock-type" class=" text-white">RAM</span></p>
+			<p>ตำแหน่ง: <span id="popup-stock-location">WH1-S1-A1</span></p>
+		</div>
+		
+
+
+		<div class="mb-6">
+			<div class="flex justify-between items-end mb-2">
+				<span class="font-bold text-[18px]">จำนวน</span>
+				<span class="font-bold text-[18px]"><span id="popup-stock-current">41</span>/<span id="popup-stock-max">50</span></span>
+			</div>
+			<div class="w-full h-[10px] bg-white/90 rounded-full overflow-hidden">
+				<div id="popup-stock-progress" class="h-full bg-[#6DE4B3] rounded-full transition-all duration-500" style="width: 82%;"></div>
+			</div>
+		</div>
+		<button class="w-full bg-[#6BB8E7] hover:bg-[#5AA9E2] text-[#0E1324] text-[18px]  py-3 px-4 rounded-[10px] transition-colors flex justify-center items-center gap-2">
+			<i class="fa-regular fa-eye"></i> ดูรายละเอียด
+		</button>
+	</div>
+
+	<script>
+		const popup = document.getElementById('stock-popup');
+		
+		window.closePopup = function() {
+			popup.classList.remove('scale-100', 'opacity-100');
+			popup.classList.add('scale-95', 'opacity-0');
+			setTimeout(() => {
+				popup.classList.add('hidden');
+			}, 300);
+		};
+
+		window.openStockPopup = function(data) {
+			document.getElementById('popup-stock-name').innerText = data.name;
+			document.getElementById('popup-stock-id').innerText = data.id;
+			document.getElementById('popup-stock-type').innerText = data.type;
+			
+			document.getElementById('popup-stock-location').innerText = data.location;
+			document.getElementById('popup-stock-current').innerText = data.current;
+			document.getElementById('popup-stock-max').innerText = data.max;
+			
+			const percent = (data.current / data.max) * 100;
+			document.getElementById('popup-stock-progress').style.width = percent + '%';
+
+			popup.classList.remove('hidden');
+			setTimeout(() => {
+				popup.classList.remove('scale-95', 'opacity-0');
+				popup.classList.add('scale-100', 'opacity-100');
+			}, 10);
+		};
+	</script>
+
     <script type="module" src="/view_stock/main.js"></script>
 </body>
 </html>
