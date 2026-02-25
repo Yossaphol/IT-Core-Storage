@@ -23,8 +23,18 @@ app.get('/', (req, res) => {
   res.render('index')
 });
 
-app.get('/warehouse_management', (req, res) => {
-  res.render('warehouse_management/wh_overview');
+app.get('/warehouse_management', async (req, res) => {
+  try {
+    const query = `SELECT COUNT(wh_id) AS count FROM warehouse;`;
+    const { rows } = await pool.query(query);
+
+    const count = parseInt(rows[0].count);
+
+    res.render('warehouse_management/wh_overview', { amount: count });
+
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
 });
 
 app.get('/warehouse_management/create', (req, res) => {
@@ -51,6 +61,9 @@ app.get("/api/warehouses/:id", warehouseAPI.getWarehouseById);
 
 // create warehouse
 app.post("/api/warehouses/add", warehouseAPI.addWarehouse);
+
+// delete warehouse
+app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
 
 const PORT = 3000;
 app.listen(PORT, () => {

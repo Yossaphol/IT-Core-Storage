@@ -4,6 +4,13 @@ import { MapControls } from 'three/addons/controls/MapControls.js';
 import {Warehouse_model } from './wh_model.js';
 import gsap from 'gsap'; 
 
+let currentWarehouseId = null;
+const trashBtn = document.getElementById("trash");
+const trash_icon = document.getElementById('trash-icon');
+const popup = document.getElementById('popup');
+const confirmBtn = document.getElementById('confirm');
+const cancelBtn = document.getElementById('cancel');
+
 // ==========================================
 // 1. Scene, Camera, Renderer
 // ==========================================
@@ -294,7 +301,8 @@ window.addEventListener('mousedown', (event) => {
     mouseDownPosition.y = event.clientY;
 });
 
-window.addEventListener('mouseup', (event) => {
+renderer.domElement.addEventListener('mouseup', (event) => {
+
     const moveDistance = Math.sqrt(
         Math.pow(event.clientX - mouseDownPosition.x, 2) + 
         Math.pow(event.clientY - mouseDownPosition.y, 2)
@@ -305,43 +313,98 @@ window.addEventListener('mouseup', (event) => {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(stockZones);
 
-    if (intersects.length > 0) {
+    if (intersects.length === 0) {
 
-        const userData = intersects[0].object.userData;
+        currentWarehouseId = null;
 
-        // open warehouse detail
-        if (userData.stockInstance && window.openStockPopup) {
+        if (window.closePopup) window.closePopup();
 
-            const stock = userData.stockInstance;
-            
-            fetch(`/api/warehouses/${stock.id}`)
-            .then(res => res.json())
-            .then(data => {
+        trashBtn.classList.remove('opacity-100','scale-100');
+        trashBtn.classList.add('opacity-0','scale-75','pointer-events-none');
 
-                window.openStockPopup({
-                    name: data.wh_name,
-                    id: 'A' + String(data.wh_id).padStart(3, '0'),
-                    manager: data.manager_name,
-                    location: data.location,
-                    current: data.current,
-                    max: data.capacity
-                });
+        return;
+    }
 
-            })
-            .catch(err => console.error(err));
-        }
+    const userData = intersects[0].object.userData;
 
-        // add new warehouse
-        else if (userData.isAddButton) {
-            console.log("Add Warehouse Clicked");
-        }
+    if (userData.isAddButton) {
+        window.location.href = "/warehouse_management/create";
+        return;
+    }
 
-    } else {
-        if (window.closePopup) {
-            window.closePopup();
-        }
+    if (userData.stockInstance && window.openStockPopup) {
+
+        const stock = userData.stockInstance;
+
+        fetch(`/api/warehouses/${stock.id}`)
+        .then(res => res.json())
+        .then(data => {
+
+            currentWarehouseId = data.wh_id;
+
+            window.openStockPopup({
+                name: data.wh_name,
+                id: 'A' + String(data.wh_id).padStart(3, '0'),
+                manager: data.manager_name,
+                location: data.location,
+                current: data.current,
+                max: data.capacity
+            });
+
+            if (data.current == 0) {
+                trashBtn.classList.remove('opacity-0','scale-75','pointer-events-none');
+                trashBtn.classList.add('opacity-100','scale-100');
+            }
+        });
     }
 });
+
+function updateTime() {
+  const now = new Date();
+
+  const formatted =
+    now.toLocaleDateString("th-TH") + " " +
+    now.toLocaleTimeString("th-TH");
+
+  document.getElementById("currentTime").textContent = formatted;
+}
+
+trashBtn.addEventListener("click", function () {
+    if (!currentWarehouseId) return;
+
+    popup.classList.remove('opacity-0','scale-95','pointer-events-none');
+    popup.classList.add('opacity-100','scale-100');
+});
+
+confirmBtn.addEventListener('click', function () {
+    if (!currentWarehouseId) return;
+
+    fetch(`/api/warehouses/${currentWarehouseId}`, {
+        method: "DELETE"
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Delete failed");
+        return res.json();
+    })
+    .then(() => {
+        alert("ลบคลังสำเร็จ");
+        popup.classList.remove('opacity-100','scale-100');
+        popup.classList.add('opacity-0','scale-95','pointer-events-none');
+        location.reload();
+    })
+    .catch(err => {
+        alert("เกิดข้อผิดพลาด");
+        console.error(err);
+    });
+});
+
+cancelBtn.addEventListener('click', function () {
+    popup.classList.remove('opacity-100','scale-100');
+    popup.classList.add('opacity-0','scale-95','pointer-events-none');
+});
+
+updateTime();
+setInterval(updateTime, 1000);
 
 loadWarehouses();
 animate();

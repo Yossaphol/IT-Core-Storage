@@ -24,26 +24,15 @@
         <%- include('../partials/header') %>
     </div>
 
-    
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
-                "gsap": "https://unpkg.com/gsap@3.12.5/index.js"
-            }
-        }
-    </script>
-    
     <!-- path -->
     <div class="absolute top-[14%] left-[10%]">
         <%- include('../partials/path', {path : "คลังสินค้า", }) %>
     </div>
 
     <div class="absolute top-[20%] left-[10%] text-white">
-		<p>ข้อมูล ณ คลังสินค้า [wh_id]</p>
-		<p>สินค้าคงคลังทั้งหมด [st_count]</p>
-		<p class="text-[#989898]">คลิกที่ชั้นวางเพื่อดูรายละเอียด</p>
+		<p>ข้อมูล ณ <span id="currentTime"></span></p>
+		<p>จำนวนคลังสินค้าทั้งหมด <%= amount %></p>
+		<p class="text-[#989898]">คลิกที่โกดังเพื่อดูรายละเอียด</p>
 	</div>
 
     <!-- guidline -->
@@ -89,6 +78,25 @@
 		</button>
 	</div>
 
+	<!-- trash -->
+	<div id="trash" class="z-50 opacity-0 scale-75 pointer-events-none bg-[#F00] rounded-full fixed bottom-[12%] right-[10%] w-[75px] h-[70px] flex items-center justify-center transition-all duration-300 transform">
+    	<i class="fa-solid fa-trash text-white text-[45px]"></i>
+    </div>
+	<!-- delete confirm -->
+	<div id="popup" class="z-50 opacity-0 scale-95 pointer-events-none fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-white rounded-xl flex flex-col justify-between overflow-hidden transition-all duration-300 transform">
+		<div class="flex flex-col items-center justify-center mt-8">
+			<img src="/images/crisis.png" class="w-[105px]">
+			<p class="text-[#1B3563] text-[32px] font-bold">คำเตือน</p>
+			<div class="w-[112px] h-[1px] bg-[#4BA3E3]/50"></div>
+			<p class="text-[#FF0000]">โปรดตรวจสอบความถูกต้อง</p>
+			<p class="text-[#FF0000]">ก่อนยืนยัน</p>
+		</div>
+		<div class="w-[100%] flex">
+			<button id="confirm" class="w-[50%] h-[65px] bg-[#0E1324] text-white">ยืนยัน</button>
+			<button id="cancel" class="w-[50%] h-[65px] bg-[#FF0000] text-white">ตรวจสอบอีกครั้ง</button>
+		</div>
+	</div>
+
     <script>
 		const popup = document.getElementById('wh-popup');
 		
@@ -119,6 +127,16 @@
 			}, 10);
 		};
 	</script>
+
+	<script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "gsap": "https://unpkg.com/gsap@3.12.5/index.js"
+            }
+        }
+    </script>
 
     <script type="module" src="/wh_management/wh_controller.js"></script>
 
