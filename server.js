@@ -49,6 +49,9 @@ app.get("/api/warehouses", warehouseAPI.getAllWarehouses);
 // one warehouse
 app.get("/api/warehouses/:id", warehouseAPI.getWarehouseById);
 
+// create warehouse
+app.post("/api/warehouses/add", warehouseAPI.addWarehouse);
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

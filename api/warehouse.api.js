@@ -56,7 +56,50 @@ const getWarehouseById = async (req, res) => {
   }
 };
 
+const addWarehouse = async (req, res) => {
+  try {
+    const { wh_name, capacity, username, address } = req.body;
+
+    if (!wh_name || !capacity || !username) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const findManagerQuery = `
+      SELECT emp_id 
+      FROM employees 
+      WHERE username = $1;
+    `;
+
+    const managerResult = await pool.query(findManagerQuery, [username]);
+
+    if (managerResult.rows.length === 0) {
+      console.log('manager not found');
+      return res.status(400).json({ message: "Manager not found" });
+    }
+
+    const managerId = managerResult.rows[0].emp_id;
+
+    const insertQuery = `
+      INSERT INTO warehouse 
+      (wh_name, capacity, wh_manager_id, address)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `;
+
+    const values = [wh_name, capacity, managerId, address];
+
+    const { rows } = await pool.query(insertQuery, values);
+
+    res.status(201).json(rows[0]);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getAllWarehouses,
-  getWarehouseById
+  getWarehouseById,
+  addWarehouse
 };
