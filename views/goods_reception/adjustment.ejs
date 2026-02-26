@@ -8,13 +8,47 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
+        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        canvas { display: block; }
+    </style>
 </head>
 <body>
     <!-- three.js container -->
     <div id="three-container" class="fixed inset-0 z-0"></div>
     <!-- header.ejs -->
-    <div class="relative z-20 pointer-events-none">
+    <div class="relative pointer-events-none">
         <%- include('../partials/header_with_path', { path1 : "ปรับแก้ไขสินค้า", url_1 : "/adjustment"}) %>
     </div>
+
+    <div class="absolute top-[20%] left-[10%] text-white">
+		<p>ข้อมูล ณ <span id="currentTime"></span></p>
+		<p>จำนวนคลังสินค้าทั้งหมด ....</p>
+		<p class="text-[#989898]">คลิกที่โกดังเพื่อดูรายละเอียด</p>
+	</div>
+
+    <!-- guidline -->
+	<div class="absolute bottom-[5%] left-[10%] flex gap-10">
+		<p class="text-[#989898]"> <i class="fa-solid fa-arrow-pointer" style="color: rgb(255, 255, 255);"></i> คลิกค้างแล้วลาก เพื่อย้ายมุมมอง</p>
+		<p class="text-[#989898]"><i class="fa-solid fa-computer-mouse" style="color: rgb(255, 255, 255);"></i> เลื่อนล้อเมาส์ เพื่อซูมเข้า-ออก</p>
+	</div>
+
+    <div id="stockDetail" class="opacity-1 absolute text-white w-[500px] h-[100%] right-[0px] top-[0px]">
+        <h2>Stock</h2>
+    </div>
+    <script>
+        const popup = document.getElementById('stockDetail')
+    </script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "gsap": "https://unpkg.com/gsap@3.12.5/index.js"
+            }
+        }
+    </script>
+    <script type="module" src="/adjustment/main.js"></script>
 </body>
 </html>
