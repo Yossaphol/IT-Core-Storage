@@ -118,6 +118,9 @@ window.addEventListener('mouseup', (event) => {
 
     if (moveDistance > 5) return; // เป็นการลากหน้าจอ
 
+    // NEW: Prevent closing if clicking on the HTML UI (like inside the right tab)
+    if (event.target.tagName !== 'CANVAS') return;
+
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(stockZones);
 
@@ -138,8 +141,12 @@ window.addEventListener('mouseup', (event) => {
             });
         }
     } else {
+        // Clicked on empty space in the 3D world
         if(window.closePopup) {
-            window.closePopup();
+            window.closePopup(); // Closes the left popup
+        }
+        if(window.closeDetailPanel) {
+            window.closeDetailPanel(); // Closes the right panel
         }
     }
 });
