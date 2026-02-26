@@ -3,21 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adjustment</title>
-    <style>
-        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
-        body { margin: 0; overflow: hidden; background-color: #0E1324; }
-        canvas { display: block; }
-    </style>
+    <title>Issuing</title>
+    <link rel="stylesheet" href="/css/goods_reception/receiving_issue_adjust.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    <style>
+        .datepicker {
+            z-index: 1050 !important;
+        }
+        /* --- เพิ่มเติมส่วนปุ่มที่ยังกดไม่ได้ --- */
+        #final-confirm-btn:disabled {
+            background-color: #6b7280; /* สีเทา */
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
 </head>
-<body>
-    <!-- three.js container -->
-    <div id="three-container" class="fixed inset-0 z-0"></div>
-    <!-- header.ejs -->
-    <div class="relative z-20 pointer-events-none">
+<body class="bg-[#0E1324]"> <div class="relative z-40">
+    <div class="fixed top-[20px] right-[50px] pointer-events-none z-0 overflow-hidden select-none">
+        <i class="fa-solid fa-list-check text-[500px] text-white/[0.03]"></i>
+    </div>
         <%- include('../partials/header_with_path', { path1 : "เบิกจ่ายสินค้า", url_1 : "/issuing"} ) %>
     </div>
+
+    <div class="ml-[110px] pt-[120px] px-16 relative z-10 text-white">
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="text-3xl font-semibold">
+                รอยืนยันการเบิกจ่าย
+                <span class="text-base text-gray-400 font-normal">
+                    (กรณีคลังสินค้าในคลังไม่พอ)
+                </span>
+            </h1>
+
+            <button data-modal-target="add-product-modal" data-modal-toggle="add-product-modal" class="bg-yellow-500 hover:bg-yellow-400 font-medium px-6 py-3 rounded-xl flex items-center gap-2 transition text-white">
+                <i class="fa-solid fa-plus"></i>
+                เบิกจ่ายสินค้า
+            </button>
+        </div>
+
+        <div class="border border-dashed border-blue-500/40 rounded-2xl p-8 mb-16 overflow-x-auto [&::-webkit-scrollbar]:h-1
+        [&::-webkit-scrollbar-track]:bg-transparent
+        [&::-webkit-scrollbar-thumb]:bg-[#5E5E5E]
+        [&::-webkit-scrollbar-thumb]:rounded-full
+        [&::-webkit-scrollbar-thumb:hover]:bg-gray-300">
+            <div class="grid grid-flow-col auto-cols-max gap-10">
+                <div class="relative w-[350px] h-[260px] rounded-2xl overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('/images/ram000.jpg')] bg-cover bg-center"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#0E1324]/90 via-[#0E1324]/60 to-transparent"></div>
+                    <div class="relative z-10 p-6 text-white flex flex-col justify-end h-full">
+                        <span class="bg-blue-800 px-3 py-1 text-xs rounded-md w-fit mb-4">RAM</span>
+                        <h3 class="text-3xl font-bold">CORSAIR</h3>
+                        <p>Lorem ipsum dolor sit amet.</p>
+                        <div class="flex justify-between mt-4 text-lg">
+                            <div>
+                                <p class="text-gray-300 text-sm">จำนวน</p>
+                                <p class="text-2xl font-semibold">47</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-gray-300 text-sm">วันที่รับเข้า</p>
+                                <p class="text-2xl font-semibold">18/2/2569</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-6">รายการล่าสุด</h2>
+        <div class="bg-[#16233B] rounded-xl overflow-hidden mb-10">
+            <table class="w-full text-left">
+                <thead class="bg-[#203354] text-gray-300 text-sm">
+                    <tr>
+                        <th class="p-4">ID</th>
+                        <th class="p-4">สินค้า</th>
+                        <th class="p-4">ผู้ขอเบิก</th>
+                        <th class="p-4">เจ้าหน้าที่ยืนยันการเบิก</th>
+                        <th class="p-4">จำนวน</th>
+                        <th class="p-4">วันที่-เวลา รับเข้า</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm">
+                    <tr class="border-t border-white/5 hover:bg-white/5">
+                        <td class="p-4">1</td>
+                        <td class="p-4 flex items-center gap-3">
+                            <img src="/images/user.png" class="w-8 h-8 rounded-full">
+                            อดัม ราชาเทพ
+                        </td>
+                        <td class="p-4">สมชาย ใจงาม</td>
+                        <td class="p-4">สมปอง ใจดี</td>
+                        <td class="p-4">10000</td>
+                        <td class="p-4">20/1/2569 14:30</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="add-product-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-[100] hidden w-full p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full flex items-center justify-center">
+        <div class="relative w-full max-w-4xl max-h-full">
+            <div class="relative bg-white rounded-2xl shadow-2xl">
+                <button type="button" class="absolute top-4 right-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center z-[110]" data-modal-hide="add-product-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+
+                <div class="relative py-16 px-16 z-16 bg-white rounded-2xl">
+                    <div class="header">
+                        <p class="text-[#9E9E9E]">เบิกออก</p>
+                        <h2 class="text-3xl font-semibold mb-6 text-[#1B3563]">เบิกจ่ายสินค้า</h2>
+                    </div>
+                    <div class="inputform">
+                        <div class="flex">
+                            <div class="left w-[40%] flex justify-center items-center">
+                                <img src="/images/ram000.jpg" alt="" class="w-[250px] h-[250px]">
+                            </div>
+                            <div class="flex flex-col w-[60%] pt-3">
+                                <span>
+                                    <label for="prod_name" class=" text-[16px] text-[#9E9E9E]">ชื่อสินค้า</label>
+                                    <input type="text" id="prod_name" name="prod_name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
+                                </span>
+                                <span class="flex gap-2 w-[100%]">
+                                    <div class="flex flex-col w-[50%]">
+                                        <label for="prod_code" class=" text-[16px] text-[#9E9E9E]">รหัสสินค้า</label>
+                                        <input type="text" id="prod_code" name="prod_code" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
+                                    </div>
+                                    <div class="flex flex-col w-[50%]">
+                                        <label for="brand" class=" text-[16px] text-[#9E9E9E]">แบรนด์</label>
+                                        <input type="text" id="brand" name="brand" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
+                                    </div>
+                                </span>
+                                <span class="flex gap-2 w-[100%]">
+                                    <div class="flex flex-col w-[50%]">
+                                        <label for="prod_type" class=" text-[16px] text-[#9E9E9E]">ประเภท</label>
+                                        <select name="prod_type" id="prod_type" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 px-2 w-[100%] text-[#1B3563]">
+                                            <option value="">CPU</option>
+                                            <option value="">Mainboard</option>
+                                            <option value="">GPU</option>
+                                            <option value="">Memory</option>
+                                            <option value="">Hard disk</option>
+                                            <option value="">Solid state drive</option>
+                                            <option value="">Case</option>
+                                            <option value="">Power Supply</option>
+                                            <option value="">CPU Cooler</option>
+                                            <option value="">CPU liquid Cooler</option>
+                                            <option value="">Monitor</option>
+                                            <option value="">Keyboard</option>
+                                            <option value="">Mouse</option>
+                                            <option value="">Headphone</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col w-[50%]">
+                                        <label for="amount" class=" text-[16px] text-[#9E9E9E]">จำนวน</label>
+                                        <input type="text" id="amount" name="amount" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
+                                    </div>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="down">
+                            <span class="flex gap-2 w-[100%]">
+                                <div class="flex flex-col w-[50%]">
+                                    <label for="username" class=" text-[16px] text-[#9E9E9E]">เจ้าหน้าที่ยืนยันการเบิก</label>
+                                    <input type="text" id="username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
+                                </div>
+                                <div class="flex flex-col w-[50%]">
+                                    <div class="flex flex-col w-full">
+                                        <label for="date_time" class="text-[16px] text-[#9E9E9E]">รับเข้าเมื่อ</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                <svg class="w-4 h-4 text-[#1B3563]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z" />
+                                                </svg>
+                                            </div>
+                                            <input datepicker datepicker-autohide datepicker-orientation="top left" datepicker-format="dd/mm/yyyy" id="date_time" name="date_time" type="text" class="block w-full pl-9 bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-none p-3 text-[#1B3563]" placeholder="เลือกวันที่">
+                                        </div>
+                                    </div>
+                                </div>
+                            </span>
+                            <label for="comp_name" class=" text-[16px] text-[#9E9E9E]">ผู้ขอเบิก</label>
+                            <input type="text" id="comp_name" name="comp_name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
+                        </div>
+                    </div>
+                    <div class="btn">
+                        <div class="w-[100%] flex justify-end pt-5 gap-5">
+                            <button type="button" onclick="openVerificationModal()" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">ยืนยันการเบิกสินค้า</button>
+                            <a href="" class="px-[32px] py-[12px] bg-[#F00] rounded-[8px] text-white">ยกเลิก</a>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </div>
+
+    <div id="verify-modal" class="z-[150] fixed inset-0 hidden flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div class="w-[400px] h-[420px] bg-white rounded-2xl flex flex-col justify-between overflow-hidden shadow-2xl transition-all transform scale-100">
+            <div class="flex flex-col items-center justify-center mt-8 px-6 text-center">
+                <img src="/images/crisis.png" class="w-[90px] mb-2">
+                <p class="text-[#1B3563] text-[32px] font-bold">คำเตือน</p>
+                <div class="w-[112px] h-[1px] bg-[#4BA3E3]/50 mb-3"></div>
+                <p class="text-[#FF0000] font-medium">โปรดตรวจสอบความถูกต้องก่อนยืนยัน</p>
+                
+                <div class="mt-6 w-full">
+                    <p class="text-gray-500 text-sm mb-2">กรุณาพิมพ์ชื่อสินค้า <span id="target-name" class="font-bold text-red-600"></span> เพื่อยืนยัน</p>
+                    <input type="text" id="verify-input" oninput="checkInputValidity()" class="w-full h-[45px] border-2 border-gray-200 rounded-lg px-3 text-center outline-none focus:border-[#1B3563] transition-all" placeholder="พิมพ์ชื่อสินค้าที่นี่">
+                </div>
+            </div>
+            
+            <div class="w-[100%] flex h-[65px]">
+                <button id="final-confirm-btn" disabled class="w-[50%] bg-[#0E1324] text-white font-bold transition-all">ยืนยัน</button>
+                <button onclick="closeVerificationModal()" class="w-[50%] bg-[#FF0000] text-white font-bold transition-all">ตรวจสอบอีกครั้ง</button>
+            </div>
+        </div>
+    </div>
+
+   <script src="/js/currentdate.js"></script>
+
+   <script>
+        const verifyModal = document.getElementById('verify-modal');
+        const verifyInput = document.getElementById('verify-input');
+        const finalConfirmBtn = document.getElementById('final-confirm-btn');
+        const targetNameSpan = document.getElementById('target-name');
+
+        function openVerificationModal() {
+            const productName = document.getElementById('prod_name').value;
+            
+            if (!productName || productName.trim() === "") {
+                alert("กรุณากรอกชื่อสินค้าก่อนกดยืนยัน");
+                return;
+            }
+
+            // ตั้งค่าคำที่ต้องพิมพ์ตามชื่อสินค้าที่กรอกใน Modal แรก
+            targetNameSpan.innerText = productName;
+            verifyInput.value = ""; // ล้างค่าเก่า
+            finalConfirmBtn.disabled = true; // ปิดปุ่มยืนยันไว้ก่อน
+            
+            verifyModal.classList.remove('hidden');
+        }
+
+        function closeVerificationModal() {
+            verifyModal.classList.add('hidden');
+        }
+
+        function checkInputValidity() {
+            const targetText = targetNameSpan.innerText;
+            const enteredText = verifyInput.value;
+
+            // ถ้าพิมพ์ตรงกันเป๊ะ ปุ่มยืนยันจะกดได้
+            if (enteredText === targetText) {
+                finalConfirmBtn.disabled = false;
+            } else {
+                finalConfirmBtn.disabled = true;
+            }
+        }
+   </script>
 </body>
 </html>

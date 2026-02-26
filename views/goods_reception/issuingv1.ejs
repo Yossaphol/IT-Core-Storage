@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receiving</title>
+    <title>Issuing</title>
     <link rel="stylesheet" href="/css/goods_reception/receiving_issue_adjust.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/font.css">
@@ -19,21 +19,21 @@
     <div class="fixed top-[20px] right-[50px] pointer-events-none z-0 overflow-hidden select-none">
         <i class="fa-solid fa-list-check text-[500px] text-white/[0.03]"></i>
     </div>
-        <%- include('../partials/header_with_path', { path1 : "รับสินค้าเข้า", url_1 : "/receiving"}) %>
+        <%- include('../partials/header_with_path', { path1 : "เบิกจ่ายสินค้า", url_1 : "/issuing"} ) %>
     </div>
 
     <div class="ml-[110px] pt-[120px] px-16 relative z-10 text-white">
         <div class="flex justify-between items-center mb-10">
             <h1 class="text-3xl font-semibold">
-                สินค้ารอเข้าคลัง
+                รอยืนยันการเบิกจ่าย
                 <span class="text-base text-gray-400 font-normal">
-                    (กรณีคลังเต็มหรือไม่พร้อม)
+                    (กรณีคลังสินค้าในคลังไม่พอ)
                 </span>
             </h1>
 
             <button data-modal-target="add-product-modal" data-modal-toggle="add-product-modal" class="bg-yellow-500 hover:bg-yellow-400 font-medium px-6 py-3 rounded-xl flex items-center gap-2 transition text-white">
                 <i class="fa-solid fa-plus"></i>
-                เพิ่มสินค้า
+                เบิกจ่ายสินค้า
             </button>
         </div>
 
@@ -72,8 +72,8 @@
                     <tr>
                         <th class="p-4">ID</th>
                         <th class="p-4">สินค้า</th>
-                        <th class="p-4">ผู้ส่ง</th>
-                        <th class="p-4">เจ้าหน้าที่รับสินค้า</th>
+                        <th class="p-4">ผู้ขอเบิก</th>
+                        <th class="p-4">เจ้าหน้าที่ยืนยันการเบิก</th>
                         <th class="p-4">จำนวน</th>
                         <th class="p-4">วันที่-เวลา รับเข้า</th>
                     </tr>
@@ -107,8 +107,8 @@
 
                 <div class="relative py-16 px-16 z-16 bg-white rounded-2xl">
                     <div class="header">
-                        <p class="text-[#9E9E9E]">รับเข้า</p>
-                        <h2 class="text-3xl font-semibold mb-6 text-[#1B3563]">รับสินค้าเข้า</h2>
+                        <p class="text-[#9E9E9E]">เบิกออก</p>
+                        <h2 class="text-3xl font-semibold mb-6 text-[#1B3563]">เบิกจ่ายสินค้า</h2>
                     </div>
                     <!-- <div class="bg-[#4BA3E3]/50 w-[100%] h-[1px]"></div> -->
                     <div class="inputform">
@@ -161,7 +161,7 @@
                         <div class="down">
                             <span class="flex gap-2 w-[100%]">
                                 <div class="flex flex-col w-[50%]">
-                                    <label for="username" class=" text-[16px] text-[#9E9E9E]">เจ้าหน้าที่รับเข้า</label>
+                                    <label for="username" class=" text-[16px] text-[#9E9E9E]">เจ้าหน้าที่ยืนยันการเบิก</label>
                                     <input type="text" id="username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
                                 </div>
                                 <div class="flex flex-col w-[50%]">
@@ -178,13 +178,13 @@
                                     </div>
                                 </div>
                             </span>
-                            <label for="comp_name" class=" text-[16px] text-[#9E9E9E]">ผู้ส่งสินค้า</label>
+                            <label for="comp_name" class=" text-[16px] text-[#9E9E9E]">ผู้ขอเบิก</label>
                             <input type="text" id="comp_name" name="comp_name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
                         </div>
                     </div>
                     <div class="btn">
                         <div class="w-[100%] flex justify-end pt-5 gap-5">
-                            <a href="" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">ยืนยันการรับเข้า</a>
+                            <a href="" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">ยืนยันการเบิกสินค้า</a>
                             <a href="" class="px-[32px] py-[12px] bg-[#F00] rounded-[8px] text-white">ยกเลิก</a>
                         </div>
                     </div>
