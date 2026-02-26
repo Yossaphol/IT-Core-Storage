@@ -14,36 +14,36 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/font.css">
-    <script src="/wh_management/stock_editing.js" defer></script>
+    <script src="/stock_management/stock_creating.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <div class="relative z-20 pointer-events-none">
         <%- include('../partials/header_with_path', { path1 : "การจัดการคลัง", url_1 : "/warehouse_management", 
                                                         path2 : "แก้ไขคลังสินค้า", url_2 : "/warehouse_management/edit",
-                                                        path3 : "แก้ไขสินค้าคงคลัง", url_3 : "/warehouse_management/stock/edit"}) %>
+                                                        path3 : "เพิ่มสินค้าคงคลัง", url_3 : "/warehouse_management/stock/create"}) %>
     </div>
     <div class="absolute top-[17%] left-[10%]">
-        <p class="text-white text-[40px]">แก้ไขสินค้าคงคลัง</p>
-        <p class="text-white text-[14px]">แก้ไข ข้อมูลสินค้าคงคลัง ได้ที่นี่</p>
+        <p class="text-white text-[40px]">เพิ่มสินค้าคงคลัง</p>
+        <p class="text-white text-[14px]">เพิ่ม ข้อมูลสินค้าคงคลัง ได้ที่นี่</p>
     </div>
 
     <!-- form -->
     <div class="w-[790px] h-[790px] bg-white absolute left-[25%] top-[30%] rounded-[30px] flex flex-col p-10">
         <div class="w-[100%] mb-2">
-            <p class="text-[48px] text-[#0E1324] flex gap-5">สินค้าคงคลัง <%= stock.stock_name %></p>
+            <p class="text-[48px] text-[#0E1324] flex gap-5">สินค้าคงคลัง</p>
         </div>
         <div class="bg-[#4BA3E3]/50 w-[700px] h-[1px]"></div>
         <div class="mt-5 flex justify-between w-[100%]">
-            <input type="hidden" id="stockId" value="<%= stock.stock_id %>">
-            <input type="hidden" id="warehouseId" value="<%= stock.wh_id %>">
+            <input type="hidden" id="stockId">
+            <input type="hidden" id="warehouseId">
             <div class="flex flex-col w-[48%]">
-                <label for="name" class="text-[#9E9E9E] text-[16px]" value="<%= stock.stock_name %>">ชื่อสินค้าคงคลังใหม่</label>
-                <input value="<%= stock.stock_name %>" type="text" name="name" id="name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
+                <label for="name" class="text-[#9E9E9E] text-[16px]">ชื่อสินค้าคงคลัง</label>
+                <input type="text" name="name" id="name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
             </div>
             <div class="flex flex-col w-[48%]">
-                <label for="capacity" class="text-[#9E9E9E] text-[16px]" value="<%= stock.capacity %>">ความจุสินค้าคงคลังสูงสุด</label>
-                <input value="<%= stock.capacity %>" type="text" name="capacity" id="capacity" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
+                <label for="capacity" class="text-[#9E9E9E] text-[16px]">ความจุสินค้าคงคลังสูงสุด</label>
+                <input type="text" name="capacity" id="capacity" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
             </div>
         </div>
         <div class="mt-10 text-white text-[20px] flex gap-3 justify-end">

@@ -73,13 +73,17 @@ app.get('/warehouse_management/stock/edit', async (req, res) => {
       [stock_id]
     );
 
-    res.render('warehouse_management/stock_editing', {
+    res.render('stock_management/stock_editing', {
       stock: result.rows[0]
     });
 
   } catch (err) {
     res.status(500).send("Server error");
   }
+});
+
+app.get('/warehouse_management/stock/create', (req, res) => {
+  res.render('stock_management/stock_creating');
 });
 
 app.get('/receiving', (req, res) => {
