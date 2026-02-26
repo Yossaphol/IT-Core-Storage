@@ -14,7 +14,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/font.css">
-    <script src="/wh_management/wh_creating.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
@@ -31,15 +30,32 @@
         <p class="text-white text-[20px]">คลังสินค้าทั้งหมด <%= amount %></p>
         <div class="flex text-white justify-between w-[1260px]">
             <div class="flex text-white mt-3 justify-between">
-                <div class="bg-[#1B3563] w-[150px] h-[40px] flex items-center justify-center">
-                    <p>คลัง A1</p>
-                </div>
-                <div class="bg-[#4BA3E3]/50 w-[150px] h-[40px] flex items-center justify-center">
-                    <p>คลัง A2</p>
-                </div><div class="bg-[#1B3563] w-[150px] h-[40px] flex items-center justify-center">
-                    <p>คลัง A3</p>
-                </div><div class="bg-[#4BA3E3]/50 w-[150px] h-[40px] flex items-center justify-center">
-                    <p>คลัง A4</p>
+                <div class="flex text-white mt-3 w-fit overflow-visible items-end">
+
+                    <% warehouses.forEach((wh, index) => { 
+                        const isActive = activeId === wh.wh_id;
+                    %>
+
+                        <a href="/warehouse_management/edit?wh_id=<%= wh.wh_id %>"
+                        class="flex <%= isActive ? 'flex-[1.4]' : 'flex-1' %> transition-all duration-300">
+
+                            <div class="
+                                w-[140px] h-[50px] flex items-center justify-center
+                                transition-all duration-300
+                                <%= 
+                                    (index % 2 === 0 ? 'bg-[#1B3563]' : 'bg-[#4BA3E3]/50') +
+                                    (isActive 
+                                        ? ' h-[60px] border-t-4 border-[#4BA3E3] -mt-2 font-semibold'
+                                        : ' h-[50px] border-t-4 border-transparent')
+                                %>
+                            ">
+                                <%= wh.wh_name %>
+                            </div>
+
+                        </a>
+
+                    <% }) %>
+
                 </div>
             </div>
             <button class="text-white bg-[#E2A829] rounded-lg p-3 mb-2">
@@ -48,7 +64,19 @@
             </button>
         </div>
         <!-- display area -->
-        <div class="text-white border-[1px] border-[#4BA3E3]/50 w-[1280px] h-[360px] rounded-tr-3xl rounded-br-3xl rounded-bl-3xl">
+        <div class="inside-area text-white border-[1px] border-[#4BA3E3]/50 bg-[#0E1324] w-[1280px] h-[360px] rounded-tr-3xl rounded-br-3xl rounded-bl-3xl overflow-hidden relative">
+            <input type="hidden" id="activeWarehouseId" value="<%= activeId %>">
+            <%- include('../partials/wh_inside') %>
+            <!-- stock labels -->
+            <div id="stock-label" class="absolute hidden pointer-events-none text-white text-[28px] font-semibold flex flex-col items-start gap-3">
+                <div class="flex gap-3 items-center">
+                    <div class="bg-[#E2A829] w-[35px] h-[35px] rounded-full flex justify-center items-center">
+                        <i class="fa-regular fa-pen-to-square text-black text-[16px]"></i>
+                    </div>
+                    <p class="text-white text-[16px] underline">แก้ไข</p>
+                </div>
+                <span id="stock-label-text" class="text-[20px]"></span>
+            </div>
         </div>
 
         <div class="flex">

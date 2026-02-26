@@ -122,9 +122,29 @@ const deleteWarehouse = async (req, res) => {
   }
 };
 
+const getStocksByWarehouse = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const query = `
+      SELECT stock_id, stock_name
+      FROM stock
+      WHERE wh_id = $1
+      ORDER BY stock_id;
+    `;
+
+    const { rows } = await pool.query(query, [id]);
+    res.json(rows);
+
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getAllWarehouses,
   getWarehouseById,
   addWarehouse,
-  deleteWarehouse
+  deleteWarehouse,
+  getStocksByWarehouse
 };

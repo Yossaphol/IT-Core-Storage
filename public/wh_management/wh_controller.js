@@ -351,6 +351,9 @@ renderer.domElement.addEventListener('mouseup', (event) => {
                 max: data.capacity
             });
 
+            document.querySelector('#wh-popup a').href =`/warehouse_management/edit?wh_id=${data.wh_id}`;
+            document.getElementById("edit-link").href =`/warehouse_management/edit?wh_id=${data.wh_id}`;
+
             if (data.current == 0) {
                 trashBtn.classList.remove('opacity-0','scale-75','pointer-events-none');
                 trashBtn.classList.add('opacity-100','scale-100');
