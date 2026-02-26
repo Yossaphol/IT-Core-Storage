@@ -20,7 +20,7 @@
 <body>
 	<div id="three-container" class="fixed inset-0 z-0"></div>
 
-	<div class="relative z-20 pointer-events-none">
+	<div class="relative z-40 pointer-events-none">
 		<%- include('partials/header') %>
 	</div>
 	<script type="importmap">
@@ -47,13 +47,13 @@
 	<!-- popup -->
 	<div id="stock-popup" class="hidden absolute bottom-[12%] left-[10%] z-50 w-[320px] rounded-[16px] p-7 shadow-2xl backdrop-blur-md bg-gradient-to-b from-[#0E1324] to-[#36498A]/10  transition-all duration-300 transform scale-95 opacity-0 text-white">
 		<h2 class="text-[34px] font-bold leading-tight tracking-wide">
-			ชั้นวาง <span id="popup-stock-name">A1</span>
+			ชั้นวาง <span id="popup-stock-name"></span>
 		</h2>
-		<p class="text-[14px] italic text-white mb-4 font-light">ID: <span id="popup-stock-id">ST-A0001</span></p>		
+		<p class="text-[14px] italic text-white mb-4 font-light">ID: <span id="popup-stock-id"></span></p>		
 		<div class="h-[1px] w-full bg-[#63BBF2]/30 mb-5"></div>
 		<div class="space-y-2 mb-8 text-[17px]">
-			<p class="font-bold">ประเภท: <span id="popup-stock-type" class=" text-white">RAM</span></p>
-			<p>ตำแหน่ง: <span id="popup-stock-location">WH1-S1-A1</span></p>
+			<p class="font-bold">ประเภท: <span id="popup-stock-type" class=" text-white"></span></p>
+			<p>ตำแหน่ง: <span id="popup-stock-location"></span></p>
 		</div>
 		
 
@@ -61,15 +61,53 @@
 		<div class="mb-6">
 			<div class="flex justify-between items-end mb-2">
 				<span class="font-bold text-[18px]">จำนวน</span>
-				<span class="font-bold text-[18px]"><span id="popup-stock-current">41</span>/<span id="popup-stock-max">50</span></span>
+				<span class="font-bold text-[18px]"><span id="popup-stock-current">41</span>/<span id="popup-stock-max"></span></span>
 			</div>
 			<div class="w-full h-[10px] bg-white/90 rounded-full overflow-hidden">
 				<div id="popup-stock-progress" class="h-full bg-[#6DE4B3] rounded-full transition-all duration-500" style="width: 82%;"></div>
 			</div>
 		</div>
-		<button class="w-full bg-[#6BB8E7] hover:bg-[#5AA9E2] text-[#0E1324] text-[18px]  py-3 px-4 rounded-[10px] transition-colors flex justify-center items-center gap-2">
-			<i class="fa-regular fa-eye"></i> ดูรายละเอียด
+		<button onclick="showFullDetails()" class="w-full bg-[#6BB8E7] hover:bg-[#5AA9E2] text-[#0E1324] text-[18px] py-3 px-4 rounded-[10px] transition-colors flex justify-center items-center gap-2">
+    		<i class="fa-regular fa-eye"></i> ดูรายละเอียด
 		</button>
+	</div>
+
+		<div id="detail-panel" class="fixed z-30 top-0 right-0 h-full w-[450px] bg-[#0E1324]/95 backdrop-blur-xl border-l border-white/10 z-[60] transform translate-x-full transition-transform duration-500 ease-in-out text-white p-8 overflow-y-auto">
+		<div class="flex justify-between items-start mb-6">
+			<div>
+				<h2 class="text-[40px] font-bold">ชั้นวาง <span id="detail-name">A1</span></h2>
+				<p class="text-gray-400 italic">ID: <span id="detail-id">ST-A0001</span></p>
+			</div>
+			<button onclick="closeDetailPanel()" class="text-2xl hover:text-red-400 transition-colors">
+				<i class="fa-solid fa-xmark"></i>
+			</button>
+		</div>
+
+		<div class="grid grid-cols-2 gap-4 mb-8 text-[16px]">
+			<p><span class="text-gray-400">ประเภท:</span> <span id="detail-type">RAM</span></p>
+			<p><span class="text-gray-400">ขนาด:</span> S</p>
+			<p class="col-span-2"><span class="text-gray-400">ตำแหน่ง:</span> <span id="detail-location">WH1-S1-A1</span></p>
+		</div>
+
+		<div class="mb-10">
+			<div class="flex justify-between mb-2 font-bold">
+				<span>จำนวน</span>
+				<span><span id="detail-current">41</span>/50</span>
+			</div>
+			<div class="w-full h-2 bg-white/20 rounded-full">
+				<div id="detail-progress" class="h-full bg-[#6DE4B3] rounded-full" style="width: 82%;"></div>
+			</div>
+		</div>
+
+		<div class="space-y-6">
+			<div class="flex justify-between items-center border-b border-white/10 pb-2">
+				<h3 class="text-lg">รายการสินค้า</h3>
+				<span class="text-sm text-gray-400 cursor-pointer hover:text-white"><i class="fa-solid fa-sort"></i> เรียงตาม: A-Z</span>
+			</div>
+			
+			<div id="product-list" class="space-y-4">
+				</div>
+		</div>
 	</div>
 
 	<script>
@@ -101,6 +139,57 @@
 				popup.classList.add('scale-100', 'opacity-100');
 			}, 10);
 		};
+
+
+
+		// Function to open the right side panel
+	window.showFullDetails = function() {
+    // 1. Get data from the currently open popup (or pass it through)
+    const name = document.getElementById('popup-stock-name').innerText;
+    const id = document.getElementById('popup-stock-id').innerText;
+    const type = document.getElementById('popup-stock-type').innerText;
+    const loc = document.getElementById('popup-stock-location').innerText;
+    const current = document.getElementById('popup-stock-current').innerText;
+    const max = document.getElementById('popup-stock-max').innerText;
+
+    // 2. Set Detail Panel Data
+    document.getElementById('detail-name').innerText = name;
+    document.getElementById('detail-id').innerText = id;
+    document.getElementById('detail-type').innerText = type;
+    document.getElementById('detail-location').innerText = loc;
+    document.getElementById('detail-current').innerText = current;
+    const percent = (parseInt(current) / parseInt(max)) * 100;
+    document.getElementById('detail-progress').style.width = percent + '%';
+
+    // 3. Mock Product List (Matches your image)
+    const productList = document.getElementById('product-list');
+    const mockProduct = `
+        <div class="flex gap-4 bg-white/5 p-4 rounded-lg items-center">
+            <img src="https://m.media-amazon.com/images/I/61S6n67m9ML._AC_SL1500_.jpg" class="w-20 h-20 object-contain bg-white rounded-md" />
+            <div class="text-[12px] flex-1">
+                <p class="text-gray-400">รหัสสินค้า: SKU-128897</p>
+                <p class="font-bold text-white leading-tight">RAM CORSAIR VENGEANCE RGB PRO SL 16GB (8x2) DDR4 3200MHz WHITE</p>
+                <div class="flex justify-between mt-2">
+                    <span class="text-gray-400 underline">แบรนด์ CORSAIR</span>
+                    <span class="font-bold text-[#6DE4B3]">จำนวน: 12</span>
+                </div>
+            </div>
+        </div>`;
+    
+    // Repeat 3 times to match design
+    productList.innerHTML = mockProduct + mockProduct + mockProduct;
+
+		// 4. Slide In
+		const panel = document.getElementById('detail-panel');
+		panel.classList.remove('translate-x-full');
+		
+		// Optional: Close the small popup when opening detail
+		window.closePopup(); 
+	};
+
+	window.closeDetailPanel = function() {
+		document.getElementById('detail-panel').classList.add('translate-x-full');
+	};
 	</script>
 
     <script type="module" src="/view_stock/StockBlock_main.js"></script>
