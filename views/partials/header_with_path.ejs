@@ -109,6 +109,14 @@
                     <%= path2 %>
                 </a>
             <% } %>
+
+            <% if (typeof path3 !== 'undefined' && path3) { %>
+                >
+                <a href="<%= typeof url_3 !== 'undefined' ? url_3 : '#' %>" 
+                class="text-white capitalize">
+                    <%= path3 %>
+                </a>
+            <% } %>
         </p>
     </div>
 

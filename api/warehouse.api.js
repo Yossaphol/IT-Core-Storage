@@ -141,10 +141,37 @@ const getStocksByWarehouse = async (req, res) => {
   }
 };
 
+const updateStock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { stock_name, capacity } = req.body;
+
+    const result = await pool.query(
+      `UPDATE stock
+       SET stock_name = $1,
+           capacity = $2
+       WHERE stock_id = $3
+       RETURNING *`,
+      [stock_name, capacity, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Stock not found" });
+    }
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getAllWarehouses,
   getWarehouseById,
   addWarehouse,
   deleteWarehouse,
-  getStocksByWarehouse
+  getStocksByWarehouse,
+  updateStock
 };

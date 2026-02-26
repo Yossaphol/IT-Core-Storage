@@ -68,14 +68,16 @@
             <input type="hidden" id="activeWarehouseId" value="<%= activeId %>">
             <%- include('../partials/wh_inside') %>
             <!-- stock labels -->
-            <div id="stock-label" class="absolute hidden pointer-events-none text-white text-[28px] font-semibold flex flex-col items-start gap-3">
-                <div class="flex gap-3 items-center">
-                    <div class="bg-[#E2A829] w-[35px] h-[35px] rounded-full flex justify-center items-center">
-                        <i class="fa-regular fa-pen-to-square text-black text-[16px]"></i>
+            <div id="stock-label" class="absolute hidden text-white text-[28px] flex flex-col items-start">
+                <a id="edit-stock-link" href="#">
+                    <div class="flex gap-2 items-center">
+                        <div class="bg-[#E2A829] w-[25px] h-[25px] rounded-full flex justify-center items-center">
+                            <i class="fa-regular fa-pen-to-square text-black text-[13px]"></i>
+                        </div>
+                        <p class="text-white text-[13px] underline">แก้ไข</p>
                     </div>
-                    <p class="text-white text-[16px] underline">แก้ไข</p>
-                </div>
-                <span id="stock-label-text" class="text-[20px]"></span>
+                </a>
+                <span id="stock-label-text" class="text-[16px] ml-5"></span>
             </div>
         </div>
 

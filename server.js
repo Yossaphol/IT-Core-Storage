@@ -62,6 +62,26 @@ app.get('/warehouse_management/edit', async (req, res) => {
   }
 })
 
+app.get('/warehouse_management/stock/edit', async (req, res) => {
+  try {
+    const { stock_id } = req.query;
+
+    const result = await pool.query(
+      `SELECT stock_id, stock_name, capacity, wh_id
+        FROM stock
+        WHERE stock_id = $1`,
+      [stock_id]
+    );
+
+    res.render('warehouse_management/stock_editing', {
+      stock: result.rows[0]
+    });
+
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
+});
+
 app.get('/receiving', (req, res) => {
   res.render('goods_reception/receiving');
 });
@@ -88,6 +108,9 @@ app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
 
 // get stock in each warehouse
 app.get("/api/warehouses/:id/stocks", warehouseAPI.getStocksByWarehouse);
+
+// update stock
+app.put("/api/stocks/:id", warehouseAPI.updateStock);
 
 const PORT = 3000;
 app.listen(PORT, () => {

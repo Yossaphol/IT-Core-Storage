@@ -175,7 +175,7 @@ renderer.domElement.addEventListener('mouseup', (event) => {
 
     if (userData.stockInstance) {
         selectedStock = userData;
-        showStockLabel(userData.name);
+        showStockLabel(userData.stockInstance);
     }
 });
 
@@ -216,14 +216,30 @@ function animate() {
 const stockLabel = document.getElementById('stock-label');
 const stockLabelText = document.getElementById('stock-label-text');
 
-function showStockLabel(name) {
-    stockLabelText.innerText = "สินค้าคงคลัง " + name;
-    stockLabel.classList.remove("hidden");
+function showStockLabel(stockInstance) {
 
-    // วางไว้กลางจอ (ถ้าอยากให้ลอยตามตำแหน่ง 3D บอก เดี๋ยวทำให้)
-    stockLabel.style.left = "50%";
-    stockLabel.style.top = "40%";
-    stockLabel.style.transform = "translate(-50%, -50%)";
+    const vector = new THREE.Vector3();
+    vector.setFromMatrixPosition(stockInstance.group.matrixWorld);
+
+    vector.x += 6;
+    vector.z -= 2;
+
+    vector.project(camera);
+
+    const rect = container.getBoundingClientRect();
+
+    const x = (vector.x * 0.5 + 0.5) * rect.width;
+    const y = (-vector.y * 0.5 + 0.5) * rect.height;
+
+    stockLabelText.innerText = "สินค้าคงคลัง " + stockInstance.name;
+
+    stockLabel.style.left = x + "px";
+    stockLabel.style.top = y + "px";
+    stockLabel.style.transform = "translate(-10%, -100%)";
+
+    document.getElementById("edit-stock-link").href = `/warehouse_management/stock/edit?stock_id=${stockInstance.id}&wh_id=${activeWarehouseId}`;
+
+    stockLabel.classList.remove("hidden");
 }
 
 function hideStockLabel() {
