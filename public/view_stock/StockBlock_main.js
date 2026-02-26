@@ -1,4 +1,3 @@
-// main.js
 import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
 import { StockBlock } from './StockBlock.js';
@@ -11,7 +10,10 @@ scene.background = new THREE.Color(0x0E1324);
 scene.fog = new THREE.FogExp2(0x0E1324, 0.008);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-camera.position.set(25, 60, 35); 
+
+// CHANGED: Bring the camera much closer for the initial load
+// (x: 0, y: 50, z: 70) gives a nice isometric-style close-up angle
+camera.position.set(0, 50, 70); 
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -26,7 +28,8 @@ const controls = new MapControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.enableRotate = false; controls.enablePan = true; controls.enableZoom = true;    
-controls.minDistance = 20; controls.maxDistance = 85;     
+// Increased maxDistance to allow zooming out further
+controls.minDistance = 20; controls.maxDistance = 250;     
 
 const ambientLight = new THREE.AmbientLight(0x333333, 0.4); 
 scene.add(ambientLight);
@@ -66,8 +69,9 @@ const stockZones = [];
 const spacingX = 15; 
 const spacingZ = 14; 
 
-const stockCountFromDB = 9; 
-const columnsPerRow = 4; 
+const stockCountFromDB = 100; 
+
+const columnsPerRow = Math.ceil(Math.sqrt(stockCountFromDB)); 
 const totalRows = Math.ceil(stockCountFromDB / columnsPerRow);
 
 for (let i = 0; i < stockCountFromDB; i++) {
@@ -91,8 +95,9 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let currentHoveredStock = null; 
 
-const minPan = new THREE.Vector3(-40, 0, -40); 
-const maxPan = new THREE.Vector3(40, 0, 40);
+// Expanded Panning Limits to cover the 100-block footprint
+const minPan = new THREE.Vector3(-100, 0, -200); 
+const maxPan = new THREE.Vector3(100, 0, 200);
 
 window.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
