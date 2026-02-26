@@ -41,6 +41,20 @@ app.get('/warehouse_management/create', (req, res) => {
   res.render('warehouse_management/wh_creating')
 })
 
+app.get('/warehouse_management/edit', async (req, res) => {
+  try {
+    const query = `SELECT COUNT(wh_id) AS count FROM warehouse;`;
+    const { rows } = await pool.query(query);
+
+    const count = parseInt(rows[0].count);
+
+    res.render('warehouse_management/wh_editing', { amount: count });
+
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
+})
+
 app.get('/receiving', (req, res) => {
   res.render('goods_reception/receiving');
 });
