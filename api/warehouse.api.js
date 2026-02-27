@@ -102,22 +102,27 @@ const deleteWarehouse = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const query = `
-      DELETE FROM warehouse
-      WHERE wh_id = $1
-      RETURNING *;
-    `;
+    const stockCheck = await pool.query(
+      `SELECT COUNT(*) FROM stock WHERE wh_id = $1`,
+      [id]
+    );
 
-    const { rows } = await pool.query(query, [id]);
+    if (parseInt(stockCheck.rows[0].count) > 0) {
+      return res.status(400).json({ message: "Warehouse is not empty" });
+    }
 
-    if (rows.length === 0) {
+    const result = await pool.query(
+      `DELETE FROM warehouse WHERE wh_id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: "Warehouse not found" });
     }
 
-    res.json({ message: "Warehouse deleted successfully", deleted: rows[0] });
+    res.json({ success: true });
 
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -127,10 +132,16 @@ const getStocksByWarehouse = async (req, res) => {
     const { id } = req.params;
 
     const query = `
-      SELECT stock_id, stock_name
-      FROM stock
-      WHERE wh_id = $1
-      ORDER BY stock_id;
+      SELECT 
+          s.stock_id,
+          s.stock_name,
+          COALESCE(SUM(si.amount),0) AS current_amount
+      FROM stock s
+      LEFT JOIN shelf sh ON sh.stock_id = s.stock_id
+      LEFT JOIN shelf_items si ON si.shelf_id = sh.shelf_id
+      WHERE s.wh_id = $1
+      GROUP BY s.stock_id
+      ORDER BY s.stock_id;
     `;
 
     const { rows } = await pool.query(query, [id]);

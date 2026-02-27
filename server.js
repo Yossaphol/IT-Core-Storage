@@ -129,6 +129,12 @@ app.put("/api/stocks/:id", warehouseAPI.updateStock);
 // delete warehouse
 app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
 
+// delete stock
+app.delete("/api/stocks/:id", async (req, res) => {
+  await pool.query("DELETE FROM stock WHERE stock_id = $1", [req.params.id]);
+  res.json({ success: true });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

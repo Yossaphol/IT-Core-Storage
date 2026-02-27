@@ -115,7 +115,8 @@ async function loadStocks() {
         posX,
         posZ,
         stock.stock_id,
-        stock.stock_name   // เพิ่มตัวนี้
+        stock.stock_name,
+        stock.current_amount
     );
       scene.add(stockBlock.group);
       stockZones.push(stockBlock.hitZone);

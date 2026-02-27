@@ -20,9 +20,10 @@ const legGeo = new THREE.BoxGeometry(legThickness, shelfHeight, legThickness);
 const shelfPlateGeo = new THREE.BoxGeometry(shelfWidth, shelfThickness, shelfDepth);
 
 export class StockBlock {
-    constructor(x, z, id, name) {
+    constructor(x, z, id, name, currentAmount) {
         this.id = id;
         this.name = name;
+        this.currentAmount = currentAmount;
 
         this.group = new THREE.Group();
         this.group.position.set(x, 0, z);
