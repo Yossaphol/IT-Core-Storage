@@ -31,19 +31,26 @@
     <!-- form -->
     <div class="w-[790px] h-[790px] bg-white absolute left-[25%] top-[30%] rounded-[30px] flex flex-col p-10">
         <div class="w-[100%] mb-2">
-            <p class="text-[48px] text-[#0E1324] flex gap-5">สินค้าคงคลัง</p>
+            <p class="text-[16px] text-[#9E9E9E]">ชื่อสินค้าคงคลัง</p>
+            <p class="text-[48px] text-[#0E1324] flex gap-5">สินค้าคงคลัง
+                <input id="name" type="text" placeholder="กรอกชื่อที่นี่..." class="w-[420px] text-[40px] p-3 rounded outline-0 bg-[#F5F5F5] box-border">
+            </p>
         </div>
         <div class="bg-[#4BA3E3]/50 w-[700px] h-[1px]"></div>
         <div class="mt-5 flex justify-between w-[100%]">
             <input type="hidden" id="stockId">
             <input type="hidden" id="warehouseId">
             <div class="flex flex-col w-[48%]">
-                <label for="name" class="text-[#9E9E9E] text-[16px]">ชื่อสินค้าคงคลัง</label>
-                <input type="text" name="name" id="name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
-            </div>
-            <div class="flex flex-col w-[48%]">
                 <label for="capacity" class="text-[#9E9E9E] text-[16px]">ความจุสินค้าคงคลังสูงสุด</label>
                 <input type="text" name="capacity" id="capacity" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
+            </div>
+            <div class="flex flex-col w-[48%]">
+                <label for="warehouse" class="text-[#9E9E9E] text-[16px]">คลังสินค้า</label>
+                <select name="warehouse" id="warehouse" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-2 w-[100%]">
+                    <% warehouses.forEach( wh => { %>
+                        <option value="<%= wh.wh_id %>"><%= wh.wh_name %></option>
+                    <% }); %>
+                </select>
             </div>
         </div>
         <div class="mt-10 text-white text-[20px] flex gap-3 justify-end">

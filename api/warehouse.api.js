@@ -167,11 +167,33 @@ const updateStock = async (req, res) => {
   }
 };
 
+const createStock = async (req, res) => {
+  try {
+    const { stock_name, capacity, wh_id } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO stock (stock_name, capacity, wh_id) VALUES ($1, $2, $3) RETURNING *;`,
+      [stock_name, capacity, wh_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Stock not found" });
+    }
+
+    res.json(result.rows[0]);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getAllWarehouses,
   getWarehouseById,
   addWarehouse,
   deleteWarehouse,
   getStocksByWarehouse,
-  updateStock
+  updateStock,
+  createStock
 };

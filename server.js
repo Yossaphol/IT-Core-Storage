@@ -82,8 +82,18 @@ app.get('/warehouse_management/stock/edit', async (req, res) => {
   }
 });
 
-app.get('/warehouse_management/stock/create', (req, res) => {
-  res.render('stock_management/stock_creating');
+app.get('/warehouse_management/stock/create', async (req, res) => {
+
+  try {
+
+    const result = await pool.query(
+      `SELECT wh_id, wh_name FROM warehouse`);
+
+    res.render('stock_management/stock_creating', { warehouses: result.rows});
+
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
 });
 
 app.get('/receiving', (req, res) => {
@@ -101,20 +111,23 @@ app.get('/adjustment', (req, res) => {
 // all warehouse
 app.get("/api/warehouses", warehouseAPI.getAllWarehouses);
 
-// one warehouse
-app.get("/api/warehouses/:id", warehouseAPI.getWarehouseById);
-
 // create warehouse
 app.post("/api/warehouses/add", warehouseAPI.addWarehouse);
 
-// delete warehouse
-app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
+// create stock
+app.post("/api/warehouses/stocks/create", warehouseAPI.createStock);
 
 // get stock in each warehouse
 app.get("/api/warehouses/:id/stocks", warehouseAPI.getStocksByWarehouse);
 
+// one warehouse
+app.get("/api/warehouses/:id", warehouseAPI.getWarehouseById);
+
 // update stock
 app.put("/api/stocks/:id", warehouseAPI.updateStock);
+
+// delete warehouse
+app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
 
 const PORT = 3000;
 app.listen(PORT, () => {
