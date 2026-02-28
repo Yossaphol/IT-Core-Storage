@@ -4,7 +4,7 @@ const cors = require("cors");
 const path = require("path");
 const pool = require("./db");
 const warehouseAPI = require("./api/warehouse.api");
-const stockAPI = require("./api/view_stock.api")
+
 
 const app = express();
 app.use(cors());
@@ -156,8 +156,6 @@ app.delete("/api/stocks/:id", warehouseAPI.deleteStock);
 // delete warehouse
 app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
 
-// get all stocks by wh_id
-app.get("/api/get-stock/:id", stockAPI.getAllStockByWHID)
 
 const PORT = 3000;
 app.listen(PORT, () => {
