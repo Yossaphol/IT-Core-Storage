@@ -37,8 +37,9 @@ app.get('/', async (req, res) => {
 		if (!wh_id && st_rows.length > 0) {
 		 wh_id = st_rows[0].wh_id;
 		}
+		const [st_rows_id] = await pool.query("select * from stock where wh_id = ?", [wh_id])
 		const [sh_rows] = await pool.query(sh_query)
-		res.render('index', {stock: st_rows, shelf:sh_rows, curr_wh:wh_id, st_count:st_rows.length})
+		res.render('index', {stock: st_rows, shelf:sh_rows, curr_wh:wh_id, st_count:st_rows_id.length})
 	} catch(err)
 	{
 		res.status(500).send("Server error");
