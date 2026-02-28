@@ -18,7 +18,6 @@ app.use((req, res, next) => {
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 
-
 app.get('/', (req, res) => {
   res.render('index')
 });
@@ -26,7 +25,7 @@ app.get('/', (req, res) => {
 app.get('/warehouse_management', async (req, res) => {
   try {
     const query = `SELECT COUNT(wh_id) AS count FROM warehouse;`;
-    const { rows } = await pool.query(query);
+    const [rows] = await pool.query(query);
 
     const count = parseInt(rows[0].count);
 
@@ -44,10 +43,10 @@ app.get('/warehouse_management/create', (req, res) => {
 app.get('/warehouse_management/edit', async (req, res) => {
   try {
     const query = `SELECT COUNT(wh_id) AS count FROM warehouse;`;
-    const { rows } = await pool.query(query);
+    const [rows] = await pool.query(query);
     const { wh_id } = req.query;
 
-    const result = await pool.query(`
+    const [result] = await pool.query(`
       SELECT wh_id, wh_name
       FROM warehouse
       ORDER BY wh_id
@@ -55,7 +54,11 @@ app.get('/warehouse_management/edit', async (req, res) => {
 
     const count = parseInt(rows[0].count);
 
-    res.render('warehouse_management/wh_editing', { amount: count, warehouses: result.rows, activeId: wh_id ? parseInt(wh_id) : null });
+    res.render('warehouse_management/wh_editing', { 
+      amount: count, 
+      warehouses: result, 
+      activeId: wh_id ? parseInt(wh_id) : null 
+    });
 
   } catch (err) {
     res.status(500).send("Server error");
@@ -66,15 +69,15 @@ app.get('/warehouse_management/stock/edit', async (req, res) => {
   try {
     const { stock_id } = req.query;
 
-    const result = await pool.query(
+    const [result] = await pool.query(
       `SELECT stock_id, stock_name, capacity, wh_id
         FROM stock
-        WHERE stock_id = $1`,
+        WHERE stock_id = ?`,
       [stock_id]
     );
 
     res.render('stock_management/stock_editing', {
-      stock: result.rows[0]
+      stock: result[0]
     });
 
   } catch (err) {
@@ -86,10 +89,11 @@ app.get('/warehouse_management/stock/create', async (req, res) => {
 
   try {
 
-    const result = await pool.query(
-      `SELECT wh_id, wh_name FROM warehouse`);
+    const [result] = await pool.query(
+      `SELECT wh_id, wh_name FROM warehouse`
+    );
 
-    res.render('stock_management/stock_creating', { warehouses: result.rows});
+    res.render('stock_management/stock_creating', { warehouses: result });
 
   } catch (err) {
     res.status(500).send("Server error");
@@ -131,12 +135,6 @@ app.delete("/api/stocks/:id", warehouseAPI.deleteStock);
 
 // delete warehouse
 app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
-
-// delete stock
-app.delete("/api/stocks/:id", async (req, res) => {
-  await pool.query("DELETE FROM stock WHERE stock_id = $1", [req.params.id]);
-  res.json({ success: true });
-});
 
 const PORT = 3000;
 app.listen(PORT, () => {

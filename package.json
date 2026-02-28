@@ -4,9 +4,8 @@
     "dotenv": "^17.3.1",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
-    "flowbite": "^4.0.1",
-    "nodemon": "^3.1.14",
-    "pg": "^8.18.0"
+    "mysql2": "^3.18.2",
+    "nodemon": "^3.1.14"
   },
   "scripts": {
     "start": "npm install -y && nodemon server.js"

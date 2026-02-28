@@ -357,6 +357,9 @@ renderer.domElement.addEventListener('mouseup', (event) => {
             if (data.current == 0) {
                 trashBtn.classList.remove('opacity-0','scale-75','pointer-events-none');
                 trashBtn.classList.add('opacity-100','scale-100');
+            } else {
+                trashBtn.classList.remove('opacity-100','scale-100');
+                trashBtn.classList.add('opacity-0','scale-75','pointer-events-none');
             }
         });
     }
