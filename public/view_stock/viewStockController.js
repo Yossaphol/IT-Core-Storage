@@ -74,8 +74,6 @@ let currentProducts = [
                 sortedArray.sort((a, b) => b.time - a.time);
                 break;
         }
-        
-        // Re-render the list with sorted data
         renderProducts(sortedArray);
     });
     // Logic to update the Detail Panel data
@@ -99,8 +97,8 @@ let currentProducts = [
     window.openStockPopup = function(data) {
 		document.getElementById('popup-stock-name').innerText = data.name;
 		document.getElementById('popup-stock-id').innerText = data.id;
-		document.getElementById('popup-stock-type').innerText = data.type;
 		document.getElementById('popup-stock-location').innerText = data.location;
+		document.getElementById('popup-stock-type').innerText = data.type;
 		document.getElementById('popup-stock-current').innerText = data.current;
         document.getElementById('popup-stock-max').innerText = data.max;
 		
@@ -121,8 +119,8 @@ let currentProducts = [
         const currentData = {
             name: document.getElementById('popup-stock-name').innerText,
             id: document.getElementById('popup-stock-id').innerText,
-            type: document.getElementById('popup-stock-type').innerText,
             location: document.getElementById('popup-stock-location').innerText,
+            type: document.getElementById('popup-stock-type').innerText,
             current: document.getElementById('popup-stock-current').innerText,
             max: document.getElementById('popup-stock-max').innerText
         };

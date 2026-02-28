@@ -144,6 +144,8 @@ const getStocksByWarehouse = async (req, res) => {
       SELECT 
           s.stock_id,
           s.stock_name,
+		  s.wh_id,
+		  s.capacity,
           COALESCE(SUM(si.amount),0) AS current_amount
       FROM stock s
       LEFT JOIN shelf sh ON sh.stock_id = s.stock_id
