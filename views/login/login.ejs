@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+	<script src="/js/tailwindConfig.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <title>Login</title>
+</head>
+<body>
+    <div class="min-h-screen bg-[url('/images/warehouse_login.jpg')] bg-cover bg-center bg-no-repeat flex items-center justify-center">
+        <div class="w-[580px] h-[500px] bg-gradient-to-b from-[#0E1324] to-[#36498A] rounded-[43px] flex flex-col items-center">
+            <!-- logo -->
+            <div class="text-white font-bold text-[14px] h-10 mb-4">
+                <div class="w-[12px] h-[10px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px] mb-1"></div>
+                <a href="/">
+                    <p class="leading-none text-[23px]">IT CORE</p>
+                    <p class="leading-none text-[23px]">STORAGE</p>
+                </a>
+            </div>
+
+            <p class="italic text-[23px] text-white">ระบบบริหารจัดการ และควบคุม<span class="text-[#E2A829]">คลังสินค้า</span></p>
+
+            <div>
+                <div>
+                    <label for="username">ชื่อผู้ใช้</label>
+                    <div>
+                        <i class="fa-solid fa-circle-user"></i>
+                        <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้">
+                    </div>
+                </div>
+                <div>
+                    <label for="username">รหัสผ่าน</label>
+                    <div>
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -5,7 +5,6 @@ const path = require("path");
 const pool = require("./db");
 const warehouseAPI = require("./api/warehouse.api");
 
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -18,6 +17,10 @@ app.use((req, res, next) => {
 
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
+
+app.get('/login', (req, res) => {
+  res.render('login/login');
+});
 
 app.get('/', async (req, res) => {
 	try{
@@ -52,6 +55,7 @@ app.get('/warehouse_management', async (req, res) => {
     res.render('warehouse_management/wh_overview', { amount: count });
 
   } catch (err) {
+    console.error(err);   
     res.status(500).send("Server error");
   }
 });
