@@ -1,4 +1,4 @@
-
+// popup
 const popup = document.getElementById('stock-popup');
 const detailPanel = document.getElementById('detail-panel');
 
@@ -8,7 +8,7 @@ window.closePopup = function() {
 			setTimeout(() => { popup.classList.add('hidden'); }, 300);
 		};
 
-        // 1. Mock Data Array (Replace this with real database fetch later)
+
 let currentProducts = [
         {
             id: 'SKU-128897',
@@ -135,7 +135,7 @@ let currentProducts = [
     };
 
 
-
+// select warehouse button
 document.addEventListener('DOMContentLoaded', () => {
     const warehouseSelect = document.getElementById("warehouseSelect");
 

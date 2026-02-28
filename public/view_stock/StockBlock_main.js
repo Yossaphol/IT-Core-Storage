@@ -69,24 +69,66 @@ const stockZones = [];
 const spacingX = 15; 
 const spacingZ = 14; 
 
-const stockCountFromDB = 10;
+const loadStockAndBuild = async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const wParam = urlParams.get('w');
+    let wh_id = null;
 
-const columnsPerRow = Math.ceil(Math.sqrt(stockCountFromDB)); 
-const totalRows = Math.ceil(stockCountFromDB / columnsPerRow);
+    if (wParam) {
+        try {
+            wh_id = atob(wParam);
+        } catch (err) {
+            // FIXED: Changed 'e' to 'err'
+            console.error('Failed to decode url', err); 
+        }
+    }
+    
+    try {
+        // FIXED: Replaced backend pool.query with frontend fetch
+        if (!wh_id) {
+            // Fetch all warehouses to find a default ID
+            const whRes = await fetch('/api/warehouses');
+            const whData = await whRes.json();
+            
+            if (whData.length > 0) {
+                wh_id = whData[0].wh_id;
+            } else {
+                console.warn("No warehouses exist in the database.");
+                return; // Exit early if there's nothing to build
+            }
+        }
 
-for (let i = 0; i < stockCountFromDB; i++) {
-    const col = i % columnsPerRow;
-    const row = Math.floor(i / columnsPerRow);
+        // Now fetch the stocks using the valid wh_id
+        const res = await fetch(`/api/warehouses/${wh_id}/stocks`);
+        
+        if (!res.ok) {
+            throw new Error(`API returned ${res.status}`);
+        }
+            
+        const data = await res.json();
+        
+        const stockCountFromDB = data.length;
+        const columnsPerRow = Math.ceil(Math.sqrt(stockCountFromDB)); 
+        const totalRows = Math.ceil(stockCountFromDB / columnsPerRow);
 
-    const posX = (col - (columnsPerRow - 1) / 2) * spacingX;
-    const posZ = (row - (totalRows - 1) / 2) * spacingZ;
+        for (let i = 0; i < stockCountFromDB; i++) {
+            const col = i % columnsPerRow;
+            const row = Math.floor(i / columnsPerRow);
 
-	// สร้าง ID ไม่ให้ซ้ำกัน (สำหรับเทส)
-    const stock_id = i + 1; 
-    const stockBlock = new StockBlock(posX, posZ, stock_id);
-    scene.add(stockBlock.group);
-    stockZones.push(stockBlock.hitZone);
-}
+            const posX = (col - (columnsPerRow - 1) / 2) * spacingX;
+            const posZ = (row - (totalRows - 1) / 2) * spacingZ;
+
+            const stock_id = data[i].stock_id; 
+            const stockBlock = new StockBlock(posX, posZ, stock_id);
+            scene.add(stockBlock.group);
+            stockZones.push(stockBlock.hitZone);
+        }
+    } catch (err) {
+        console.error("Failed to load warehouse stocks:", err);
+    }
+};
+
+loadStockAndBuild();
 
 // ==========================================
 // 4. Raycaster & Events

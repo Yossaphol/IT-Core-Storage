@@ -5,7 +5,6 @@ const path = require("path");
 const pool = require("./db");
 const warehouseAPI = require("./api/warehouse.api");
 
-
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -18,6 +17,10 @@ app.use((req, res, next) => {
 
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
+
+app.get('/login', (req, res) => {
+  res.render('login/login');
+});
 
 app.get('/', async (req, res) => {
 	try{
@@ -34,8 +37,9 @@ app.get('/', async (req, res) => {
 		if (!wh_id && st_rows.length > 0) {
 		 wh_id = st_rows[0].wh_id;
 		}
+		const [st_rows_id] = await pool.query("select * from stock where wh_id = ?", [wh_id])
 		const [sh_rows] = await pool.query(sh_query)
-		res.render('index', {stock: st_rows, shelf:sh_rows, curr_wh:wh_id, st_count:st_rows.length})
+		res.render('index', {stock: st_rows, shelf:sh_rows, curr_wh:wh_id, st_count:st_rows_id.length})
 	} catch(err)
 	{
 		res.status(500).send("Server error");
@@ -52,6 +56,7 @@ app.get('/warehouse_management', async (req, res) => {
     res.render('warehouse_management/wh_overview', { amount: count });
 
   } catch (err) {
+    console.error(err);   
     res.status(500).send("Server error");
   }
 });
