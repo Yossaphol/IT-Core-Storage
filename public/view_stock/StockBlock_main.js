@@ -84,9 +84,7 @@ const loadStockAndBuild = async () => {
     }
     
     try {
-        // FIXED: Replaced backend pool.query with frontend fetch
         if (!wh_id) {
-            // Fetch all warehouses to find a default ID
             const whRes = await fetch('/api/warehouses');
             const whData = await whRes.json();
             
@@ -94,35 +92,35 @@ const loadStockAndBuild = async () => {
                 wh_id = whData[0].wh_id;
             } else {
                 console.warn("No warehouses exist in the database.");
-                return; // Exit early if there's nothing to build
+                return; 
             }
         }
 
-        // Now fetch the stocks using the valid wh_id
         const res = await fetch(`/api/warehouses/${wh_id}/stocks`);
-        
         if (!res.ok) {
             throw new Error(`API returned ${res.status}`);
         }
-            
         const data = await res.json();
         
+		
+
         const stockCountFromDB = data.length;
         const columnsPerRow = Math.ceil(Math.sqrt(stockCountFromDB)); 
         const totalRows = Math.ceil(stockCountFromDB / columnsPerRow);
 
         for (let i = 0; i < stockCountFromDB; i++) {
-            const col = i % columnsPerRow;
-            const row = Math.floor(i / columnsPerRow);
+			const col = i % columnsPerRow;
+			const row = Math.floor(i / columnsPerRow);
 
-            const posX = (col - (columnsPerRow - 1) / 2) * spacingX;
-            const posZ = (row - (totalRows - 1) / 2) * spacingZ;
+			const posX = (col - (columnsPerRow - 1) / 2) * spacingX;
+			const posZ = (row - (totalRows - 1) / 2) * spacingZ;
 
-            const stock_id = data[i].stock_id; 
-            const stockBlock = new StockBlock(posX, posZ, stock_id);
-            scene.add(stockBlock.group);
-            stockZones.push(stockBlock.hitZone);
-        }
+			const stock_data = data[i]; 
+			const max_capa = stock_data.capacity; 
+			const stockBlock = new StockBlock(posX, posZ, stock_data, wh_id, max_capa);
+			scene.add(stockBlock.group);
+			stockZones.push(stockBlock.hitZone);
+		}
     } catch (err) {
         console.error("Failed to load warehouse stocks:", err);
     }
@@ -159,9 +157,7 @@ window.addEventListener('mouseup', (event) => {
     );
 
     if (moveDistance > 5) return; // เป็นการลากหน้าจอ
-
-    // NEW: Prevent closing if clicking on the HTML UI (like inside the right tab)
-    if (event.target.tagName !== 'CANVAS') return;
+    if (event.target.tagName !== 'CANVAS') return; // Prevent clicking through UI
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(stockZones);
@@ -169,27 +165,21 @@ window.addEventListener('mouseup', (event) => {
     if (intersects.length > 0) {
         const clickedStock = intersects[0].object.userData.stockInstance;
         
-        // ส่งข้อมูลเข้าไปที่ฟังก์ชันที่อยู่ใน index.ejs
         if(window.openStockPopup) {
-            // จำลองข้อมูล for testing only!
-            const randomCurrent = Math.floor(Math.random() * 50) + 1;
+            const data = clickedStock.stockData;
             window.openStockPopup({
-                name: 'A' + clickedStock.id,
-                id: 'ST-A' + String(clickedStock.id).padStart(3, '0'),
-                type: 'RAM',
-                location: 'WH1-S1-A' + clickedStock.id,
-                current: randomCurrent,
-                max: 50
+                name: data.stock_name,
+                id: data.stock_id,
+                location: 'WH' + clickedStock.wh_id + '-ST'+ data.stock_id, 
+				type: "ผสม", // เดี๋ยวมาทำำำ
+                current: data.current_amount || 0,
+                max: clickedStock.max_capa || 100
             });
         }
     } else {
-        // Clicked on empty space in the 3D world
-        if(window.closePopup) {
-            window.closePopup(); // Closes the left popup
-        }
-        if(window.closeDetailPanel) {
-            window.closeDetailPanel(); // Closes the right panel
-        }
+        // Clicked on empty space
+        if(window.closePopup) window.closePopup();
+        if(window.closeDetailPanel) window.closeDetailPanel();
     }
 });
 
