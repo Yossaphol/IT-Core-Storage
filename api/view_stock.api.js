@@ -11,7 +11,11 @@ const getAllStockByWHID = async (req, res) => {
     const query = `
       select * from stocks where wh_id = ?
     `;
-
+	const st_query = `select * from stock;`
+	const [st_rows] = await pool.query(st_query)
+		if (!wh_id && st_rows.length > 0) {
+		 wh_id = st_rows[0].wh_id;
+		}
     const [rows] = await pool.query(query, [wh_id]);
     res.json(rows);
 

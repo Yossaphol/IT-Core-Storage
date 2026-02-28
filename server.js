@@ -4,7 +4,7 @@ const cors = require("cors");
 const path = require("path");
 const pool = require("./db");
 const warehouseAPI = require("./api/warehouse.api");
-const stockAPI = require("./api/stock.api")
+const stockAPI = require("./api/view_stock.api")
 
 const app = express();
 app.use(cors());

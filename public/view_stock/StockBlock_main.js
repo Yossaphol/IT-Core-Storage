@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
 import { StockBlock } from './StockBlock.js';
+import { getAllStockByWHID } from '../../api/view_stock.api.js';
 
 // ==========================================
 // 1. Scene, Camera, Renderer
