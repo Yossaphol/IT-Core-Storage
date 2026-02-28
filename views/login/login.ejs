@@ -12,10 +12,13 @@
     <title>Login</title>
 </head>
 <body>
-    <div class="min-h-screen bg-[url('/images/warehouse_login.jpg')] bg-cover bg-center bg-no-repeat flex items-center justify-center">
-        <div class="w-[580px] h-[500px] bg-gradient-to-b from-[#0E1324] to-[#36498A] rounded-[43px] flex flex-col items-center">
+    <div class="min-h-screen bg-[url('/images/warehouse_login.jpg')] bg-cover bg-center bg-no-repeat flex flex-col items-center justify-center">
+        <!-- bg-color -->
+        <div class="absolute inset-0 bg-[#0E1324]/75"></div>
+
+        <div class="w-[580px] h-[500px] backdrop-blur-sm bg-gradient-to-b from-[#0E1324] to-[#36498A]/0 rounded-[43px] flex flex-col items-center justify-around z-30 border-[#376CC9] border-[1px] pb-2">
             <!-- logo -->
-            <div class="text-white font-bold text-[14px] h-10 mb-4">
+            <div class="text-white font-bold text-[14px] h-10 mb-4 mt-5">
                 <div class="w-[12px] h-[10px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px] mb-1"></div>
                 <a href="/">
                     <p class="leading-none text-[23px]">IT CORE</p>
@@ -25,23 +28,38 @@
 
             <p class="italic text-[23px] text-white">ระบบบริหารจัดการ และควบคุม<span class="text-[#E2A829]">คลังสินค้า</span></p>
 
-            <div>
+            <div class="flex flex-col gap-10">
                 <div>
-                    <label for="username">ชื่อผู้ใช้</label>
-                    <div>
-                        <i class="fa-solid fa-circle-user"></i>
-                        <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้">
+                    <label for="username" class="text-[20px] text-white">ชื่อผู้ใช้</label>
+                    <div class="border-[#C6C6C6] border-[1px] w-[420px] h-[55px] rounded-[15px] flex items-center pl-5 gap-3">
+                        <i class="fa-solid fa-circle-user text-white"></i>
+                        <input type="text" id="username" name="username" placeholder="กรอกชื่อผู้ใช้"
+                                class="bg-transparent outline-0 text-white w-[90%]" >
                     </div>
                 </div>
                 <div>
-                    <label for="username">รหัสผ่าน</label>
-                    <div>
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน">
+                    <label for="username" class="text-[20px] text-white">รหัสผ่าน</label>
+                    <div class="border-[#C6C6C6] border-[1px] w-[420px] h-[55px] rounded-[15px] flex items-center pl-5 gap-3">
+                        <i class="fa-solid fa-lock text-white"></i>
+                        <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน"
+                                class="bg-transparent outline-0 text-white w-[90%]" >
                     </div>
                 </div>
             </div>
+
+            <button class="bg-[#1B3563] w-[420px] h-[55px] rounded-[15px] text-white">
+                เข้าสู่ระบบ
+            </button>
+
+            <!-- three -->
+            <div class="flex gap-[2px] items-center">
+                <div class="bg-[#4BA3E3]/25 w-[100px] h-[1px]"></div>
+                <div class="bg-[#4BA3E3] w-[100px] h-[2px]"></div>
+                <div class="bg-[#4BA3E3]/25 w-[100px] h-[1px]"></div>
+            </div> 
         </div>
+
+        <p class="text-white text-[16px] z-30 mt-16">© 2026 IT CORE STORAGE สงวนลิขสิทธิ์</p>
     </div>
 </body>
 </html>
