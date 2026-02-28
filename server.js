@@ -18,8 +18,22 @@ app.use((req, res, next) => {
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 
-app.get('/', (req, res) => {
-  res.render('index')
+app.get('/', async (req, res) => {
+	try{
+		let wh_id = req.query.id
+		const st_query = `select * from stock;`
+		const sh_query = `select * from shelf;`
+
+		const [st_rows] = await pool.query(st_query)
+		const [sh_rows] = await pool.query(sh_query)
+
+		if (!wh_id)
+			wh_id = st_rows[0].wh_id
+		res.render('index', {stock: st_rows, shelf:sh_rows, curr_wh:wh_id})
+	} catch(err)
+	{
+		res.status(500).send("Server error");
+	}
 });
 
 app.get('/warehouse_management', async (req, res) => {

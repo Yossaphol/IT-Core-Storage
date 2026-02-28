@@ -109,10 +109,10 @@
         <div class="w-[1px] bg-white/[14%] h-[45px]"></div>
 
         <div class="relative w-[190px] h-[55px]">
-            <select class="w-full h-full bg-transparent border border-white/40 text-white rounded-full px-6 appearance-none outline-none cursor-pointer hover:border-white transition-colors">
-                <option value="1" class="text-black">คลังสินค้า 1</option>
-                <option value="2" class="text-black">คลังสินค้า 2</option>
-            </select>
+				<select  id="warehouseSelect" class="w-full h-full bg-transparent border border-white/40 text-white rounded-full px-6 appearance-none outline-none cursor-pointer hover:border-white transition-colors" onchange="location = this.value;">
+  					<option value="/?id=1" class="text-black">คลังสินค้า 1</option>
+  					<option value="/?id=2" class="text-black">คลังสินค้า 2</option>
+				</select>
             <i class="fa-solid fa-chevron-down text-white absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none"></i>
         </div>
 
@@ -129,3 +129,14 @@
         </div>
     </div>
 </div>
+
+<script>
+  document.getElementById("warehouseSelect")
+    .addEventListener("change", function () {
+      const params = new URLSearchParams({
+        id: this.value
+      });
+
+      window.location.href = `/?${params.toString()}`;
+    });
+</script>
