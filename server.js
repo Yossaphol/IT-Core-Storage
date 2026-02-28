@@ -4,6 +4,7 @@ const cors = require("cors");
 const path = require("path");
 const pool = require("./db");
 const warehouseAPI = require("./api/warehouse.api");
+const stockAPI = require("./api/stock.api")
 
 const app = express();
 app.use(cors());
@@ -20,16 +21,21 @@ app.set("views", path.join(__dirname, "views"));
 
 app.get('/', async (req, res) => {
 	try{
-		let wh_id = req.query.id
+		const wh_id_q = req.query.w;
+		let wh_id = null;
+
+		if (wh_id_q) {
+			wh_id = Buffer.from(wh_id_q, 'base64').toString('utf-8');
+		}
 		const st_query = `select * from stock;`
 		const sh_query = `select * from shelf;`
 
 		const [st_rows] = await pool.query(st_query)
+		if (!wh_id && st_rows.length > 0) {
+		 wh_id = st_rows[0].wh_id;
+		}
 		const [sh_rows] = await pool.query(sh_query)
-
-		if (!wh_id)
-			wh_id = st_rows[0].wh_id
-		res.render('index', {stock: st_rows, shelf:sh_rows, curr_wh:wh_id})
+		res.render('index', {stock: st_rows, shelf:sh_rows, curr_wh:wh_id, st_count:st_rows.length})
 	} catch(err)
 	{
 		res.status(500).send("Server error");
@@ -149,6 +155,9 @@ app.delete("/api/stocks/:id", warehouseAPI.deleteStock);
 
 // delete warehouse
 app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
+
+// get all stocks by wh_id
+app.get("/api/get-stock/:id", stockAPI.getAllStockByWHID)
 
 const PORT = 3000;
 app.listen(PORT, () => {
