@@ -133,3 +133,59 @@ let currentProducts = [
     window.closeDetailPanel = function() {
         detailPanel.classList.add('translate-x-full');
     };
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const warehouseSelect = document.getElementById("warehouseSelect");
+
+    async function loadWarehouses() {
+        try {
+            const response = await fetch('/api/warehouses'); 
+            if (!response.ok) { 
+                throw new Error('Response was not ok'); 
+            } 
+            const warehouses = await response.json(); 
+            warehouseSelect.innerHTML = ''; 
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const wParam = urlParams.get('w');
+            let selectedId = null;
+
+            if (wParam) {
+                try {
+                    selectedId = atob(wParam);
+                } catch (e) {
+                    console.error("Failed to decode URL parameter:", e);
+                }
+            }
+
+            warehouses.forEach(warehouse => { 
+                const option = document.createElement('option'); 
+                option.value = warehouse.wh_id; 
+                option.textContent = warehouse.wh_name; 
+                option.className = "text-black"; 
+                
+                if (String(warehouse.wh_id) === selectedId) {
+                    option.selected = true;
+                }
+
+                warehouseSelect.appendChild(option); 
+            }); 
+
+        } catch (error) { 
+            console.error('Error fetching warehouse data:', error); 
+            warehouseSelect.innerHTML = '<option value="" class="text-black" disabled>ไม่สามารถโหลดข้อมูลได้</option>'; 
+        }
+    }
+    
+    loadWarehouses(); 
+
+    warehouseSelect.addEventListener("change", function () { 
+        if (!this.value) return; 
+
+        const obfuscatedValue = btoa(this.value); 
+        const encoded = encodeURIComponent(obfuscatedValue); 
+        window.location.href = `/?w=${encoded}`; 
+    }); 
+}); 

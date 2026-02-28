@@ -108,13 +108,13 @@
 
         <div class="w-[1px] bg-white/[14%] h-[45px]"></div>
 
+		<!-- select Warehouse -->
         <div class="relative w-[190px] h-[55px]">
-				<select  id="warehouseSelect" class="w-full h-full bg-transparent border border-white/40 text-white rounded-full px-6 appearance-none outline-none cursor-pointer hover:border-white transition-colors">
-  					<option value="1" class="text-black">คลังสินค้า 1</option>
-  					<option value="2" class="text-black">คลังสินค้า 2</option>
-				</select>
-            <i class="fa-solid fa-chevron-down text-white absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-        </div>
+    		<select id="warehouseSelect" class="w-full h-full bg-transparent border border-white/40 text-white rounded-full px-6 appearance-none outline-none cursor-pointer hover:border-white transition-colors">
+    		    <option value="" class="text-black" disabled selected>กำลังโหลด...</option>
+    		</select>
+    		<i class="fa-solid fa-chevron-down text-white absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+		</div>
 
         <div class="group relative py-4">
             <i class="fa-solid fa-screwdriver-wrench text-white text-[35px] group-hover:text-[#838CF1] cursor-pointer transition-colors"></i>
@@ -130,12 +130,4 @@
     </div>
 </div>
 
-<script>
-	// encode uri
-  document.getElementById("warehouseSelect")
-    .addEventListener("change", function () {
-      const obfuscatedValue = btoa(this.value); 
-      const encoded = encodeURIComponent(obfuscatedValue);
-      window.location.href = `/?w=${encoded}`;
-    });
-</script>
+<script type="module" src="/public/view_stock/popup_and_right_panel.js"></script>
