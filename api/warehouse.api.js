@@ -199,6 +199,44 @@ const createStock = async (req, res) => {
   }
 };
 
+const deleteStock = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const checkQuery = `
+      SELECT COALESCE(SUM(si.amount),0) AS current_amount
+      FROM stock s
+      LEFT JOIN shelf sh ON sh.stock_id = s.stock_id
+      LEFT JOIN shelf_items si ON si.shelf_id = sh.shelf_id
+      WHERE s.stock_id = $1
+      GROUP BY s.stock_id;
+    `;
+
+    const checkResult = await pool.query(checkQuery, [id]);
+
+    if (
+      checkResult.rows.length > 0 &&
+      parseInt(checkResult.rows[0].current_amount) > 0
+    ) {
+      return res.status(400).json({ message: "Stock is not empty" });
+    }
+
+    const result = await pool.query(
+      `DELETE FROM stock WHERE stock_id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Stock not found" });
+    }
+
+    res.json({ success: true });
+
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getAllWarehouses,
   getWarehouseById,
@@ -206,5 +244,6 @@ module.exports = {
   deleteWarehouse,
   getStocksByWarehouse,
   updateStock,
-  createStock
+  createStock,
+  deleteStock
 };

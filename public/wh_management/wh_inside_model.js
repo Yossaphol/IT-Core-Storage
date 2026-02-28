@@ -151,4 +151,20 @@ export class StockBlock {
         gsap.killTweensOf(this.borderMat);
         gsap.to(this.borderMat, { duration: 0.3, opacity: 0.0 });
     }
+
+    setActive(isActive) {
+
+        if (isActive) {
+            this.group.scale.set(1.1, 1.1, 1.1);
+
+            gsap.killTweensOf(this.borderMat);
+            gsap.to(this.borderMat, { duration: 0.2, opacity: 0.8 });
+
+        } else {
+            this.group.scale.set(1, 1, 1);
+
+            gsap.killTweensOf(this.borderMat);
+            gsap.to(this.borderMat, { duration: 0.2, opacity: 0.0 });
+        }
+    }
 }

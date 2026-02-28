@@ -168,15 +168,31 @@ renderer.domElement.addEventListener('mouseup', (event) => {
     const intersects = raycaster.intersectObjects(stockZones);
 
     if (intersects.length === 0) {
+
         hideStockLabel();
+
+        if (selectedStock) {
+            selectedStock.setActive(false);
+            selectedStock = null;
+        }
+
         return;
     }
 
     const userData = intersects[0].object.userData;
 
     if (userData.stockInstance) {
-        selectedStock = userData;
-        showStockLabel(userData.stockInstance);
+
+        const clickedStock = userData.stockInstance;
+
+        if (selectedStock && selectedStock !== clickedStock) {
+            selectedStock.setActive(false);
+        }
+
+        selectedStock = clickedStock;
+        selectedStock.setActive(true);
+
+        showStockLabel(clickedStock);
     }
 });
 
@@ -216,6 +232,7 @@ function animate() {
 
 const stockLabel = document.getElementById('stock-label');
 const stockLabelText = document.getElementById('stock-label-text');
+const deleteStockBtn = document.getElementById("delete-stock-btn");
 
 function showStockLabel(stockInstance) {
 
@@ -241,10 +258,35 @@ function showStockLabel(stockInstance) {
     document.getElementById("edit-stock-link").href = `/warehouse_management/stock/edit?stock_id=${stockInstance.id}&wh_id=${activeWarehouseId}`;
 
     stockLabel.classList.remove("hidden");
+
+    if (parseInt(stockInstance.currentAmount) === 0) {
+
+        deleteStockBtn.classList.remove("hidden");
+
+        deleteStockBtn.onclick = async () => {
+
+            if (!confirm("ยืนยันการลบสินค้าคงคลังนี้?")) return;
+
+            const res = await fetch(`/api/stocks/${stockInstance.id}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) {
+                alert("ไม่สามารถลบได้");
+                return;
+            }
+
+            location.reload();
+        };
+
+    } else {
+        deleteStockBtn.classList.add("hidden");
+    }
 }
 
 function hideStockLabel() {
     stockLabel.classList.add("hidden");
+    deleteStockBtn.classList.add("hidden");
 }
 
 loadStocks();

@@ -30,3 +30,5 @@ confirmBtn.addEventListener('click', () => {
     alert("เกิดข้อผิดพลาด");
   });
 });
+
+cancelBtn.addEventListener('click', () => window.location = '/warehouse_management/edit?wh_id=1');

@@ -126,6 +126,9 @@ app.get("/api/warehouses/:id", warehouseAPI.getWarehouseById);
 // update stock
 app.put("/api/stocks/:id", warehouseAPI.updateStock);
 
+// delete stock
+app.delete("/api/stocks/:id", warehouseAPI.deleteStock);
+
 // delete warehouse
 app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
 
