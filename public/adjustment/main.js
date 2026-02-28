@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
 import { StockBlock } from './StockBlock.js';
+import { initAdjustmentController } from './adjustmentController.js';
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0E1324); 
@@ -102,4 +103,30 @@ function animate() {
 
     renderer.render(scene, camera);
 }
+
+window.addEventListener('click', () => {
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(shelfHitZones);
+
+    if (intersects.length > 0) {
+        const clickedShelf = intersects[0].object;
+        
+        const shelfData = {
+            name: clickedShelf.name || "A1",
+            id: clickedShelf.userData.id || "ST-001",
+            location: "Zone A - Warehouse 1",
+            current: Math.floor(Math.random() * 45), // จำลองจำนวนสินค้า
+            max: 50
+        };
+
+        // เรียกฟังก์ชันเปิด Side Panel ทันที
+        if (window.showShelfDetails) {
+            window.showShelfDetails(shelfData);
+        }
+    }
+});
+
+// 2. เรียกใช้งานฟังก์ชัน
+initAdjustmentController(camera, raycaster, mouse, shelfHitZones);
+
 animate();

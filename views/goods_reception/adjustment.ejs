@@ -4,42 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adjustment</title>
-    <link rel="stylesheet" href="/css/goods_reception/receiving_issue_adjust.css">
+    <link rel="stylesheet" href="/css/receiving_issue_adjust.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
-        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        body { margin: 0; overflow: hidden; background-color: #0E1324; font-family: 'Prompt', sans-serif; }
         canvas { display: block; }
+        
+        /* ซ่อน Scrollbar สำหรับ Chrome, Safari และ Opera */
+        #detail-panel::-webkit-scrollbar { display: none; }
+        #detail-panel { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
-    <!-- three.js container -->
     <div id="three-container" class="fixed inset-0 z-0"></div>
-    <!-- header.ejs -->
-    <div class="relative pointer-events-none">
+
+    <div class="relative pointer-events-none z-50">
         <%- include('../partials/header_with_path', { path1 : "ปรับแก้ไขสินค้า", url_1 : "/adjustment"}) %>
     </div>
 
-    <div class="absolute top-[20%] left-[10%] text-white">
-		<p>ข้อมูล ณ <span id="currentTime"></span></p>
-		<p>จำนวนคลังสินค้าทั้งหมด ....</p>
-		<p class="text-[#989898]">คลิกที่โกดังเพื่อดูรายละเอียด</p>
-	</div>
-
-    <!-- guidline -->
-	<div class="absolute bottom-[5%] left-[10%] flex gap-10">
-		<p class="text-[#989898]"> <i class="fa-solid fa-arrow-pointer" style="color: rgb(255, 255, 255);"></i> คลิกค้างแล้วลาก เพื่อย้ายมุมมอง</p>
-		<p class="text-[#989898]"><i class="fa-solid fa-computer-mouse" style="color: rgb(255, 255, 255);"></i> เลื่อนล้อเมาส์ เพื่อซูมเข้า-ออก</p>
-	</div>
-
-    <div id="stockDetail" class="opacity-1 absolute text-white w-[500px] h-[100%] right-[0px] top-[0px]">
-        <h2>Stock</h2>
+    <div class="absolute top-[20%] left-[10%] text-white pointer-events-none z-10">
+        <h1 class="text-[32px] mb-2">การปรับแก้ไขสินค้า</h1>
+        <p class="text-[18px]">ข้อมูล ณ <span id="wh_name"></span></p>
+        <p class="text-[18px]">เวลา <span id="currentTime"></span></p>
+        <p class="text-[#989898] mt-2">คลิกที่ชั้นวางเพื่อปรับแก้สินค้า</p>
     </div>
-    <script>
-        const popup = document.getElementById('stockDetail')
-    </script>
+
+    <div class="absolute bottom-[5%] left-[10%] flex gap-10 pointer-events-none z-10">
+        <p class="text-[#989898]"> <i class="fa-solid fa-arrow-pointer text-white"></i> คลิกค้างแล้วลาก เพื่อย้ายมุมมอง</p>
+        <p class="text-[#989898]"><i class="fa-solid fa-computer-mouse text-white"></i> เลื่อนล้อเมาส์ เพื่อซูมเข้า-ออก</p>
+    </div>
+
+    <div id="detail-panel" class="fixed top-0 right-0 h-full w-[450px] bg-[#0E1324]/95 backdrop-blur-xl border-l border-white/10 z-[60] transform translate-x-full transition-transform duration-500 ease-in-out text-white p-8 overflow-y-auto">
+        <button onclick="closeDetailPanel()" class="absolute top-10 left-8 text-white/50 hover:text-white flex items-center gap-2 transition-colors">
+            <i class="fa-solid fa-arrow-left"></i> กลับ
+        </button>
+
+        <div class="flex justify-between items-start mb-6 mt-[60px]">
+            <div>
+                <h2 class="text-[40px] font-bold leading-tight">ชั้นวาง <span id="detail-name"></span></h2>
+                <p class="text-gray-400 italic">ID: <span id="detail-id"></span></p>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <div class="flex justify-between mb-2 font-bold text-[18px]">
+                <span>จำนวนทั้งหมด</span>
+                <span><span id="detail-current"></span>/<span id="detail-max"></span></span>
+            </div>
+            <div class="w-full h-2.5 bg-white/20 rounded-full overflow-hidden">
+                <div id="detail-progress" class="h-full bg-[#6DE4B3] rounded-full transition-all duration-500" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="flex justify-between items-center border-b border-white/10 pb-3">
+                <h3 class="text-lg text-gray-400 font-medium">รายการสินค้า</h3>
+                
+                <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <i class="fa-solid fa-sort"></i>
+                    <select id="product-sort" class="bg-transparent border-none cursor-pointer focus:ring-0 outline-none appearance-none text-right underline underline-offset-4 hover:text-white transition-colors">
+                        <option value="name-asc" class="bg-[#0E1324] text-white">เรียงตามชื่อ: A-Z</option>
+                        <option value="name-desc" class="bg-[#0E1324] text-white">เรียงตามชื่อ: Z-A</option>
+                        <option value="qty-desc" class="bg-[#0E1324] text-white">จำนวน: มาก-น้อย</option>
+                        <option value="qty-asc" class="bg-[#0E1324] text-white">จำนวน: น้อย-มาก</option>
+                        <option value="time-desc" class="bg-[#0E1324] text-white">เวลา: ล่าสุด</option>
+                        <option value="time-asc" class="bg-[#0E1324] text-white">เวลา: มาก่อน</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="product-list" class="space-y-4"></div>
+        </div>
+    </div>
+    
+    <div id="edit-modal" class="hidden fixed inset-0 z-[100] bg-[#0E1324]/80 backdrop-blur-sm flex items-center justify-center">
+        <div class="bg-[#1a2238] border border-white/10 p-8 rounded-2xl w-[400px] text-white shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6">แก้ไข: <span id="edit-name" class="text-[#6BB8E7]"></span></h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">ประเภทสินค้า</label>
+                    <input id="edit-type" type="text" class="w-full bg-[#0E1324] border border-white/20 rounded-lg p-3 outline-none focus:border-[#6BB8E7]">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">จำนวน</label>
+                    <input id="edit-qty" type="number" class="w-full bg-[#0E1324] border border-white/20 rounded-lg p-3 outline-none focus:border-[#6BB8E7]">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-1">คำอธิบาย</label>
+                    <textarea id="edit-desc" rows="3" class="w-full bg-[#0E1324] border border-white/20 rounded-lg p-3 outline-none focus:border-[#6BB8E7]"></textarea>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-8">
+                <button onclick="closeEditModal()" class="flex-1 py-3 rounded-lg border border-white/20 hover:bg-white/10 transition-colors">ยกเลิก</button>
+                <button onclick="saveProductChanges()" class="flex-1 py-3 rounded-lg bg-[#6BB8E7] text-[#0E1324] font-bold hover:bg-[#5AA9E2] transition-colors">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
     <script type="importmap">
         {
             "imports": {
@@ -49,6 +114,140 @@
             }
         }
     </script>
+    
     <script type="module" src="/adjustment/main.js"></script>
+
+    <script>
+        const detailPanel = document.getElementById('detail-panel');
+    let currentProductsInShelf = []; // เก็บข้อมูลสินค้าของชั้นที่กำลังเปิดอยู่
+
+    // 1. ฟังก์ชันเปิด Panel และรับข้อมูล
+    window.showShelfDetails = function(data) {
+        document.getElementById('detail-name').innerText = data.name;
+        document.getElementById('detail-id').innerText = data.id;
+        document.getElementById('detail-current').innerText = data.current;
+        document.getElementById('detail-max').innerText = data.max;
+        
+        const percent = (data.current / data.max) * 100;
+        document.getElementById('detail-progress').style.width = percent + '%';
+        
+        // เก็บข้อมูลสินค้าไว้ในตัวแปร Global ของหน้านี้ เพื่อใช้ Sort
+        currentProductsInShelf = data.items || [];
+        
+        // รีเซ็ตค่าการเรียงลำดับเป็น A-Z ทุกครั้งที่เปิดชั้นใหม่
+        document.getElementById('product-sort').value = 'name-asc';
+        
+        // สั่งวาดรายการสินค้าครั้งแรก
+        sortAndRender();
+
+        // สไลด์เปิด Panel
+        detailPanel.classList.remove('translate-x-full');
+    };
+
+    // 2. ฟังก์ชันปิด Panel
+    window.closeDetailPanel = function() {
+        detailPanel.classList.add('translate-x-full');
+    };
+
+    // 3. ฟังก์ชันจัดการการเรียงลำดับและวาดใหม่
+    function sortAndRender() {
+        const sortBy = document.getElementById('product-sort').value;
+        let sorted = [...currentProductsInShelf];
+
+        switch (sortBy) {
+            case 'name-asc':
+                sorted.sort((a, b) => a.name.localeCompare(b.name, 'th'));
+                break;
+            case 'name-desc':
+                sorted.sort((a, b) => b.name.localeCompare(a.name, 'th'));
+                break;
+            case 'qty-desc':
+                sorted.sort((a, b) => b.qty - a.qty);
+                break;
+            case 'qty-asc':
+                sorted.sort((a, b) => a.qty - b.qty);
+                break;
+            case 'time-desc':
+                sorted.sort((a, b) => b.timestamp - a.timestamp);
+                break;
+            case 'time-asc':
+                sorted.sort((a, b) => a.timestamp - b.timestamp);
+                break;
+        }
+        renderProducts(sorted);
+    }
+
+    // 4. ฟังก์ชันวาด HTML ของรายการสินค้า
+    // ฟังก์ชัน renderProducts เดิม + เพิ่มปุ่มแก้ไข
+    function renderProducts(products) {
+        const list = document.getElementById('product-list');
+        if (products.length === 0) {
+            list.innerHTML = `<div class="text-center py-10 text-gray-500 italic">ไม่มีสินค้าในชั้นวางนี้</div>`;
+            return;
+        }
+
+        list.innerHTML = products.map((p, index) => `
+            <div class="bg-white/5 p-4 rounded-xl border border-white/5 relative group">
+                <button onclick="openEditModal(${index})" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors bg-white/10 p-2 rounded-full text-xs">
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
+                
+                <div class="flex gap-4 items-center">
+                    <div class="w-14 h-14 bg-white/10 rounded-lg flex-shrink-0 flex items-center justify-center">
+                        <i class="fa-solid fa-box text-gray-500"></i>
+                    </div>
+                    <div class="flex-1 min-w-0 pr-8">
+                        <p class="text-[12px] text-gray-500 uppercase">${p.sku || 'NO-SKU'}</p>
+                        <p class="text-white font-medium truncate">${p.name}</p>
+                        <div class="flex gap-4 mt-2 text-[12px]">
+                            <span class="text-blue-300">ประเภท: ${p.type || '-'}</span>
+                            <span class="text-[#6DE4B3]">จำนวน: ${p.qty}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ==========================================
+    // ส่วนจัดการ Modal แก้ไขข้อมูล
+    // ==========================================
+    let editingIndex = null;
+
+    function openEditModal(index) {
+        editingIndex = index;
+        const product = currentProductsInShelf[index];
+        
+        // เติมข้อมูลลงในฟอร์ม
+        document.getElementById('edit-name').innerText = product.name;
+        document.getElementById('edit-type').value = product.type || '';
+        document.getElementById('edit-qty').value = product.qty;
+        document.getElementById('edit-desc').value = product.description || '';
+        
+        // แสดง Modal
+        document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('edit-modal').classList.add('hidden');
+    }
+
+    function saveProductChanges() {
+        // อัปเดตข้อมูลใน array หลัก
+        currentProductsInShelf[editingIndex] = {
+            ...currentProductsInShelf[editingIndex],
+            type: document.getElementById('edit-type').value,
+            qty: parseInt(document.getElementById('edit-qty').value),
+            description: document.getElementById('edit-desc').value
+        };
+
+        closeEditModal();
+        sortAndRender(); // วาดรายการใหม่
+        alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+    }
+
+    // ดักฟังการเปลี่ยนค่าใน Dropdown
+    document.getElementById('product-sort').addEventListener('change', sortAndRender);
+    </script>
 </body>
 </html>

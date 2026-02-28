@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjustment</title>
+    <link rel="stylesheet" href="/css/goods_reception/receiving_issue_adjust.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/font.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
+        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <!-- three.js container -->
+    <div id="three-container" class="fixed inset-0 z-0"></div>
+    <div id="stock-popup" class="hidden absolute bottom-[12%] left-[10%] z-50 w-[320px] rounded-[16px] p-7 shadow-2xl backdrop-blur-md bg-gradient-to-b from-[#0E1324] to-[#36498A]/10 transition-all duration-300 transform scale-95 opacity-0 text-white">
+        <h2 class="text-[34px] font-bold leading-tight tracking-wide">
+            ชั้นวาง <span id="popup-stock-name"></span>
+        </h2>
+        <p class="text-[14px] italic text-white mb-4 font-light">ID: <span id="popup-stock-id"></span></p>      
+        <div class="h-[1px] w-full bg-[#63BBF2]/30 mb-5"></div>
+        <div class="space-y-2 mb-8 text-[17px]">
+            <p class="font-bold">ประเภท: <span id="popup-stock-type"></span></p>
+            <p>ตำแหน่ง: <span id="popup-stock-location"></span></p>
+        </div>
+
+        <div class="mb-6">
+            <div class="flex justify-between items-end mb-2">
+                <span class="font-bold text-[18px]">จำนวน</span>
+                <span class="font-bold text-[18px]"><span id="popup-stock-current"></span>/<span id="popup-stock-max"></span></span>
+            </div>
+            <div class="w-full h-[10px] bg-white/90 rounded-full overflow-hidden">
+                <div id="popup-stock-progress" class="h-full bg-[#6DE4B3] rounded-full transition-all duration-500"></div>
+            </div>
+        </div>
+        <button onclick="showFullDetails()" class="w-full bg-[#6BB8E7] hover:bg-[#5AA9E2] text-[#0E1324] text-[18px] py-3 px-4 rounded-[10px] transition-colors flex justify-center items-center gap-2">
+            <i class="fa-regular fa-eye"></i> ดูรายละเอียด
+        </button>
+        <button onclick="closePopup()" class="absolute top-4 right-4 text-white/50 hover:text-white">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div id="detail-panel" class="fixed top-0 right-0 h-full w-[450px] bg-[#0E1324]/95 backdrop-blur-xl border-l border-white/10 z-[60] transform translate-x-full transition-transform duration-500 ease-in-out text-white p-8 overflow-y-auto">
+        <button onclick="closeDetailPanel()" class="absolute top-10 left-8 text-white/50 hover:text-white flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i> กลับ
+        </button>
+
+        <div class="flex justify-between items-start mb-6 mt-[60px]">
+            <div>
+                <h2 class="text-[40px] font-bold">ชั้นวาง <span id="detail-name"></span></h2>
+                <p class="text-gray-400 italic">ID: <span id="detail-id"></span></p>
+            </div>
+        </div>
+
+        <div class="mb-10">
+            <div class="flex justify-between mb-2 font-bold">
+                <span>ความจุชั้นวาง</span>
+                <span><span id="detail-current"></span>/<span id="detail-max"></span></span>
+            </div>
+            <div id="detail-progress-bg" class="w-full h-2 bg-white/20 rounded-full">
+                <div id="detail-progress" class="h-full bg-[#6DE4B3] rounded-full transition-all duration-500"></div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <h3 class="text-lg text-gray-400 border-b border-white/10 pb-2">รายการสินค้าในชั้นนี้</h3>
+            <div id="product-list" class="space-y-4">
+                </div>
+        </div>
+    </div>
+    <!-- header.ejs -->
+    <div class="relative pointer-events-none">
+        <%- include('../partials/header_with_path', { path1 : "ปรับแก้ไขสินค้า", url_1 : "/adjustment"}) %>
+    </div>
+
+    <div class="absolute top-[20%] left-[10%] text-white">
+		<p>ข้อมูล ณ <span id="currentTime"></span></p>
+		<p>จำนวนคลังสินค้าทั้งหมด ....</p>
+		<p class="text-[#989898]">คลิกที่โกดังเพื่อดูรายละเอียด</p>
+	</div>
+
+    <!-- guidline -->
+	<div class="absolute bottom-[5%] left-[10%] flex gap-10">
+		<p class="text-[#989898]"> <i class="fa-solid fa-arrow-pointer" style="color: rgb(255, 255, 255);"></i> คลิกค้างแล้วลาก เพื่อย้ายมุมมอง</p>
+		<p class="text-[#989898]"><i class="fa-solid fa-computer-mouse" style="color: rgb(255, 255, 255);"></i> เลื่อนล้อเมาส์ เพื่อซูมเข้า-ออก</p>
+	</div>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                "gsap": "https://unpkg.com/gsap@3.12.5/index.js"
+            }
+        }
+    </script>
+    <script type="module" src="/adjustment/main.js"></script>
+
+    <script>
+        const popup = document.getElementById('stock-popup');
+        const detailPanel = document.getElementById('detail-panel');
+
+        // ฟังก์ชันเปิด Popup (จะถูกเรียกจาก main.js)
+        window.openStockPopup = function(data) {
+            document.getElementById('popup-stock-name').innerText = data.name;
+            document.getElementById('popup-stock-id').innerText = data.id;
+            document.getElementById('popup-stock-type').innerText = data.type || 'ทั่วไป';
+            document.getElementById('popup-stock-location').innerText = data.location;
+            document.getElementById('popup-stock-current').innerText = data.current;
+            document.getElementById('popup-stock-max').innerText = data.max;
+            
+            const percent = (data.current / data.max) * 100;
+            document.getElementById('popup-stock-progress').style.width = percent + '%';
+            
+            popup.classList.remove('hidden');
+            setTimeout(() => {
+                popup.classList.remove('scale-95', 'opacity-0');
+                popup.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        window.closePopup = function() {
+            popup.classList.remove('scale-100', 'opacity-100');
+            popup.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => { popup.classList.add('hidden'); }, 300);
+        };
+
+        window.showFullDetails = function() {
+            const data = {
+                name: document.getElementById('popup-stock-name').innerText,
+                id: document.getElementById('popup-stock-id').innerText,
+                current: document.getElementById('popup-stock-current').innerText,
+                max: document.getElementById('popup-stock-max').innerText
+            };
+            
+            document.getElementById('detail-name').innerText = data.name;
+            document.getElementById('detail-id').innerText = data.id;
+            document.getElementById('detail-current').innerText = data.current;
+            document.getElementById('detail-max').innerText = data.max;
+            document.getElementById('detail-progress').style.width = (data.current/data.max*100) + '%';
+            
+            // Mock สินค้า (ในอนาคตดึงจาก DB ตาม ID)
+            renderProducts([
+                { name: 'สินค้าตัวอย่าง A', qty: 5, sku: 'SKU-001' },
+                { name: 'สินค้าตัวอย่าง B', qty: 2, sku: 'SKU-002' }
+            ]);
+
+            detailPanel.classList.remove('translate-x-full');
+        };
+
+        window.closeDetailPanel = function() {
+            detailPanel.classList.add('translate-x-full');
+        };
+
+        function renderProducts(products) {
+            const list = document.getElementById('product-list');
+            list.innerHTML = products.map(p => `
+                <div class="bg-white/5 p-4 rounded-lg flex justify-between items-center border border-white/10">
+                    <div>
+                        <p class="text-white font-medium">${p.name}</p>
+                        <p class="text-xs text-gray-500">${p.sku}</p>
+                    </div>
+                    <p class="text-[#6DE4B3] font-bold">${p.qty} ชิ้น</p>
+                </div>
+            `).join('');
+        }
+    </script>
+
+    <script>
+        // ในไฟล์ main.js 
+
+// เพิ่ม Event คลิก
+window.addEventListener('click', () => {
+    // ใช้ raycaster ที่มีอยู่แล้วในการตรวจจับ
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(shelfHitZones);
+
+    if (intersects.length > 0) {
+        const clickedShelf = intersects[0].object;
+        
+        // จำลองข้อมูล (ในงานจริงคุณอาจจะเก็บข้อมูลไว้ใน object.userData ตอนสร้างที่ StockBlock.js)
+        const shelfData = {
+            name: clickedShelf.name || "A1",
+            id: clickedShelf.userData.id || "ST-001",
+            location: "Warehouse 1",
+            current: Math.floor(Math.random() * 40), // สุ่มเลขโชว์
+            max: 50
+        };
+
+        // เรียกฟังก์ชันในหน้า EJS
+        if (window.openStockPopup) {
+            window.openStockPopup(shelfData);
+        }
+    } else {
+        // ถ้าคลิกที่ว่างให้ปิด Popup (ถ้าต้องการ)
+        // window.closePopup(); 
+    }
+});
+    </script>
+</body>
+</html>
