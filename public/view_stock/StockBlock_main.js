@@ -69,7 +69,7 @@ const stockZones = [];
 const spacingX = 15; 
 const spacingZ = 14; 
 
-const stockCountFromDB = 100; 
+const stockCountFromDB = 10; 
 
 const columnsPerRow = Math.ceil(Math.sqrt(stockCountFromDB)); 
 const totalRows = Math.ceil(stockCountFromDB / columnsPerRow);
