@@ -162,6 +162,10 @@ app.delete("/api/stocks/:id", warehouseAPI.deleteStock);
 app.delete("/api/warehouses/:id", warehouseAPI.deleteWarehouse);
 
 
+app.get('/user_management', (req, res) => {
+  res.render('management/user');
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
