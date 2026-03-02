@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const pool = require("./db");
 const session = require("express-session");
 const warehouseAPI = require("./api/warehouse.api");
+const transactionAPI = require("./api/transaction.api");
 const { isLoggedIn, allowRoles } = require("./middleware/auth.middleware");
 const shelfAPI = require("./api/shelf.api")
 
@@ -220,7 +221,7 @@ app.get('/adjustment', isLoggedIn, (req, res) => {
   res.render('goods_reception/adjustment');
 });
 
-app.get('/transactions', isLoggedIn, async (req, res) => {
+app.get('/transactions', async (req, res) => {
     try {
         const { start, end, search } = req.query;
 
@@ -298,7 +299,7 @@ app.get('/transactions', isLoggedIn, async (req, res) => {
 
         const totalRecords = inboundData.length + outboundData.length + adjustData.length;
 
-        const loggedInEmpId = req.session.user?.emp_id;
+const loggedInEmpId = 1; 
         
         const [employeeData] = await pool.query(
             `SELECT emp_role FROM employees WHERE emp_id = ?`,
