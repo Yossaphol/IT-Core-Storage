@@ -84,6 +84,12 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/login");
+  });
+});
+
 app.get('/', isLoggedIn, async (req, res) => {
   try {
     const wh_id_q = req.query.w;
