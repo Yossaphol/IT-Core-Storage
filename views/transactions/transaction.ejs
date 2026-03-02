@@ -140,7 +140,7 @@
                                 class="flex items-center gap-2 px-4 h-[32px] bg-transparent border border-[#2A354D] rounded-full hover:bg-[#182642] text-[13px] transition text-[#999]">
                                 <i class="fa-solid fa-bars-staggered"></i> กรอง
                             </button>
-                            <% if (typeof userRole !=='undefined' && userRole==='MANAGER' ) { %>
+                            <% if (user && user.role === 'MANAGER') { %>
                                 <button
                                     class="flex items-center gap-2 px-4 h-[32px] bg-[#ECC164] text-black font-semibold rounded-full hover:bg-[#f0cf85] text-[13px] transition shadow-[0_0_10px_rgba(236,193,100,0.3)]">
                                     <i class="fa-solid fa-chart-pie"></i> แดชบอร์ด
@@ -406,10 +406,11 @@
         </div>
 
         <script>
+            console.log(user.role)
             const counts = {
-                inbound: <%= typeof inboundData !== 'undefined' ? inboundData.length : 0 %>,
-                outbound: <%= typeof outboundData !== 'undefined' ? outboundData.length : 0 %>,
-                adjust: <%= typeof adjustData !== 'undefined' ? adjustData.length : 0 %>
+                inbound : typeof inboundData !== 'undefined' ? inboundData.length : 0,
+                outbound : typeof outboundData !== 'undefined' ? outboundData.length : 0,
+                adjust : typeof adjustData !== 'undefined' ? adjustData.length : 0
         };
 
             function switchTab(tabId) {

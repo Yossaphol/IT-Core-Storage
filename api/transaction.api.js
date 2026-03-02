@@ -81,7 +81,7 @@ exports.getTransactions = async (req, res) => {
         // คำนวณจำนวนทั้งหมด
         const totalRecords = inboundData.length + outboundData.length + adjustData.length;
 
-        const loggedInEmpId = 1; 
+        const loggedInEmpId = req.session.user.emp_id; 
         const [employeeData] = await pool.query(
             `SELECT emp_role FROM employees WHERE emp_id = ?`,
             [loggedInEmpId]
@@ -94,8 +94,8 @@ exports.getTransactions = async (req, res) => {
             outboundData,
             adjustData,
             totalRecords,
-            query: req.query,
-            userRole: currentUserRole
+            userRole: currentUserRole,
+            query: req.query
         });
 
     } catch (error) {
