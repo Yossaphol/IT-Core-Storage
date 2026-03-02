@@ -2,14 +2,24 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const bcrypt = require("bcrypt");
 const pool = require("./db");
+const session = require("express-session");
 const warehouseAPI = require("./api/warehouse.api");
+const { isLoggedIn } = require("./middleware/auth.middleware");
 const shelfAPI = require("./api/shelf.api")
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+  secret: "warehouse_secret",
+  resave: false,
+  saveUninitialized: false
+}));
 
 app.use((req, res, next) => {
     res.locals.currentPath = req.path;
@@ -19,32 +29,95 @@ app.use((req, res, next) => {
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 
-app.get('/login', (req, res) => {
-  res.render('login/login');
+// context สำหรับเช็ค role user
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  res.locals.role = req.session.user?.role || null;
+  res.locals.isLoggedIn = !!req.session.user;
+  next();
 });
 
-app.get('/', async (req, res) => {
-	try{
-		const wh_id_q = req.query.w;
-		let wh_id = null;
+app.get("/login", (req, res) => {
+  if (req.session.user) {
+    return res.redirect("/");
+  }
+  res.render("login/login", { error: null });
+});
 
-		if (wh_id_q) {
-			wh_id = Buffer.from(wh_id_q, 'base64').toString('utf-8');
-		}
-		const st_query = `select * from stock;`
-		const sh_query = `select * from shelf;`
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
 
-		const [st_rows] = await pool.query(st_query)
-		if (!wh_id && st_rows.length > 0) {
-		 wh_id = st_rows[0].wh_id;
-		}
-		const [st_rows_id] = await pool.query("select * from stock where wh_id = ?", [wh_id])
-		const [sh_rows] = await pool.query(sh_query)
-		res.render('index', {stock: st_rows, shelf:sh_rows, curr_wh:wh_id, st_count:st_rows_id.length})
-	} catch(err)
-	{
-		res.status(500).send("Server error");
-	}
+  try {
+    const [rows] = await pool.query(
+      "SELECT * FROM employees WHERE username = ? AND available = 1",
+      [username]
+    );
+
+    if (rows.length === 0) {
+      return res.render("login/login", {
+        error: "ไม่พบผู้ใช้"
+      });
+    }
+
+    const user = rows[0];
+
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) {
+      return res.render("login/login", {
+        error: "รหัสผ่านไม่ถูกต้อง"
+      });
+    }
+
+    req.session.user = {
+      emp_id: user.emp_id,
+      name: user.emp_firstname
+    };
+
+    return res.redirect("/");
+
+  } catch (err) {
+    return res.render("login/login", {
+      error: "Server error"
+    });
+  }
+});
+
+app.get('/', isLoggedIn, async (req, res) => {
+  try {
+    const wh_id_q = req.query.w;
+    let wh_id = null;
+
+    if (wh_id_q) {
+      wh_id = Buffer.from(wh_id_q, 'base64').toString('utf-8');
+    }
+
+    const st_query = `select * from stock;`
+    const sh_query = `select * from shelf;`
+
+    const [st_rows] = await pool.query(st_query)
+
+    if (!wh_id && st_rows.length > 0) {
+      wh_id = st_rows[0].wh_id;
+    }
+
+    const [st_rows_id] = await pool.query(
+      "select * from stock where wh_id = ?",
+      [wh_id]
+    );
+
+    const [sh_rows] = await pool.query(sh_query)
+
+    res.render('index', {
+      stock: st_rows,
+      shelf: sh_rows,
+      curr_wh: wh_id,
+      st_count: st_rows_id.length
+    });
+
+  } catch (err) {
+    res.status(500).send("Server error");
+  }
 });
 
 app.get('/warehouse_management', async (req, res) => {
