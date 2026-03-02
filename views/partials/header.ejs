@@ -1,8 +1,8 @@
 <div class="flex bg-transparent font-sans">
 
     <!-- Sidebar -->
-    <div class="flex flex-col w-[110px] h-screen items-center gap-16 pt-10 pb-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20 relative">
-        <div class="text-white font-bold text-[14px] h-10 text-center mb-4">
+    <div class="flex flex-col w-[110px] h-screen items-center gap-5 pt-10 pb-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20 relative">
+        <div class="text-white font-bold text-[14px] h-10 text-center mb-2">
             <div class="w-[7px] h-[6px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px] mx-auto mb-1"></div>
             <a href="/">
                 <p class="leading-none text-[10px]">IT CORE</p>
@@ -10,7 +10,7 @@
             </a>
         </div>
 
-        <div class="flex flex-col justify-between h-[450px] items-center">
+        <div class="flex flex-col gap-5 h-[450px] items-center">
             
             <!-- Good reception -->
              <% if (user && role === 'WAREHOUSE') { %>
@@ -41,33 +41,20 @@
             <% } %>
 
             <!-- Transaction -->
-             <% if (user && role === 'WAREHOUSE') { %>
+             <% if (user && (role === 'WAREHOUSE' || role === 'MANAGER')) { %>
             <div class="group relative flex flex-col items-center py-2 px-4">
                 <i class="fa-solid fa-list-check text-white text-[40px] group-hover:text-[#838CF1] cursor-pointer transition-colors"></i>
                 <div class="absolute left-[60px] top-[-10px] hidden group-hover:block pl-6 z-50">
                     <div class="w-40 bg-white rounded-md shadow-xl py-2">
                         <div class="px-4 py-1 text-[11px] font-bold text-gray-400 border-b border-gray-100 uppercase">รายการธุรกรรม</div>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-600 hover:text-white transition-colors">รายการธุรกรรม</a>
-                    </div>
-                </div>
-            </div>
-            <% } %>
-
-            <!-- History -->
-             <% if (user && role === 'WAREHOUSE') { %>
-            <div class="group relative flex flex-col items-center py-2 px-4">
-                <i class="fa-solid fa-clock-rotate-left text-white text-[40px] group-hover:text-[#838CF1] cursor-pointer transition-colors"></i>
-                <div class="absolute left-[60px] top-[-10px] hidden group-hover:block pl-6 z-50">
-                    <div class="w-40 bg-white rounded-md shadow-xl py-2">
-                        <div class="px-4 py-1 text-[11px] font-bold text-gray-400 border-b border-gray-100 uppercase">เส้นทางสินค้า</div>
-                        <a href="/transactions" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-600 hover:text-white transition-colors">เส้นทางสินค้า</a>
+                        <a href="/transactions" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-600 hover:text-white transition-colors">รายการธุรกรรม</a>
                     </div>
                 </div>
             </div>
             <% } %>
 
             <!-- Dashboard -->
-             <% if (user && role === 'WAREHOUSE') { %>
+             <% if (user && role === 'MANAGER') { %>
             <div class="group relative flex flex-col items-center py-2 px-4">
                 <i class="fa-solid fa-chart-area text-white text-[40px] group-hover:text-[#838CF1] cursor-pointer transition-colors"></i>
                 <div class="absolute left-[60px] top-[-10px] hidden group-hover:block pl-6 z-50">

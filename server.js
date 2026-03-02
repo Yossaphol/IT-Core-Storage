@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const pool = require("./db");
 const session = require("express-session");
 const warehouseAPI = require("./api/warehouse.api");
-const { isLoggedIn } = require("./middleware/auth.middleware");
+const { isLoggedIn, allowRoles } = require("./middleware/auth.middleware");
 const shelfAPI = require("./api/shelf.api")
 
 const app = express();
@@ -71,7 +71,8 @@ app.post("/login", async (req, res) => {
 
     req.session.user = {
       emp_id: user.emp_id,
-      name: user.emp_firstname
+      name: user.emp_firstname,
+      role: user.emp_role
     };
 
     return res.redirect("/");
@@ -120,7 +121,9 @@ app.get('/', isLoggedIn, async (req, res) => {
   }
 });
 
-app.get('/warehouse_management', async (req, res) => {
+app.use("/warehouse_management", allowRoles("MANAGER"));
+
+app.get('/warehouse_management', isLoggedIn, async (req, res) => {
   try {
     const query = `SELECT COUNT(wh_id) AS count FROM warehouse;`;
     const [rows] = await pool.query(query);
@@ -135,11 +138,11 @@ app.get('/warehouse_management', async (req, res) => {
   }
 });
 
-app.get('/warehouse_management/create', (req, res) => {
+app.get('/warehouse_management/create', isLoggedIn, (req, res) => {
   res.render('warehouse_management/wh_creating')
 })
 
-app.get('/warehouse_management/edit', async (req, res) => {
+app.get('/warehouse_management/edit', isLoggedIn, async (req, res) => {
   try {
     const query = `SELECT COUNT(wh_id) AS count FROM warehouse;`;
     const [rows] = await pool.query(query);
@@ -164,7 +167,7 @@ app.get('/warehouse_management/edit', async (req, res) => {
   }
 })
 
-app.get('/warehouse_management/stock/edit', async (req, res) => {
+app.get('/warehouse_management/stock/edit', isLoggedIn, async (req, res) => {
   try {
     const { stock_id } = req.query;
 
@@ -184,7 +187,7 @@ app.get('/warehouse_management/stock/edit', async (req, res) => {
   }
 });
 
-app.get('/warehouse_management/stock/create', async (req, res) => {
+app.get('/warehouse_management/stock/create', isLoggedIn, async (req, res) => {
 
   try {
 
@@ -199,19 +202,19 @@ app.get('/warehouse_management/stock/create', async (req, res) => {
   }
 });
 
-app.get('/receiving', (req, res) => {
+app.get('/receiving', isLoggedIn, (req, res) => {
   res.render('goods_reception/receiving');
 });
 
-app.get('/issuing', (req, res) => {
+app.get('/issuing', isLoggedIn, (req, res) => {
   res.render('goods_reception/issuing');
 });
 
-app.get('/adjustment', (req, res) => {
+app.get('/adjustment', isLoggedIn, (req, res) => {
   res.render('goods_reception/adjustment');
 });
 
-app.get('/transactions', async (req, res) => {
+app.get('/transactions', isLoggedIn, async (req, res) => {
     try {
         const { start, end, search } = req.query;
 
@@ -289,7 +292,7 @@ app.get('/transactions', async (req, res) => {
 
         const totalRecords = inboundData.length + outboundData.length + adjustData.length;
 
-const loggedInEmpId = 1; 
+        const loggedInEmpId = req.session.user?.emp_id;
         
         const [employeeData] = await pool.query(
             `SELECT emp_role FROM employees WHERE emp_id = ?`,
