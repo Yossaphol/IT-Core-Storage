@@ -10,6 +10,7 @@
         canvas { display: block; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
@@ -25,7 +26,88 @@
         <p class="text-white text-[40px]">การจัดการผู้ใช้</p>
         <p class="text-gray-400 text-[15px] font-light">เพิ่ม / แก้ไข / ลบ / กำหนดสิทธิ์</p>
         <p class="text-gray-400 text-[15px] font-light">รวมถึงควบคุมการเข้าถึงฟังก์ชันต่าง ๆ ของผู้ใช้งาน ได้ที่นี่</p>
+        
     </div>
+
+    <img class="fixed w-70 right-10" src="/images/chklist.png" alt="">
+
+    <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-center">
+        <p class="text-white text-[20px]">ผู้ใช้ทั้งหมด</p>
+        <p id="amount_user"></p>
+                
+        <div class="flex items-center ml-auto gap-5">
+
+            <!-- Search Bar -->
+            <div class="relative flex h-14 w-[500px] items-center overflow-hidden rounded-full border border-[#4BA3E3]/20 bg-transparent">
+                <input type="text" placeholder="ค้นหา ชื่อ, รหัสพนักงาน" 
+                    class="h-full flex-1 bg-transparent px-8 text-white placeholder-gray-500 outline-none"
+                />
+
+                <div class="relative h-full w-32 shrink-0">
+                    <div class="absolute inset-0 bg-[#1B3563]" style="clip-path: polygon(5% 0%, 60% 0%, 40% 50%, 35% 50%);"></div>
+                    <div class="absolute inset-0 bg-[#4BA3E3]/50" style="clip-path: polygon(55% 15%, 35% 50%, 60% 100%, 6% 100%);"></div>
+                    <button 
+                        class="absolute inset-0 flex items-center justify-end bg-gradient-to-r from-[#3fa9f5] to-[#1c92d2] text-white hover:brightness-110 transition-all"
+                        style="clip-path: polygon(35% 50%, 60% 0%, 100% 0%, 100% 100%, 60% 100%);">
+                        <i class="fa-solid fa-magnifying-glass text-2xl mr-8"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Button -->
+            <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
+                <i class="fi fi-br-bars-filter mt-2"></i>
+                กรอง</button>
+            <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
+                <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
+                เพิ่มผู้ใช้</button>
+        </div>
+
+    </div>
+
+    <!-- User Table -->
+     <div class="absolute bottom-[38%] left-[12%]">
+        <table class="w-[1147px] text-left overflow-hidden rounded-xl table-fixed">
+            <thead class="bg-[#1B3563] text-white text-md">
+                <tr class="h-[45px]">
+                    <th class="font-normal pl-4 w-[40%] border-r border-white/10">
+                        <label class="flex items-center gap-3">
+                            <input type="checkbox" class="w-[20px] h-[20px] accent-green-600">
+                            <span>ชื่อผู้ใช้งาน</span>
+                        </label>
+                    </th>
+                    <th class="font-normal pl-4 w-[40%] border-r border-white/10">บทบาท</th>
+                    <th class="font-normal pl-4 w-[20%]">จัดการผู้ใช้</th>
+                </tr>
+            </thead>
+            <tbody class="text-white text-md bg-[#4BA3E3]/20">
+                <tr class="border-t border-white/5 hover:bg-white/5">
+                    <!-- Username -->
+                    <td class="p-4 flex items-center gap-5 border-r border-white/10">
+                        <input type="checkbox" class="w-[20px] h-[20px] accent-green-600">
+                        <img src="/images/user.png" class="w-10 h-10 rounded-full">
+                            อดัม ราชาเทพ
+                    </td>
+                    <!-- Role -->
+                    <td class="border-r border-white/10">
+                    </td>
+                    <!-- Manage User -->
+                    <td>
+                        <div class="flex justify-center gap-5">
+                            <div class="flex justify-center items-center gap-2 w-[75px] bg-[#4BA3E3] rounded-lg p-1.5">
+                                <i class="fa-regular fa-pen-to-square" style="color: rgb(255, 255, 255);"></i>
+                                <button>แก้ไข</button>
+                            </div>
+                            <div class="flex justify-center items-center gap-2 w-[75px] bg-[#FF0000] rounded-lg">
+                                <i class="fa-solid fa-trash" style="color: rgb(255, 255, 255);"></i>
+                                <button>ลบ</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+     </div>
 
 </body>
 </html>
