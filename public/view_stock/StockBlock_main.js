@@ -9,11 +9,10 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0E1324); 
 scene.fog = new THREE.FogExp2(0x0E1324, 0.008);
 
+// กลับมาใช้ PerspectiveCamera แบบเวอร์ชันแรก
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-
-// CHANGED: Bring the camera much closer for the initial load
-// (x: 0, y: 50, z: 70) gives a nice isometric-style close-up angle
-camera.position.set(0, 50, 70); 
+camera.position.set(15, 50, 15); 
+camera.lookAt(0, 0, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -27,9 +26,12 @@ document.getElementById("three-container").appendChild(renderer.domElement);
 const controls = new MapControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.enableRotate = false; controls.enablePan = true; controls.enableZoom = true;    
-// Increased maxDistance to allow zooming out further
-controls.minDistance = 20; controls.maxDistance = 250;     
+controls.enableRotate = false; 
+controls.enablePan = true; 
+controls.enableZoom = true;    
+// ตั้งค่าระยะซูมให้เหมือนเวอร์ชันแรก
+controls.minDistance = 20; 
+controls.maxDistance = 250;     
 
 const ambientLight = new THREE.AmbientLight(0x333333, 0.4); 
 scene.add(ambientLight);
@@ -63,11 +65,11 @@ gridHelper.material.opacity = 0.2;
 scene.add(gridHelper);
 
 // ==========================================
-// 3. Generate Warehouse
+// 3. Generate Warehouse จาก API
 // ==========================================
 const stockZones = []; 
-const spacingX = 15; 
-const spacingZ = 14; 
+const spacingX = 18; 
+const spacingZ = 16; 
 
 const loadStockAndBuild = async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -78,7 +80,6 @@ const loadStockAndBuild = async () => {
         try {
             wh_id = atob(wParam);
         } catch (err) {
-            // FIXED: Changed 'e' to 'err'
             console.error('Failed to decode url', err); 
         }
     }
@@ -101,26 +102,42 @@ const loadStockAndBuild = async () => {
             throw new Error(`API returned ${res.status}`);
         }
         const data = await res.json();
-        
-		
 
         const stockCountFromDB = data.length;
         const columnsPerRow = Math.ceil(Math.sqrt(stockCountFromDB)); 
         const totalRows = Math.ceil(stockCountFromDB / columnsPerRow);
 
-        for (let i = 0; i < stockCountFromDB; i++) {
-			const col = i % columnsPerRow;
-			const row = Math.floor(i / columnsPerRow);
+       const stockPromises = data.map(async (stock_data, i) => {
+            const col = i % columnsPerRow;
+            const row = Math.floor(i / columnsPerRow);
 
-			const posX = (col - (columnsPerRow - 1) / 2) * spacingX;
-			const posZ = (row - (totalRows - 1) / 2) * spacingZ;
+            const posX = (col - (columnsPerRow - 1) / 2) * spacingX;
+            const posZ = (row - (totalRows - 1) / 2) * spacingZ;
+            const max_capa = stock_data.capacity; 
+            
+            // 1. เรียก API
+            let shelvesData = [];
+            try {
+                const shelfRes = await fetch(`/api/get-shelf/${stock_data.stock_id}`);
+                if (shelfRes.ok) {
+                    shelvesData = await shelfRes.json();
+                }
+            } catch (err) {
+                console.error("Failed to load shelves for stock", stock_data.stock_id, err);
+            }
 
-			const stock_data = data[i]; 
-			const max_capa = stock_data.capacity; 
-			const stockBlock = new StockBlock(posX, posZ, stock_data, wh_id, max_capa);
-			scene.add(stockBlock.group);
-			stockZones.push(stockBlock.hitZone);
-		}
+            // 2. เพิ่มพารามิเตอร์ shelvesData ส่งเข้าไปใน StockBlock
+            const stockBlock = new StockBlock(posX, posZ, stock_data, wh_id, max_capa, shelvesData);
+            scene.add(stockBlock.group);
+            
+            // คืนค่า Hit Zone ออกมา
+            return stockBlock.shelfHitZones;
+        });
+
+        // รอจนวาดทุก Stock เสร็จ แล้วเอาข้อมูล HitZone ทั้งหมดไปยัดใส่ stockZones เพื่อให้คลิกได้
+        const allHitZones = await Promise.all(stockPromises);
+        allHitZones.forEach(zones => stockZones.push(...zones));
+
     } catch (err) {
         console.error("Failed to load warehouse stocks:", err);
     }
@@ -135,7 +152,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let currentHoveredStock = null; 
 
-// Expanded Panning Limits to cover the 100-block footprint
+// เพิ่มขอบเขตการลากกล้อง (Panning Limits) กลับมาให้เหมือนเดิม
 const minPan = new THREE.Vector3(-100, 0, -200); 
 const maxPan = new THREE.Vector3(100, 0, 200);
 
@@ -156,33 +173,25 @@ window.addEventListener('mouseup', (event) => {
         Math.pow(event.clientY - mouseDownPosition.y, 2)
     );
 
-    if (moveDistance > 5) return; // เป็นการลากหน้าจอ
-    if (event.target.tagName !== 'CANVAS') return; // Prevent clicking through UI
+    if (moveDistance > 5) return; 
+    if (event.target.tagName !== 'CANVAS') return; 
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(stockZones);
 
     if (intersects.length > 0) {
-        const clickedStock = intersects[0].object.userData.stockInstance;
+        const clickedShelfData = intersects[0].object.userData.shelfData;
         
-        if(window.openStockPopup) {
-            const data = clickedStock.stockData;
-            window.openStockPopup({
-                name: data.stock_name,
-                id: data.stock_id,
-                location: 'WH' + clickedStock.wh_id + '-ST'+ data.stock_id, 
-				type: "ผสม", // เดี๋ยวมาทำำำ
-                current: data.current_amount || 0,
-                max: clickedStock.max_capa || 100
-            });
+        if(window.openStockPopup && clickedShelfData) {
+            window.openStockPopup(clickedShelfData);
         }
     } else {
-        // Clicked on empty space
         if(window.closePopup) window.closePopup();
         if(window.closeDetailPanel) window.closeDetailPanel();
     }
 });
 
+// ปรับ Resize ให้รองรับ PerspectiveCamera
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -193,6 +202,7 @@ function animate() {
     requestAnimationFrame(animate);
     controls.update(); 
 
+    // ล็อคขอบเขตการลากกล้องไม่ให้หลุดออกไปนอกโกดัง
     const clampedTarget = controls.target.clone().clamp(minPan, maxPan);
     if (!clampedTarget.equals(controls.target)) {
         const delta = clampedTarget.clone().sub(controls.target);
@@ -205,16 +215,16 @@ function animate() {
 
     let newlyHoveredStock = null;
     if (intersects.length > 0) {
-        newlyHoveredStock = intersects[0].object.userData.stockInstance;
+        newlyHoveredStock = intersects[0].object; 
     }
 
     if (newlyHoveredStock !== currentHoveredStock) {
         if (currentHoveredStock) {
-            currentHoveredStock.hoverOut();
+            StockBlock.hoverEffect(currentHoveredStock, false);
             document.body.style.cursor = 'default';
         }
         if (newlyHoveredStock) {
-             newlyHoveredStock.hoverIn();
+             StockBlock.hoverEffect(newlyHoveredStock, true);
              document.body.style.cursor = 'pointer';
         }
         currentHoveredStock = newlyHoveredStock;
