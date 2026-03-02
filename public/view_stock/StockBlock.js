@@ -104,9 +104,9 @@ export class StockBlock {
         border.position.y = shelfHeight / 2;
 
         // ฝังข้อมูลลงใน userData เพื่อให้ส่งไปแสดงบน Popup ได้
-        const st_name = this.stockData.stock_name || 'A';
+        const st_name = 'ST'+this.stockData.stock_id || 'A';
         const st_id = this.stockData.stock_id || '00';
-        const dbShelfName = currentShelfData?.shelf_name || `${st_name}-${shelfIndex}`;
+        const dbShelfName = `${st_name}-${shelfIndex}`;
         const dbShelfId = currentShelfData?.shelf_id || `ST${st_id}-SH${shelfIndex}`;
         const dbShelfCurrent = currentShelfData?.amount || 0;
         const dbShelfMax = currentShelfData?.capacity || Math.floor((this.max_capa || 100) / totalShelves);
@@ -117,7 +117,8 @@ export class StockBlock {
                 name: dbShelfName,
                 id: dbShelfId,
                 location: `WH${this.wh_id}-ST${st_id}-${shelfIndex}`,
-                type: this.stockData.type || "ทั่วไป",
+                type: currentShelfData.product_type || "อุปกรร์คอมพิวเตอร์",
+				size: currentShelfData.size,
                 current: dbShelfCurrent, 
                 max: dbShelfMax
             }

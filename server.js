@@ -218,12 +218,10 @@ app.get('/transactions', isLoggedIn, async (req, res) => {
     try {
         const { start, end, search } = req.query;
 
-        // ฟังก์ชันช่วยสร้างเงื่อนไข WHERE และ Parameter ให้กับ SQL
         const buildConditions = (type) => {
             let conditions = ["st.type = ?"];
-            let params = [type]; // ตัวแปรแรกคือ type ('IN', 'OUT', 'ADJUST')
+            let params = [type];
 
-            // เงื่อนไข: วันที่
             if (start && end) {
                 conditions.push("DATE(st.date_time) BETWEEN ? AND ?");
                 params.push(start, end);
@@ -235,7 +233,6 @@ app.get('/transactions', isLoggedIn, async (req, res) => {
                 params.push(end);
             }
 
-            // เงื่อนไข: ค้นหาข้อความ (ชื่อสินค้า, รหัสสินค้า, ชื่อซัพพลายเออร์, ชื่อพนักงาน)
             if (search) {
                 conditions.push(`(
                     p.prod_name LIKE ? OR 
@@ -245,7 +242,6 @@ app.get('/transactions', isLoggedIn, async (req, res) => {
                     e.emp_lastname LIKE ?
                 )`);
                 const searchPattern = `%${search}%`;
-                // ใส่ param 5 ตัวสำหรับ 5 เงื่อนไข LIKE ด้านบน
                 params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
             }
 

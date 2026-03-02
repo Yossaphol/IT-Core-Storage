@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ประวัติธุรกรรม - IT CORE STORAGE</title>
+    <title>transections</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -51,7 +51,6 @@
             opacity: 0.7;
             transition: 0.2s;
             filter: invert(0.8) sepia(1) hue-rotate(180deg) saturate(3);
-            /* ปรับสีไอคอนปฏิทินให้กลืนกับธีมสีฟ้า */
         }
 
         ::-webkit-calendar-picker-indicator:hover {
@@ -141,11 +140,12 @@
                                 class="flex items-center gap-2 px-4 h-[32px] bg-transparent border border-[#2A354D] rounded-full hover:bg-[#182642] text-[13px] transition text-[#999]">
                                 <i class="fa-solid fa-bars-staggered"></i> กรอง
                             </button>
-                            <% if (typeof userRole !== 'undefined' && userRole === 'MANAGER') { %>
-    <button class="flex items-center gap-2 px-4 h-[32px] bg-[#ECC164] text-black font-semibold rounded-full hover:bg-[#f0cf85] text-[13px] transition shadow-[0_0_10px_rgba(236,193,100,0.3)]">
-        <i class="fa-solid fa-chart-pie"></i> แดชบอร์ด
-    </button>
-<% } %>
+                            <% if (typeof userRole !=='undefined' && userRole==='MANAGER' ) { %>
+                                <button
+                                    class="flex items-center gap-2 px-4 h-[32px] bg-[#ECC164] text-black font-semibold rounded-full hover:bg-[#f0cf85] text-[13px] transition shadow-[0_0_10px_rgba(236,193,100,0.3)]">
+                                    <i class="fa-solid fa-chart-pie"></i> แดชบอร์ด
+                                </button>
+                                <% } %>
                         </div>
                     </div>
                 </div>
@@ -180,7 +180,9 @@
                                                 <div class="flex items-center gap-3">
                                                     <div
                                                         class="w-7 h-7 bg-white rounded-full flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden">
-                                                        <img src="/images/<%= item.prod_img %>" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'" class="object-contain w-full h-full">
+                                                        <img src="/images/<%= item.prod_img %>"
+                                                            onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'"
+                                                            class="object-contain w-full h-full">
                                                     </div>
                                                     <span class="truncate-text">
                                                         <%= item.prod_name %>
@@ -251,7 +253,9 @@
                                                 <div class="flex items-center gap-3">
                                                     <div
                                                         class="w-7 h-7 bg-white rounded-full flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden">
-                                                        <img src="/images/<%= item.prod_img %>" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'" class="object-contain w-full h-full">
+                                                        <img src="/images/<%= item.prod_img %>"
+                                                            onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'"
+                                                            class="object-contain w-full h-full">
                                                     </div>
                                                     <span class="truncate-text">
                                                         <%= item.prod_name %>
@@ -323,7 +327,9 @@
                                                 <div class="flex items-center gap-3">
                                                     <div
                                                         class="w-7 h-7 bg-white rounded-full flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                                                        <img src="/images/<%= item.prod_img %>" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'" class="object-contain w-full h-full">
+                                                        <img src="/images/<%= item.prod_img %>"
+                                                            onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'"
+                                                            class="object-contain w-full h-full">
                                                     </div>
                                                     <span class="truncate-text">
                                                         <%= item.prod_name %>
@@ -429,7 +435,6 @@
                 else if (tabId === 'adjust') summaryText.textContent = `ปรับแก้ไขทั้งหมด ${counts.adjust}`;
             }
 
-            // ฟังก์ชันใหม่: ใช้รวบรวมค่าจากทั้งวันที่และช่องค้นหา
             function applyFilters() {
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
@@ -451,7 +456,6 @@
                 window.location.href = url.href;
             }
 
-            // ฟังก์ชันใหม่: รองรับการกด Enter ในช่องค้นหา
             function handleSearchEnter(e) {
                 if (e.key === 'Enter') {
                     applyFilters();
