@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const pool = require("./db");
 const session = require("express-session");
 const warehouseAPI = require("./api/warehouse.api");
+const transactionAPI = require("./api/transaction.api");
 const { isLoggedIn, allowRoles } = require("./middleware/auth.middleware");
 const shelfAPI = require("./api/shelf.api")
 
@@ -82,6 +83,12 @@ app.post("/login", async (req, res) => {
       error: "Server error"
     });
   }
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/login");
+  });
 });
 
 app.get('/', isLoggedIn, async (req, res) => {
@@ -214,109 +221,8 @@ app.get('/adjustment', isLoggedIn, (req, res) => {
   res.render('goods_reception/adjustment');
 });
 
-app.get('/transactions', isLoggedIn, async (req, res) => {
-    try {
-        const { start, end, search } = req.query;
-
-        const buildConditions = (type) => {
-            let conditions = ["st.type = ?"];
-            let params = [type];
-
-            if (start && end) {
-                conditions.push("DATE(st.date_time) BETWEEN ? AND ?");
-                params.push(start, end);
-            } else if (start) {
-                conditions.push("DATE(st.date_time) >= ?");
-                params.push(start);
-            } else if (end) {
-                conditions.push("DATE(st.date_time) <= ?");
-                params.push(end);
-            }
-
-            if (search) {
-                conditions.push(`(
-                    p.prod_name LIKE ? OR 
-                    p.prod_code LIKE ? OR 
-                    s.comp_name LIKE ? OR 
-                    e.emp_firstname LIKE ? OR 
-                    e.emp_lastname LIKE ?
-                )`);
-                const searchPattern = `%${search}%`;
-                params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
-            }
-
-            return {
-                whereStr: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '',
-                paramsArr: params
-            };
-        };
-
-        // 1. ดึงข้อมูล "สินค้าเข้า" (IN)
-        const inCondition = buildConditions('IN');
-        const [inboundData] = await pool.query(`
-            SELECT st.trans_id, p.prod_img, p.prod_name, p.brand, p.prod_code, p.prod_type, 
-                   st.date_time, s.comp_name AS sender, e.emp_firstname, e.emp_lastname
-            FROM stock_transition st
-            LEFT JOIN products p ON st.prod_id = p.prod_id
-            LEFT JOIN suppliers s ON st.sup_id = s.sup_id
-            LEFT JOIN employees e ON st.emp_id = e.emp_id
-            ${inCondition.whereStr}
-            ORDER BY st.date_time DESC
-        `, inCondition.paramsArr);
-
-        // 2. ดึงข้อมูล "เบิกจ่าย" (OUT)
-        const outCondition = buildConditions('OUT');
-        const [outboundData] = await pool.query(`
-            SELECT st.trans_id, p.prod_img, p.prod_name, p.brand, p.prod_code, p.prod_type, 
-                   st.date_time, s.comp_name AS requester, e.emp_firstname, e.emp_lastname
-            FROM stock_transition st
-            LEFT JOIN products p ON st.prod_id = p.prod_id
-            LEFT JOIN suppliers s ON st.sup_id = s.sup_id
-            LEFT JOIN employees e ON st.emp_id = e.emp_id
-            ${outCondition.whereStr}
-            ORDER BY st.date_time DESC
-        `, outCondition.paramsArr);
-
-        // 3. ดึงข้อมูล "ปรับแก้ไข" (ADJUST)
-        const adjustCondition = buildConditions('ADJUST');
-        const [adjustData] = await pool.query(`
-            SELECT st.trans_id, p.prod_img, p.prod_name, p.brand, p.prod_code, p.prod_type, 
-                   st.date_time, st.amount, e.emp_firstname, e.emp_lastname
-            FROM stock_transition st
-            LEFT JOIN products p ON st.prod_id = p.prod_id
-            LEFT JOIN suppliers s ON st.sup_id = s.sup_id
-            LEFT JOIN employees e ON st.emp_id = e.emp_id
-            ${adjustCondition.whereStr}
-            ORDER BY st.date_time DESC
-        `, adjustCondition.paramsArr);
-
-        const totalRecords = inboundData.length + outboundData.length + adjustData.length;
-
-        const loggedInEmpId = req.session.user?.emp_id;
-        
-        const [employeeData] = await pool.query(
-            `SELECT emp_role FROM employees WHERE emp_id = ?`,
-            [loggedInEmpId]
-        );
-
-        // const currentUserRole = "EE";
-        const currentUserRole = employeeData.length > 0 ? employeeData[0].emp_role : null;
-
-        res.render('transactions/transaction', {
-            inboundData,
-            outboundData,
-            adjustData,
-            totalRecords,
-            query: req.query, // ส่งคืน query กลับไปให้ Frontend แสดงผลค้างไว้
-            userRole: currentUserRole
-        });
-
-    } catch (error) {
-        console.error('Error fetching transactions:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
-
+// all transactions
+app.get('/transactions', isLoggedIn, transactionAPI.getTransactions);
 // all warehouse
 app.get("/api/warehouses", warehouseAPI.getAllWarehouses);
 
