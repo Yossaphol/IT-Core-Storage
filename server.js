@@ -9,6 +9,7 @@ const warehouseAPI = require("./api/warehouse.api");
 const transactionAPI = require("./api/transaction.api");
 const { isLoggedIn, allowRoles } = require("./middleware/auth.middleware");
 const shelfAPI = require("./api/shelf.api")
+const accountAPI = require("./api/account.api");
 
 const app = express();
 app.use(cors());
@@ -74,7 +75,8 @@ app.post("/login", async (req, res) => {
       emp_id: user.emp_id,
       name: user.emp_firstname + " " + user.emp_lastname,
       username: user.username,
-      role: user.emp_role
+      role: user.emp_role,
+      profile_image: user.emp_img
     };
 
     return res.redirect("/");
@@ -225,6 +227,12 @@ app.get('/adjustment', isLoggedIn, (req, res) => {
 app.get('/profile', isLoggedIn, (req, res) => {
   res.render('profile/profile');
 })
+
+// upload profile
+app.post("/api/account/upload-profile", isLoggedIn, accountAPI.uploadProfileImage);
+
+// update account info
+app.put("/api/account/update", isLoggedIn, accountAPI.updateAccount);
 
 // all transactions
 app.get('/transactions', isLoggedIn, transactionAPI.getTransactions);

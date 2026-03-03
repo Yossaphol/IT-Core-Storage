@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/font.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/account/account.js" defer></script>
 </head>
 <body>
     <div class="relative z-20">
@@ -29,8 +30,9 @@
             แก้ไข
         </button>
         <div class="flex m-auto w-[80%] absolute top-[30%] left-[15%] gap-10 text-white">
-            <i class="fa-solid fa-camera absolute text-[100px] top-[25%] left-[8%] editable hidden z-30"></i>
-            <img src="images/user.png" class="border-[20px] border-[#4BA3E3]/25 rounded-full w-[300px] h-[300px]" id="profileImage">
+            <i class="fa-solid fa-camera absolute text-[100px] top-[25%] left-[8%] editable hidden z-30 pointer-events-none"></i>
+            <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="object-cover border-[20px] border-[#4BA3E3]/25 rounded-full w-[300px] h-[300px] cursor-pointer" id="profileImage">
+            <input type="file" id="imageInput" class="hidden" accept="image/*">
             <div class="flex flex-col gap-8">
 
                 <div>
@@ -41,18 +43,26 @@
                 <div>
                     <p class="text-[14px]">หน้าที่รับผิดชอบ</p>
                     <div class="flex gap-2">
-                        <div class="bg-[#69D1BF]/25 w-[180px] h-[30px] rounded-lg border-[2px] border-[#69D1BF] flex items-center gap-2 p-2">
-                            <div class="w-[10px] h-[10px] bg-[#69D1BF] rounded-full"></div>
-                            <p>เจ้าหน้าที่คลังสินค้า</p>
-                        </div>
-                        <div class="bg-[#EA7987]/25 w-[180px] h-[30px] rounded-lg border-[2px] border-[#EA7987] flex items-center gap-2 p-2">
-                            <div class="w-[10px] h-[10px] bg-[#EA7987] rounded-full"></div>
-                            <p>เจ้าหน้าที่ระบบ</p>
-                        </div>
-                        <div class="bg-[#8A38F5]/25 w-[180px] h-[30px] rounded-lg border-[2px] border-[#8A38F5] flex items-center gap-2 p-2">
-                            <div class="w-[10px] h-[10px] bg-[#8A38F5] rounded-full"></div>
-                            <p>ผู้จัดการ</p>
-                        </div>
+                        <% if (user.role === 'WAREHOUSE') { %>
+                            <div class="bg-[#69D1BF]/25 w-[180px] h-[30px] rounded-lg border-[2px] border-[#69D1BF] flex items-center gap-2 p-2">
+                                <div class="w-[10px] h-[10px] bg-[#69D1BF] rounded-full"></div>
+                                <p>เจ้าหน้าที่คลังสินค้า</p>
+                            </div>
+                        <% } %>
+
+                        <% if (user.role === 'SYSTEM') { %>
+                            <div class="bg-[#EA7987]/25 w-[180px] h-[30px] rounded-lg border-[2px] border-[#EA7987] flex items-center gap-2 p-2">
+                                <div class="w-[10px] h-[10px] bg-[#EA7987] rounded-full"></div>
+                                <p>เจ้าหน้าที่ระบบ</p>
+                            </div>
+                        <% } %>
+
+                        <% if (user.role === 'MANAGER') { %>
+                            <div class="bg-[#8A38F5]/25 w-[180px] h-[30px] rounded-lg border-[2px] border-[#8A38F5] flex items-center gap-2 p-2">
+                                <div class="w-[10px] h-[10px] bg-[#8A38F5] rounded-full"></div>
+                                <p>ผู้จัดการ</p>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
 
@@ -60,11 +70,11 @@
                 <div class="flex gap-5 readable">
                     <div class="flex flex-col">
                         <label for="username" class="text-[14px] ">ชื่อผู้ใช้</label>
-                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="text" id="username" name="username" value="<%= user.username %>" disabled>
+                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="text" name="username" value="<%= user.username %>" disabled>
                     </div>
                     <div class="flex flex-col">
                         <label for="password" class="text-[14px]">รหัสผ่าน</label>
-                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="password" id="password" name="password" value="*****************" disabled>
+                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="password" name="password" value="*****************" disabled>
                     </div>
                 </div>
 
@@ -72,21 +82,21 @@
                 <div class="flex gap-5 editable hidden">
                     <div class="flex flex-col">
                         <label for="username" class="text-[14px]">ชื่อผู้ใช้</label>
-                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="text" id="username" name="username" placeholder="้ป่อนชื่อผู้ใช้ใหม่">
+                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="text" id="newUsername" name="username" placeholder="้ป่อนชื่อผู้ใช้ใหม่">
                     </div>
                     <div class="flex flex-col">
                         <label for="password" class="text-[14px]">รหัสผ่านเก่า</label>
-                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="password" id="password" name="password" placeholder="ป้อนรหัสผ่านเก่า">
+                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="password" id="oldPassword" name="password" placeholder="ป้อนรหัสผ่านเก่า">
                     </div>
                 </div>
                 <div class="flex gap-5 editable hidden">
                     <div class="flex flex-col">
                         <label for="username" class="text-[14px]">รหัสผ่านใหม่</label>
-                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="text" id="username" name="username" placeholder="ป้อนรหัสผ่านใหม่" >
+                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="password" id="newPassword" name="password" placeholder="ป้อนรหัสผ่านใหม่" >
                     </div>
                     <div class="flex flex-col">
                         <label for="password" class="text-[14px]">ใส่รหัสผ่านใหม่อีกครั้ง</label>
-                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="password" id="password" name="password" placeholder="ป้อนรหัสผ่านใหม่" >
+                        <input class=" border-white border-[2px] bg-transparent rounded-lg w-[240px] h-[40px] p-3" type="password" id="confirmPassword" name="password" placeholder="ป้อนรหัสผ่านใหม่" >
                     </div>
                 </div>
 
@@ -94,7 +104,7 @@
         </div>
 
         <!-- confirm/cancel -->
-         <div class="absolute bottom-[10%] right-[28%] text-white editable hidden">
+         <div onclick="saveChanges()" class="absolute bottom-[10%] right-[28%] text-white editable hidden">
             <button class="w-[170px] h-[50px] text-16px bg-[#1B3563] rounded-lg">
                 ยืนยันการแก้ไข
             </button>
@@ -105,29 +115,6 @@
     </div>
 
     <i class="fa-solid fa-circle-user text-white text-[380px] opacity-[1%] absolute top-[12%] right-[7%]"></i>
-
-    <script>
-        let isEditing = false;
-
-        function toggleEdit() {
-            isEditing = !isEditing;
-
-            // แสดงเฉพาะตอน edit
-            document.querySelectorAll('.editable').forEach(el => {
-                el.classList.toggle('hidden', !isEditing);
-            });
-
-            // แสดงเฉพาะตอน view (ตรงข้าม editable)
-            document.querySelectorAll('.readable').forEach(el => {
-                el.classList.toggle('hidden', isEditing);
-            });
-
-            // ซ่อนปุ่มแก้ไขตอนอยู่ใน edit mode
-            document.getElementById('editBtn').classList.toggle('hidden', isEditing);
-
-            document.getElementById('profileImage').classList.toggle('opacity-40', isEditing);
-        }
-    </script>
 
 </body>
 </html>
