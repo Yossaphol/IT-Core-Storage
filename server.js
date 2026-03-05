@@ -10,6 +10,7 @@ const transactionAPI = require("./api/transaction.api");
 const { isLoggedIn, allowRoles } = require("./middleware/auth.middleware");
 const shelfAPI = require("./api/shelf.api")
 const accountAPI = require("./api/account.api");
+const searchAPI = require("./api/search.api")
 
 const app = express();
 app.use(cors());
@@ -277,6 +278,8 @@ app.get("/api/get-shelf/:id/products", shelfAPI.getAllProductInShelf);
 app.get('/user_management', (req, res) => {
   res.render('management/user');
 });
+
+app.get("/api/search", searchAPI.search_query)
 
 const PORT = 3000;
 app.listen(PORT, () => {

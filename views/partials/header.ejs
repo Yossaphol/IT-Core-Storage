@@ -93,23 +93,28 @@
     </div>
 
     <!-- Search bar -->
+	 <% let placeholder_search = "ค้นหา ชื่อสินค้า, รหัสสินค้า"  %>
+	 <% if (user && role === 'MANAGER') placeholder_search = "ค้นหา คลังสินค้า, ประวัติธุรกรรม, รายงาน" %>
+	 <% if (user && role === 'SYSTEM') placeholder_search = "ค้นหา รหัสพนักงาน, ชื่อผู้ใช้, ซัพพลายเออร์" %>
+
+	 <% search_props = [] %>
     <div class="w-full h-[100px] flex items-center justify-center gap-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20 pr-10">
         
-        <div class="relative flex h-14 w-[878px] items-center overflow-hidden rounded-full border border-white bg-transparent">
-            <input type="text" placeholder="ค้นหา ชื่อ, รหัสพนักงาน" 
-                class="h-full flex-1 bg-transparent px-8 text-white placeholder-gray-500 outline-none"
-            />
+        <div class="relative flex h-14 w-full items-center overflow-hidden rounded-full border border-white bg-transparent">
+        <input type="text" placeholder="<%= placeholder_search %>" id="searchInput" autocomplete="off"
+            class="h-full flex-1 bg-transparent px-8 text-white placeholder-gray-500 outline-none"
+        />
 
-            <div class="relative h-full w-32 shrink-0">
-                <div class="absolute inset-0 bg-[#1B3563]" style="clip-path: polygon(5% 0%, 60% 0%, 40% 50%, 35% 50%);"></div>
-                <div class="absolute inset-0 bg-[#4BA3E3]/50" style="clip-path: polygon(55% 15%, 35% 50%, 60% 100%, 6% 100%);"></div>
-                <button 
-                    class="absolute inset-0 flex items-center justify-end bg-gradient-to-r from-[#3fa9f5] to-[#1c92d2] text-white hover:brightness-110 transition-all"
-                    style="clip-path: polygon(35% 50%, 60% 0%, 100% 0%, 100% 100%, 60% 100%);">
-                    <i class="fa-solid fa-magnifying-glass text-2xl mr-8"></i>
-                </button>
-            </div>
+        <div class="relative h-full w-32 shrink-0">
+            <div class="absolute inset-0 bg-[#1B3563]" style="clip-path: polygon(5% 0%, 60% 0%, 40% 50%, 35% 50%);"></div>
+            <div class="absolute inset-0 bg-[#4BA3E3]/50" style="clip-path: polygon(55% 15%, 35% 50%, 60% 100%, 6% 100%);"></div>
+            <button class="absolute inset-0 flex items-center justify-end bg-gradient-to-r from-[#3fa9f5] to-[#1c92d2] text-white hover:brightness-110 transition-all" style="clip-path: polygon(35% 50%, 60% 0%, 100% 0%, 100% 100%, 60% 100%);">
+                <i class="fa-solid fa-magnifying-glass text-2xl mr-8"></i>
+            </button>
         </div>
+    </div>
+
+    <div id="searchResults" class="absolute top-[65px] mt-5 left-0 w-[50%] bg-white rounded-xl shadow-2xl hidden flex-col overflow-hidden border border-gray-200 z-50"></div>
 
         <div class="w-[1px] bg-white/[14%] h-[45px]"></div>
 
@@ -137,4 +142,5 @@
     </div>
 </div>
 
-<script type="module" src="/public/view_stock/viewStockController.js"></script>
+<script  src="/js/searchbar.js"></script>
+<script type="module" src="/view_stock/viewStockController.js"></script>
