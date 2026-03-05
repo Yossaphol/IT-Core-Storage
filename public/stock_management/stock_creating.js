@@ -5,64 +5,97 @@ const warehouse = document.getElementById('warehouse');
 const confirmBtn = document.getElementById('confirm');
 const cancelBtn = document.getElementById('cancel');
 
-confirmBtn.addEventListener('click', () => {
+confirmBtn.addEventListener('click', async () => {
 
   const name = stock_name.value.trim();
   const cap = capacity.value.trim();
   const wh = warehouse.value;
 
   if (name.length === 0) {
-    alert("กรุณากรอกชื่อสินค้าคงคลัง");
+    await Swal.fire({
+      icon: "warning",
+      title: "ข้อมูลไม่ครบ",
+      text: "กรุณากรอกชื่อสินค้าคงคลัง"
+    });
     stock_name.focus();
     return;
   }
 
   if (cap.length === 0) {
-    alert("กรุณากรอกความจุ");
+    await Swal.fire({
+      icon: "warning",
+      title: "ข้อมูลไม่ครบ",
+      text: "กรุณากรอกความจุ"
+    });
     capacity.focus();
     return;
   }
 
   if (isNaN(cap)) {
-    alert("ความจุต้องเป็นตัวเลข");
+    await Swal.fire({
+      icon: "error",
+      title: "ข้อมูลไม่ถูกต้อง",
+      text: "ความจุต้องเป็นตัวเลข"
+    });
     capacity.focus();
     return;
   }
 
   if (parseInt(cap) <= 0) {
-    alert("ความจุต้องมากกว่า 0");
+    await Swal.fire({
+      icon: "error",
+      title: "ข้อมูลไม่ถูกต้อง",
+      text: "ความจุต้องมากกว่า 0"
+    });
     capacity.focus();
     return;
   }
 
   if (!wh) {
-    alert("กรุณาเลือกคลังสินค้า");
+    await Swal.fire({
+      icon: "warning",
+      title: "ข้อมูลไม่ครบ",
+      text: "กรุณาเลือกคลังสินค้า"
+    });
     return;
   }
 
-  fetch(`/api/warehouses/stocks/create`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      stock_name: name,
-      capacity: parseInt(cap),
-      wh_id: parseInt(wh)
-    })
-  })
-  .then(res => {
+  try {
+
+    const res = await fetch(`/api/warehouses/stocks/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        stock_name: name,
+        capacity: parseInt(cap),
+        wh_id: parseInt(wh)
+      })
+    });
+
     if (!res.ok) throw new Error("Create failed");
-    return res.json();
-  })
-  .then(() => {
-    alert("เพิ่มสำเร็จ");
+
+    await Swal.fire({
+      icon: "success",
+      title: "สำเร็จ",
+      text: "เพิ่มสินค้าคงคลังสำเร็จ",
+      confirmButtonText: "ตกลง"
+    });
+
     window.history.back();
-  })
-  .catch(err => {
+
+  } catch (err) {
+
     console.error(err);
-    alert("เกิดข้อผิดพลาด");
-  });
+
+    Swal.fire({
+      icon: "error",
+      title: "เกิดข้อผิดพลาด",
+      text: "ไม่สามารถเพิ่มสินค้าคงคลังได้"
+    });
+
+  }
 
 });
 

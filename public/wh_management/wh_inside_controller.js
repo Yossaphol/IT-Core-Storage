@@ -265,18 +265,45 @@ function showStockLabel(stockInstance) {
 
         deleteStockBtn.onclick = async () => {
 
-            if (!confirm("ยืนยันการลบสินค้าคงคลังนี้?")) return;
-
-            const res = await fetch(`/api/stocks/${stockInstance.id}`, {
-                method: "DELETE"
+            const result = await Swal.fire({
+                icon: "warning",
+                title: "ยืนยันการลบ",
+                text: "คุณต้องการลบสินค้าคงคลังนี้หรือไม่",
+                showCancelButton: true,
+                confirmButtonText: "ลบ",
+                cancelButtonText: "ยกเลิก",
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6"
             });
 
-            if (!res.ok) {
-                alert("ไม่สามารถลบได้");
-                return;
-            }
+            if (!result.isConfirmed) return;
 
-            location.reload();
+            try {
+
+                const res = await fetch(`/api/stocks/${stockInstance.id}`, {
+                    method: "DELETE"
+                });
+
+                if (!res.ok) throw new Error();
+
+                await Swal.fire({
+                    icon: "success",
+                    title: "ลบสำเร็จ",
+                    text: "สินค้าคงคลังถูกลบแล้ว",
+                    confirmButtonText: "ตกลง"
+                });
+
+                location.reload();
+
+            } catch (err) {
+
+                Swal.fire({
+                    icon: "error",
+                    title: "เกิดข้อผิดพลาด",
+                    text: "ไม่สามารถลบสินค้าคงคลังได้"
+                });
+
+            }
         };
 
     } else {

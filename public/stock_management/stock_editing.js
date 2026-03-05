@@ -11,55 +11,84 @@ cancelBtn.addEventListener("click", () => {
 
 confirmBtn.addEventListener("click", updateStock);
 
-function updateStock() {
+async function updateStock() {
 
   const name = nameInput.value.trim();
   const capacity = capacityInput.value.trim();
 
   if (name.length === 0) {
-    alert("กรุณากรอกชื่อสินค้าคงคลัง");
+    await Swal.fire({
+      icon: "warning",
+      title: "ข้อมูลไม่ครบ",
+      text: "กรุณากรอกชื่อสินค้าคงคลัง"
+    });
     nameInput.focus();
     return;
   }
 
   if (capacity.length === 0) {
-    alert("กรุณากรอกความจุสินค้าคงคลัง");
+    await Swal.fire({
+      icon: "warning",
+      title: "ข้อมูลไม่ครบ",
+      text: "กรุณากรอกความจุสินค้าคงคลัง"
+    });
     capacityInput.focus();
     return;
   }
 
   if (isNaN(capacity)) {
-    alert("ความจุต้องเป็นตัวเลข");
+    await Swal.fire({
+      icon: "error",
+      title: "ข้อมูลไม่ถูกต้อง",
+      text: "ความจุต้องเป็นตัวเลข"
+    });
     capacityInput.focus();
     return;
   }
 
   if (parseInt(capacity) <= 0) {
-    alert("ความจุต้องมากกว่า 0");
+    await Swal.fire({
+      icon: "error",
+      title: "ข้อมูลไม่ถูกต้อง",
+      text: "ความจุต้องมากกว่า 0"
+    });
     capacityInput.focus();
     return;
   }
 
-  fetch(`/api/stocks/${stockId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      stock_name: name,
-      capacity: parseInt(capacity)
-    })
-  })
-  .then(res => {
+  try {
+
+    const res = await fetch(`/api/stocks/${stockId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        stock_name: name,
+        capacity: parseInt(capacity)
+      })
+    });
+
     if (!res.ok) throw new Error("Update failed");
-    return res.json();
-  })
-  .then(() => {
-    alert("แก้ไขสำเร็จ");
+
+    await Swal.fire({
+      icon: "success",
+      title: "สำเร็จ",
+      text: "แก้ไขสินค้าคงคลังสำเร็จ",
+      confirmButtonText: "ตกลง"
+    });
+
     window.history.back();
-  })
-  .catch(err => {
+
+  } catch (err) {
+
     console.error(err);
-    alert("เกิดข้อผิดพลาด");
-  });
+
+    Swal.fire({
+      icon: "error",
+      title: "เกิดข้อผิดพลาด",
+      text: "ไม่สามารถแก้ไขข้อมูลได้"
+    });
+
+  }
 }

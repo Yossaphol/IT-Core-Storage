@@ -12,32 +12,47 @@ loadManagers();
 function validateForm() {
 
     if (!warehouse_name.value.trim()) {
-        alert("กรุณากรอกชื่อคลังสินค้า");
-        warehouse_name.focus();
+        Swal.fire({
+            icon: "warning",
+            title: "ข้อมูลไม่ครบ",
+            text: "กรุณากรอกชื่อคลังสินค้า"
+        }).then(() => warehouse_name.focus());
         return false;
     }
 
     if (!capacity.value.trim()) {
-        alert("กรุณากรอกความจุคลังสินค้า");
-        capacity.focus();
+        Swal.fire({
+            icon: "warning",
+            title: "ข้อมูลไม่ครบ",
+            text: "กรุณากรอกความจุคลังสินค้า"
+        }).then(() => capacity.focus());
         return false;
     }
 
     if (isNaN(capacity.value) || parseInt(capacity.value) <= 0) {
-        alert("ความจุต้องเป็นตัวเลขมากกว่า 0");
-        capacity.focus();
+        Swal.fire({
+            icon: "error",
+            title: "ข้อมูลไม่ถูกต้อง",
+            text: "ความจุต้องเป็นตัวเลขมากกว่า 0"
+        }).then(() => capacity.focus());
         return false;
     }
 
     if (!manager.value) {
-        alert("กรุณาเลือกผู้ดูแลคลัง");
-        manager.focus();
+        Swal.fire({
+            icon: "warning",
+            title: "ข้อมูลไม่ครบ",
+            text: "กรุณาเลือกผู้ดูแลคลัง"
+        }).then(() => manager.focus());
         return false;
     }
 
     if (!address.value.trim()) {
-        alert("กรุณากรอกสถานที่ตั้งคลัง");
-        address.focus();
+        Swal.fire({
+            icon: "warning",
+            title: "ข้อมูลไม่ครบ",
+            text: "กรุณากรอกสถานที่ตั้งคลัง"
+        }).then(() => address.focus());
         return false;
     }
 
@@ -69,28 +84,45 @@ function addWarehouse() {
         return res.json();
     })
     .then(result => {
-        alert("เพิ่มคลังสินค้าสำเร็จ");
 
-        warehouse_name.value = '';
-        capacity.value = '';
-        manager.value = '';
-        address.value = '';
+        Swal.fire({
+            icon: "success",
+            title: "สำเร็จ",
+            text: "เพิ่มคลังสินค้าสำเร็จ",
+            confirmButtonText: "ตกลง"
+        }).then(() => {
 
-        window.location = '/warehouse_management'
+            warehouse_name.value = '';
+            capacity.value = '';
+            manager.value = '';
+            address.value = '';
+
+            window.location = '/warehouse_management';
+
+        });
+
     })
     .catch(err => {
-        alert("เกิดข้อผิดพลาด");
+
+        Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด",
+            text: "ไม่สามารถเพิ่มคลังสินค้าได้"
+        });
+
         console.error(err);
     });
 
 }
 
 function loadManagers() {
+
     fetch("/api/warehouses/managers")
     .then(res => res.json())
     .then(data => {
 
         data.forEach(emp => {
+
             const option = document.createElement("option");
 
             option.value = emp.username;
@@ -99,8 +131,19 @@ function loadManagers() {
                 " (" + emp.username + ")";
 
             manager.appendChild(option);
+
         });
 
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+
+        Swal.fire({
+            icon: "error",
+            title: "โหลดข้อมูลไม่สำเร็จ",
+            text: "ไม่สามารถโหลดรายชื่อผู้ดูแลคลังได้"
+        });
+
+        console.error(err);
+    });
+
 }

@@ -49,6 +49,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (data.success) {
                 profileImage.src = "/images/profile/" + data.imagePath;
+
+                Swal.fire({
+                    icon: "success",
+                    title: "สำเร็จ",
+                    text: "อัปโหลดรูปโปรไฟล์เรียบร้อย"
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "เกิดข้อผิดพลาด",
+                    text: "ไม่สามารถอัปโหลดรูปได้"
+                });
             }
         });
     }
@@ -62,29 +74,49 @@ document.addEventListener("DOMContentLoaded", () => {
         const confirmPassword = document.getElementById("confirmPassword")?.value;
 
         if (username && username.length < 3) {
-            alert("ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร");
+            await Swal.fire({
+                icon: "warning",
+                title: "ข้อมูลไม่ถูกต้อง",
+                text: "ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร"
+            });
             return;
         }
 
         if (newPassword || confirmPassword || oldPassword) {
 
             if (!oldPassword) {
-                alert("กรุณากรอกรหัสผ่านเก่า");
+                await Swal.fire({
+                    icon: "warning",
+                    title: "ข้อมูลไม่ครบ",
+                    text: "กรุณากรอกรหัสผ่านเก่า"
+                });
                 return;
             }
 
             if (!newPassword) {
-                alert("กรุณากรอกรหัสผ่านใหม่");
+                await Swal.fire({
+                    icon: "warning",
+                    title: "ข้อมูลไม่ครบ",
+                    text: "กรุณากรอกรหัสผ่านใหม่"
+                });
                 return;
             }
 
             if (newPassword.length < 8) {
-                alert("รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร");
+                await Swal.fire({
+                    icon: "error",
+                    title: "รหัสผ่านไม่ปลอดภัย",
+                    text: "รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร"
+                });
                 return;
             }
 
             if (newPassword !== confirmPassword) {
-                alert("รหัสผ่านใหม่ไม่ตรงกัน");
+                await Swal.fire({
+                    icon: "error",
+                    title: "รหัสผ่านไม่ตรงกัน",
+                    text: "รหัสผ่านใหม่และยืนยันรหัสผ่านไม่ตรงกัน"
+                });
                 return;
             }
         }
@@ -102,9 +134,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
 
         if (data.success) {
+
+            await Swal.fire({
+                icon: "success",
+                title: "บันทึกสำเร็จ",
+                text: "ข้อมูลโปรไฟล์ถูกอัปเดตแล้ว"
+            });
+
             location.reload();
+
         } else {
-            alert(data.message || "เกิดข้อผิดพลาด");
+
+            Swal.fire({
+                icon: "error",
+                title: "เกิดข้อผิดพลาด",
+                text: data.message || "ไม่สามารถบันทึกข้อมูลได้"
+            });
+
         }
     };
 
