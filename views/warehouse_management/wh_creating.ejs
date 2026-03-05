@@ -38,11 +38,13 @@
         <div class="mt-5 flex justify-between w-[100%]">
             <div class="flex flex-col w-[48%]">
                 <label for="capacity" class="text-[#9E9E9E] text-[16px]">ความจุสินค้าคงคลังสูงสุด</label>
-                <input type="text" name="capacity" id="capacity" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
+                <input type="text" name="capacity" id="capacity" min="1" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
             </div>
             <div class="flex flex-col w-[48%]">
                 <label for="manager" class="text-[#9E9E9E] text-[16px]">ผู้ดูแลคลังสินค้า</label>
-                <input type="text" name="manager" id="manager" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
+                <select id="manager" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 px-1 w-full cursor-pointer">
+                    <option value="">เลือกผู้ดูแลคลัง</option>
+                </select>
             </div>
         </div>
         <div class="flex flex-col mt-5">

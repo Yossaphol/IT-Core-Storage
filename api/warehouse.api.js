@@ -253,6 +253,24 @@ const deleteStock = async (req, res) => {
   }
 };
 
+const getManagers = async (req, res) => {
+  try {
+    const query = `
+      SELECT emp_id, username, emp_firstname, emp_lastname
+      FROM employees
+      WHERE emp_role = 'MANAGER'
+      ORDER BY emp_firstname;
+    `;
+
+    const [rows] = await pool.query(query);
+    res.json(rows);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   getAllWarehouses,
   getWarehouseById,
@@ -261,5 +279,6 @@ module.exports = {
   getStocksByWarehouse,
   updateStock,
   createStock,
-  deleteStock
+  deleteStock,
+  getManagers
 };

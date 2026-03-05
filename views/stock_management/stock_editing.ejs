@@ -39,11 +39,11 @@
             <input type="hidden" id="warehouseId" value="<%= stock.wh_id %>">
             <div class="flex flex-col w-[48%]">
                 <label for="name" class="text-[#9E9E9E] text-[16px]" value="<%= stock.stock_name %>">ชื่อสินค้าคงคลังใหม่</label>
-                <input value="<%= stock.stock_name %>" type="text" name="name" id="name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
+                <input value="<%= stock.stock_name %>" type="text" name="name" id="name" required minlength="2" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
             </div>
             <div class="flex flex-col w-[48%]">
                 <label for="capacity" class="text-[#9E9E9E] text-[16px]" value="<%= stock.capacity %>">ความจุสินค้าคงคลังสูงสุด</label>
-                <input value="<%= stock.capacity %>" type="text" name="capacity" id="capacity" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
+                <input value="<%= stock.capacity %>" type="text" name="capacity" id="capacity" min="1" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
             </div>
         </div>
         <div class="mt-10 text-white text-[20px] flex gap-3 justify-end">

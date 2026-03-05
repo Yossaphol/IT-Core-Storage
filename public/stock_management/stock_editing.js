@@ -13,14 +13,41 @@ confirmBtn.addEventListener("click", updateStock);
 
 function updateStock() {
 
+  const name = nameInput.value.trim();
+  const capacity = capacityInput.value.trim();
+
+  if (name.length === 0) {
+    alert("กรุณากรอกชื่อสินค้าคงคลัง");
+    nameInput.focus();
+    return;
+  }
+
+  if (capacity.length === 0) {
+    alert("กรุณากรอกความจุสินค้าคงคลัง");
+    capacityInput.focus();
+    return;
+  }
+
+  if (isNaN(capacity)) {
+    alert("ความจุต้องเป็นตัวเลข");
+    capacityInput.focus();
+    return;
+  }
+
+  if (parseInt(capacity) <= 0) {
+    alert("ความจุต้องมากกว่า 0");
+    capacityInput.focus();
+    return;
+  }
+
   fetch(`/api/stocks/${stockId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      stock_name: nameInput.value,
-      capacity: parseInt(capacityInput.value)
+      stock_name: name,
+      capacity: parseInt(capacity)
     })
   })
   .then(res => {

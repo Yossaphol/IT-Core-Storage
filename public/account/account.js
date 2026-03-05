@@ -56,14 +56,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.saveChanges = async function () {
 
-        const username = document.getElementById("newUsername")?.value;
+        const username = document.getElementById("newUsername")?.value.trim();
         const oldPassword = document.getElementById("oldPassword")?.value;
         const newPassword = document.getElementById("newPassword")?.value;
         const confirmPassword = document.getElementById("confirmPassword")?.value;
 
-        if (newPassword && newPassword !== confirmPassword) {
-            alert("รหัสผ่านใหม่ไม่ตรงกัน");
+        if (username && username.length < 3) {
+            alert("ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร");
             return;
+        }
+
+        if (newPassword || confirmPassword || oldPassword) {
+
+            if (!oldPassword) {
+                alert("กรุณากรอกรหัสผ่านเก่า");
+                return;
+            }
+
+            if (!newPassword) {
+                alert("กรุณากรอกรหัสผ่านใหม่");
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                alert("รหัสผ่านใหม่ต้องมีอย่างน้อย 8 ตัวอักษร");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("รหัสผ่านใหม่ไม่ตรงกัน");
+                return;
+            }
         }
 
         const res = await fetch("/api/account/update", {

@@ -20,7 +20,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: "warehouse_secret",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  rolling: true,
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 
 app.use((req, res, next) => {
@@ -239,6 +243,8 @@ app.get('/transactions', isLoggedIn, transactionAPI.getTransactions);
 
 // all warehouse
 app.get("/api/warehouses", warehouseAPI.getAllWarehouses);
+
+app.get("/api/warehouses/managers", warehouseAPI.getManagers);
 
 // create warehouse
 app.post("/api/warehouses/add", warehouseAPI.addWarehouse);
