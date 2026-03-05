@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     let debounceTimer;
+
+	const user_role = searchInput.dataset.role;
+
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         clearTimeout(debounceTimer);
@@ -35,7 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
             searchResults.classList.remove('hidden');
             return;
         }
-        const html = results.map(item => `
+        const html = results.map(item => 
+		{
+			if (user_role === 'WAREHOUSE'){
+				return `
             <a href="${item.url}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0 cursor-pointer transition-colors">
                 <p class="text-[14px] font-bold text-gray-800">สินค้า: ${item.title}</p>
                 <div class="flex gap-[10px]">
@@ -43,7 +49,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 	<p class="text-[11px] text-gray-500">ประเภทรายการ: ${get_translated_transction_type(item.type)}</p>
 				</div>
             </a>
-        `).join('');
+        `
+			}
+			
+			if (user_role === 'MANAGER'){
+				if (item.searchType === 'wh')
+				{
+					return `
+								<a href="${item.url}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0 cursor-pointer transition-colors">
+									<p class="text-[14px] font-bold text-gray-800">คลัง: ${item.title}</p>
+									<div class="flex gap-[10px]">
+										<p class="text-[11px] text-gray-500">รหัสคลัง: ${item.subtitle}</p>
+										<p class="text-[11px] text-gray-500">เจ้าหน้าที่ผู้ดูแล: ${item.wh_manager}</p>
+									</div>
+								</a>
+					 `
+				} else{
+					return `
+								<a href="${item.url}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0 cursor-pointer transition-colors">
+									<p class="text-[14px] font-bold text-gray-800">สินค้า: ${item.title}</p>
+									<div class="flex gap-[10px]">
+										<p class="text-[11px] text-gray-500">รหัสสินค้า: ${item.subtitle}</p>
+										<p class="text-[11px] text-gray-500">ประเภทรายการ: ${get_translated_transction_type(item.type)}</p>
+									</div>
+								</a>
+							`
+				}
+			}
+			
+		}
+		).join('');
         searchResults.innerHTML = html;
         searchResults.classList.remove('hidden');
     }

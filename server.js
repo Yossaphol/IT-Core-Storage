@@ -274,12 +274,13 @@ app.get("/api/get-shelf/:id", shelfAPI.getShelfByStockId);
 // get all products in shelf by shelf_id
 app.get("/api/get-shelf/:id/products", shelfAPI.getAllProductInShelf);
 
+// get all query data from searching
+app.get("/api/search", searchAPI.search_query)
 
 app.get('/user_management', (req, res) => {
   res.render('management/user');
 });
 
-app.get("/api/search", searchAPI.search_query)
 
 const PORT = 3000;
 app.listen(PORT, () => {

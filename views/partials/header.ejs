@@ -94,14 +94,14 @@
 
     <!-- Search bar -->
 	 <% let placeholder_search = "ค้นหา ชื่อสินค้า, รหัสสินค้า"  %>
-	 <% if (user && role === 'MANAGER') placeholder_search = "ค้นหา คลังสินค้า, ประวัติธุรกรรม, รายงาน" %>
+	 <% if (user && role === 'MANAGER') placeholder_search = "ค้นหา คลังสินค้า, ชื่อสินค้า, รหัสสินค้า" %>
 	 <% if (user && role === 'SYSTEM') placeholder_search = "ค้นหา รหัสพนักงาน, ชื่อผู้ใช้, ซัพพลายเออร์" %>
 
 	 <% search_props = [] %>
     <div class="w-full h-[100px] flex items-center justify-center gap-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20 pr-10">
         
         <div class="relative flex h-14 w-full items-center overflow-hidden rounded-full border border-white bg-transparent">
-        <input type="text" placeholder="<%= placeholder_search %>" id="searchInput" autocomplete="off"
+        <input type="text" placeholder="<%= placeholder_search %>" id="searchInput" autocomplete="off" data-role="<%= role %>"
             class="h-full flex-1 bg-transparent px-8 text-white placeholder-gray-500 outline-none"
         />
 
