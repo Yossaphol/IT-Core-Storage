@@ -71,9 +71,61 @@ const search_query  = async (req, res) => {
             results = [...mappedWarehouses, ...mappedProducts];
         } else if (role === 'SYSTEM')
 		{
-			results = [
-                { title: `สินค้า: ${query}`, subtitle: "รหัส SKU: 12345", url: `/items/12345` }
-            ];
+			const productQuery = `
+                SELECT DISTINCT p.prod_id, p.prod_name, p.prod_code, st.type
+                FROM products p
+                JOIN stock_transition st ON p.prod_id = st.prod_id
+                WHERE p.prod_id LIKE ? OR p.prod_name LIKE ?
+                LIMIT 5
+            `;
+
+            const userQuery = `
+                SELECT *
+                FROM employees
+                WHERE emp_id LIKE ? OR username LIKE ? or emp_firstname like ? or emp_lastname like ?
+                LIMIT 5
+            `;
+
+            const supplierQuery = `
+                SELECT sup_id, comp_name
+                FROM suppliers
+                WHERE sup_id LIKE ? OR comp_name LIKE ?
+                LIMIT 5
+            `;
+
+
+            const [productResult, userResult, supplierResult] = await Promise.all([
+                pool.query(productQuery, [`%${query}%`, `%${query}%`]),
+                pool.query(userQuery, [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`]),
+                pool.query(supplierQuery, [`%${query}%`, `%${query}%`])
+            ]);
+
+            const mappedUsers = userResult[0].map(item => ({
+                searchType: 'user',
+                title: item.username,
+                id: `${item.emp_id}`,
+                fullName: `${item.emp_firstname} ${item.emp_lastname}`,
+                role: item.emp_role,
+				img_url: item.emp_img,
+                url: `/user_management` 
+            }));
+
+            const mappedSuppliers = supplierResult[0].map(item => ({
+                searchType: 'supplier',
+                title: item.comp_name,
+                subtitle: item.sup_id,
+                url: `#` //Change this when a supplier management page available
+            }));
+
+            const mappedProducts = productResult[0].map(item => ({
+                searchType: 'product',
+                title: item.prod_name,
+                subtitle: item.prod_code,
+                type: item.type,
+                url: `#` //Change this when a product management page available
+            }));
+
+            results = [...mappedUsers, ...mappedSuppliers, ...mappedProducts];
 		}
         res.json(results);
 

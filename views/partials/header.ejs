@@ -95,7 +95,7 @@
     <!-- Search bar -->
 	 <% let placeholder_search = "ค้นหา ชื่อสินค้า, รหัสสินค้า"  %>
 	 <% if (user && role === 'MANAGER') placeholder_search = "ค้นหา คลังสินค้า, ชื่อสินค้า, รหัสสินค้า" %>
-	 <% if (user && role === 'SYSTEM') placeholder_search = "ค้นหา รหัสพนักงาน, ชื่อผู้ใช้, ซัพพลายเออร์" %>
+	 <% if (user && role === 'SYSTEM') placeholder_search = "ค้นหา พนักงาน, ชื่อผู้ใช้, ซัพพลายเออร์, สินค้า" %>
 
 	 <% search_props = [] %>
     <div class="w-full h-[100px] flex items-center justify-center gap-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20 pr-10">
