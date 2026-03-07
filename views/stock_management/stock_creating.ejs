@@ -22,18 +22,18 @@
     <div class="relative z-20 pointer-events-none">
         <%- include('../partials/header_with_path', { path1 : "การจัดการคลัง", url_1 : "/warehouse_management", 
                                                         path2 : "แก้ไขคลังสินค้า", url_2 : "/warehouse_management/edit",
-                                                        path3 : "เพิ่มสินค้าคงคลัง", url_3 : "/warehouse_management/stock/create"}) %>
+                                                        path3 : "เพิ่มโซนเก็บสินค้า", url_3 : "/warehouse_management/stock/create"}) %>
     </div>
     <div class="absolute top-[17%] left-[10%]">
-        <p class="text-white text-[40px]">เพิ่มสินค้าคงคลัง</p>
-        <p class="text-white text-[14px]">เพิ่ม ข้อมูลสินค้าคงคลัง ได้ที่นี่</p>
+        <p class="text-white text-[40px]">เพิ่มโซนเก็บสินค้า</p>
+        <p class="text-white text-[14px]">เพิ่ม ข้อมูลโซนเก็บสินค้า ได้ที่นี่</p>
     </div>
 
     <!-- form -->
     <div class="w-[790px] h-[790px] bg-white absolute left-[25%] top-[30%] rounded-[30px] flex flex-col p-10">
         <div class="w-[100%] mb-2">
-            <p class="text-[16px] text-[#9E9E9E]">ชื่อสินค้าคงคลัง</p>
-            <p class="text-[48px] text-[#0E1324] flex gap-5">สินค้าคงคลัง
+            <p class="text-[16px] text-[#9E9E9E]">ชื่อโซนเก็บสินค้า</p>
+            <p class="text-[48px] text-[#0E1324] flex gap-5">โซนเก็บสินค้า
                 <input id="name" type="text" placeholder="กรอกชื่อที่นี่..." class="w-[420px] text-[40px] p-3 rounded outline-0 bg-[#F5F5F5] box-border">
             </p>
         </div>
@@ -42,7 +42,7 @@
             <input type="hidden" id="stockId">
             <input type="hidden" id="warehouseId">
             <div class="flex flex-col w-[48%]">
-                <label for="capacity" class="text-[#9E9E9E] text-[16px]">ความจุสินค้าคงคลังสูงสุด</label>
+                <label for="capacity" class="text-[#9E9E9E] text-[16px]">ความจุโซนเก็บสินค้าสูงสุด</label>
                 <input type="text" name="capacity" id="capacity" min="1" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%]">
             </div>
             <div class="flex flex-col w-[48%]">

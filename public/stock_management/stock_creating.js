@@ -15,7 +15,7 @@ confirmBtn.addEventListener('click', async () => {
     await Swal.fire({
       icon: "warning",
       title: "ข้อมูลไม่ครบ",
-      text: "กรุณากรอกชื่อสินค้าคงคลัง"
+      text: "กรุณากรอกชื่อโซนเก็บสินค้า"
     });
     stock_name.focus();
     return;
@@ -79,7 +79,7 @@ confirmBtn.addEventListener('click', async () => {
     await Swal.fire({
       icon: "success",
       title: "สำเร็จ",
-      text: "เพิ่มสินค้าคงคลังสำเร็จ",
+      text: "เพิ่มโซนเก็บสินค้าสำเร็จ",
       confirmButtonText: "ตกลง"
     });
 
@@ -92,7 +92,7 @@ confirmBtn.addEventListener('click', async () => {
     Swal.fire({
       icon: "error",
       title: "เกิดข้อผิดพลาด",
-      text: "ไม่สามารถเพิ่มสินค้าคงคลังได้"
+      text: "ไม่สามารถเพิ่มโซนเก็บสินค้าได้"
     });
 
   }

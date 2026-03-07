@@ -20,7 +20,7 @@ async function updateStock() {
     await Swal.fire({
       icon: "warning",
       title: "ข้อมูลไม่ครบ",
-      text: "กรุณากรอกชื่อสินค้าคงคลัง"
+      text: "กรุณากรอกชื่อโซนเก็บสินค้า"
     });
     nameInput.focus();
     return;
@@ -30,7 +30,7 @@ async function updateStock() {
     await Swal.fire({
       icon: "warning",
       title: "ข้อมูลไม่ครบ",
-      text: "กรุณากรอกความจุสินค้าคงคลัง"
+      text: "กรุณากรอกความจุโซนเก็บสินค้า"
     });
     capacityInput.focus();
     return;
@@ -74,7 +74,7 @@ async function updateStock() {
     await Swal.fire({
       icon: "success",
       title: "สำเร็จ",
-      text: "แก้ไขสินค้าคงคลังสำเร็จ",
+      text: "แก้ไขโซนเก็บสินค้าสำเร็จ",
       confirmButtonText: "ตกลง"
     });
 

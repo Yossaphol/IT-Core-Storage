@@ -249,7 +249,7 @@ function showStockLabel(stockInstance) {
     const x = (vector.x * 0.5 + 0.5) * rect.width;
     const y = (-vector.y * 0.5 + 0.5) * rect.height;
 
-    stockLabelText.innerText = "สินค้าคงคลัง " + stockInstance.name;
+    stockLabelText.innerText = "โซนเก็บสินค้า " + stockInstance.name;
 
     stockLabel.style.left = x + "px";
     stockLabel.style.top = y + "px";
@@ -268,7 +268,7 @@ function showStockLabel(stockInstance) {
             const result = await Swal.fire({
                 icon: "warning",
                 title: "ยืนยันการลบ",
-                text: "คุณต้องการลบสินค้าคงคลังนี้หรือไม่",
+                text: "คุณต้องการลบโซนเก็บสินค้านี้หรือไม่",
                 showCancelButton: true,
                 confirmButtonText: "ลบ",
                 cancelButtonText: "ยกเลิก",
@@ -289,7 +289,7 @@ function showStockLabel(stockInstance) {
                 await Swal.fire({
                     icon: "success",
                     title: "ลบสำเร็จ",
-                    text: "สินค้าคงคลังถูกลบแล้ว",
+                    text: "โซนเก็บสินค้าถูกลบแล้ว",
                     confirmButtonText: "ตกลง"
                 });
 
@@ -300,7 +300,7 @@ function showStockLabel(stockInstance) {
                 Swal.fire({
                     icon: "error",
                     title: "เกิดข้อผิดพลาด",
-                    text: "ไม่สามารถลบสินค้าคงคลังได้"
+                    text: "ไม่สามารถลบโซนเก็บสินค้าได้"
                 });
 
             }
