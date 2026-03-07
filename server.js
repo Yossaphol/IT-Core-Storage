@@ -260,68 +260,17 @@ app.get("/api/get-shelf/:id", shelfAPI.getShelfByStockId);
 app.get("/api/get-shelf/:id/products", shelfAPI.getAllProductInShelf);
 
 
-app.get("/user_management", async (req, res) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-
-    // ดึงข้อมูลตามหน้า
-    const [rows] = await pool.query(
-      "SELECT * FROM employees ORDER BY emp_id DESC LIMIT ? OFFSET ?",
-      [limit, offset]
-    );
-
-    // นับจำนวนทั้งหมด
-    const [[{ total }]] = await pool.query(
-      "SELECT COUNT(*) as total FROM employees"
-    );
-
-    const totalPages = Math.ceil(total / limit);
-
-    res.render("management/user", {
-      users: rows,
-      currentPage: page,
-      totalPages,
-      limit
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.send("Database Error");
-  }
+app.get("/user_management", (req, res) => {
+  res.render("management/user");
 });
 
-// app.post("/user_management", async (req, res) => {
-//   try {
-//     const { username, emp_firstname, emp_lastname, emp_role } = req.body;
+app.get("/product_management", (req, res) => {
+  res.render("management/product");
+});
 
-//     // ตั้งรหัสผ่านเริ่มต้น
-//     const defaultPassword = "1234";
-//     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-
-//     const sql = `
-//       INSERT INTO employees 
-//       (username, password, emp_firstname, emp_lastname, emp_role, emp_img)
-//       VALUES (?, ?, ?, ?, ?, ?)
-//     `;
-
-//     await pool.query(sql, [
-//       username,
-//       hashedPassword,
-//       emp_firstname,
-//       emp_lastname,
-//       emp_role,
-//       "/images/user.png"
-//     ]);
-
-//     res.redirect("/user_management");
-
-//   } catch (err) {
-//     console.error("DB ERROR:", err);
-//     res.send("Database error");
-//   }
-// });
+app.get("/supplier_management", (req, res) => {
+  res.render("management/supplier");
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

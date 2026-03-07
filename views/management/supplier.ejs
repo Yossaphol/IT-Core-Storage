@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <style>
+        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
+        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        canvas { display: block; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/font.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/flowbite@latest/dist/flowbite.min.js"></script>
+</head>
+<body>
+    
+    <div class="relative z-20 pointer-events-none">
+        <%- include('../partials/header_with_path', { path1 : "การจัดการผู้จำหน่ายสินค้า", url_1 : "/supplier_management"}) %>
+    </div>
+    <div class="absolute top-[17%] left-[12%]">
+        <p class="text-white text-[40px]">การจัดการผู้จำหน่ายสินค้า</p>
+        <p class="text-gray-400 text-[15px] font-light">เพิ่ม / แก้ไข / ลบ ข้อมูล Supplier ได้ที่นี่</p>        
+    </div>
+
+    <img class="fixed w-70 right-10" src="/images/chklist.png" alt="">
+
+    <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-center">
+        <p class="text-white text-[20px]">ผู้จำหน่ายทั้งหมด</p>
+        <p id="amount_user"></p>
+                
+        <div class="flex items-center ml-auto gap-5">
+
+            <!-- Search Bar -->
+            <div class="relative flex h-14 w-[500px] items-center overflow-hidden rounded-full border border-[#4BA3E3]/20 bg-transparent">
+                <input type="text" placeholder="ค้นหา ชื่อ" 
+                    class="h-full flex-1 bg-transparent px-8 text-white placeholder-gray-500 outline-none"
+                />
+
+                <div class="relative h-full w-32 shrink-0">
+                    <div class="absolute inset-0 bg-[#1B3563]" style="clip-path: polygon(5% 0%, 60% 0%, 40% 50%, 35% 50%);"></div>
+                    <div class="absolute inset-0 bg-[#4BA3E3]/50" style="clip-path: polygon(55% 15%, 35% 50%, 60% 100%, 6% 100%);"></div>
+                    <button 
+                        class="absolute inset-0 flex items-center justify-end bg-gradient-to-r from-[#3fa9f5] to-[#1c92d2] text-white hover:brightness-110 transition-all"
+                        style="clip-path: polygon(35% 50%, 60% 0%, 100% 0%, 100% 100%, 60% 100%);">
+                        <i class="fa-solid fa-magnifying-glass text-2xl mr-8"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Button -->
+            <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
+                <i class="fi fi-br-bars-filter mt-2"></i>
+                กรอง</button>
+            <button data-modal-target="add-sup-modal" data-modal-toggle="add-sup-modal"
+                class="text-[white] text-[20px] flex justify-center items-center w-[165px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
+                <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
+                เพิ่มผู้จำหน่าย
+            </button>
+        </div>
+
+    </div>
+
+    <!-- User Table -->
+    <div class="relative z-10 text-white mt-[27%] w-[1147px] mx-auto">
+
+        <div class="bg-[#16233B] rounded-xl overflow-hidden mb-10">
+                <table class="w-full text-left">
+                    <thead class="bg-[#203354] text-gray-300 text-sm">
+                        <tr>
+                            <th class="p-4">
+                                <input type="checkbox">
+                                ชื่อบริษัทผู้จำหน่าย</th>
+                            <th class="p-4">เบอร์ติดต่อ</th>
+                            <th class="p-4">จัดการผู้ใช้</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-t border-white/5 hover:bg-white/5">
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div id="add-sup-modal" tabindex="-1" 
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        
+        <form action="/supplier_management" method="POST"
+            class="flex flex-col bg-white rounded-xl shadow-lg w-[500px] h-[466px] p-6">
+            
+            <!-- Header -->
+            <div class="flex justify-between">
+                <p class="text-md font-normal text-[#9E9E9E] ml-5 mt-3">แก้ไขข้อมูล</p>
+                <button data-modal-hide="add-sup-modal" class="mr-3">
+                        <i class="fa-solid fa-xmark text-2xl" style="color: #9E9E9E;"></i>
+                </button>
+            </div>
+            <h1 class="text-[36px] ml-5">เพิ่มผู้จัดจำหน่าย</h1>
+
+            <!-- Body -->
+                <div class="flex flex-col w-[80%] ml-8 mt-5">
+                    <label for="username" class="text-[16px] text-[#9E9E9E] mt-3">ชื่อบริษัท</label>
+                    <input type="text" id="username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                
+                    <label for="username" class="text-[16px] text-[#9E9E9E] mt-3">เบอร์โทรติดต่อ</label>
+                    <input type="text" id="username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                
+                </div>
+
+            <!-- Button -->
+            <div class="w-[100%] flex justify-end pt-5 gap-5 mt-auto mb-3 pr-3">
+                <button type="submit" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">
+                    ยืนยันการเพิ่ม
+                </button>
+                <button type="button" data-modal-hide="add-sup-modal" class="px-[32px] py-[12px] bg-[#F00] rounded-[8px] text-white">
+                    ยกเลิก
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    
+
+</body>
+</html>

@@ -69,75 +69,30 @@
     </div>
 
     <!-- User Table -->
-     <div class="absolute bottom-[15%] left-[12%]">
-        <table class="w-[1147px] text-left overflow-hidden rounded-xl table-fixed">
-            <thead class="bg-[#1B3563] text-white text-md">
-                <tr class="h-[45px]">
-                    <th class="font-normal pl-4 w-[40%] border-r border-white/10">
-                        <label class="flex items-center gap-3">
-                            <input type="checkbox" class="w-[20px] h-[20px] accent-green-600">
-                            <span>ชื่อผู้ใช้งาน</span>
-                        </label>
-                    </th>
-                    <th class="font-normal pl-4 w-[40%] border-r border-white/10">บทบาท</th>
-                    <th class="font-normal pl-4 w-[20%]">จัดการผู้ใช้</th>
-                </tr>
-            </thead>
-            <tbody class="text-white text-md bg-[#4BA3E3]/20">
-                <% users.forEach(user => { %>
+    <div class="relative z-10 text-white mt-[27%] w-[1147px] mx-auto">
 
-                <tr class="border-t border-white/5 hover:bg-white/5">
+        <div class="bg-[#16233B] rounded-xl overflow-hidden mb-10">
+                <table class="w-full text-left">
+                    <thead class="bg-[#203354] text-gray-300 text-sm">
+                        <tr>
+                            <th class="p-4">
+                                <input type="checkbox">
+                                ชื่อผู้ใช้งาน</th>
+                            <th class="p-4">บทบาท</th>
+                            <th class="p-4">จัดการผู้ใช้</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-t border-white/5 hover:bg-white/5">
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-                    <!-- Username -->
-                    <td class="p-4 flex items-center gap-5 border-r border-white/10">
-                    <input type="checkbox" class="w-[20px] h-[20px] accent-green-600">
 
-                    <img src="/images/<%= user.emp_img || 'user.png' %>" 
-                        class="w-10 h-10 rounded-full object-cover">
-
-                    <%= user.emp_firstname %> <%= user.emp_lastname %>
-                    </td>
-
-                    <!-- Role -->
-                    <td class="border-r border-white/10 p-4">
-                    <% 
-                        const roles = user.emp_role ? user.emp_role.split(",") : [];
-                        const roleColorMap = {
-                        WAREHOUSE: "bg-[#69D1BF]/25 border-[#69D1BF] text-[#69D1BF]",
-                        MANAGER: "bg-[#8A38F5]/25 border-[#8A38F5] text-[#8A38F5]",
-                        SYSTEM: "bg-[#EA7987]/25 border-[#EA7987] text-[#EA7987]"
-                        };
-                    %>
-
-                    <% roles.forEach(role => { %>
-                        <span class="px-3 py-1 rounded-lg border mr-2 <%= roleColorMap[role] %>">
-                        <%= role %>
-                        </span>
-                    <% }) %>
-                    </td>
-
-                    <!-- Manage -->
-                    <td>
-                    <div class="flex justify-center gap-5">
-                        <a href="/edit_user/<%= user.emp_id %>"
-                        class="flex justify-center items-center gap-2 w-[75px] bg-[#4BA3E3] rounded-lg p-1.5 text-white">
-                        <i class="fa-regular fa-pen-to-square"></i>
-                        แก้ไข
-                        </a>
-
-                        <a href="/delete_user/<%= user.emp_id %>"
-                        class="flex justify-center items-center gap-2 w-[75px] bg-red-600 rounded-lg p-1.5 text-white">
-                        <i class="fa-solid fa-trash"></i>
-                        ลบ
-                        </a>
-                    </div>
-                    </td>
-
-                </tr>
-
-                <% }) %>
-                </tbody>
-        </table>
 
 
     <div id="add-user-modal" tabindex="-1" 
