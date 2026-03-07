@@ -277,8 +277,16 @@ app.get("/api/get-shelf/:id/products", shelfAPI.getAllProductInShelf);
 // get all query data from searching
 app.get("/api/search", searchAPI.search_query)
 
-app.get('/user_management', (req, res) => {
-  res.render('management/user');
+app.get("/user_management", (req, res) => {
+  res.render("management/user");
+});
+
+app.get("/product_management", (req, res) => {
+  res.render("management/product");
+});
+
+app.get("/supplier_management", (req, res) => {
+  res.render("management/supplier");
 });
 
 

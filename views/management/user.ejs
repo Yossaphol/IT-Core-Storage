@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/flowbite@latest/dist/flowbite.min.js"></script>
 </head>
 <body>
     
@@ -39,7 +40,7 @@
 
             <!-- Search Bar -->
             <div class="relative flex h-14 w-[500px] items-center overflow-hidden rounded-full border border-[#4BA3E3]/20 bg-transparent">
-                <input type="text" placeholder="ค้นหา ชื่อ, รหัสพนักงาน" 
+                <input type="text" placeholder="ค้นหา ชื่อ-นามสกุล พนักงาน" 
                     class="h-full flex-1 bg-transparent px-8 text-white placeholder-gray-500 outline-none"
                 />
 
@@ -58,56 +59,298 @@
             <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
                 <i class="fi fi-br-bars-filter mt-2"></i>
                 กรอง</button>
-            <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
+            <button data-modal-target="add-user-modal" data-modal-toggle="add-user-modal"
+                class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
                 <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
-                เพิ่มผู้ใช้</button>
+                เพิ่มผู้ใช้
+            </button>
         </div>
 
     </div>
 
     <!-- User Table -->
-     <div class="absolute bottom-[38%] left-[12%]">
-        <table class="w-[1147px] text-left overflow-hidden rounded-xl table-fixed">
-            <thead class="bg-[#1B3563] text-white text-md">
-                <tr class="h-[45px]">
-                    <th class="font-normal pl-4 w-[40%] border-r border-white/10">
-                        <label class="flex items-center gap-3">
-                            <input type="checkbox" class="w-[20px] h-[20px] accent-green-600">
-                            <span>ชื่อผู้ใช้งาน</span>
-                        </label>
-                    </th>
-                    <th class="font-normal pl-4 w-[40%] border-r border-white/10">บทบาท</th>
-                    <th class="font-normal pl-4 w-[20%]">จัดการผู้ใช้</th>
-                </tr>
-            </thead>
-            <tbody class="text-white text-md bg-[#4BA3E3]/20">
-                <tr class="border-t border-white/5 hover:bg-white/5">
-                    <!-- Username -->
-                    <td class="p-4 flex items-center gap-5 border-r border-white/10">
-                        <input type="checkbox" class="w-[20px] h-[20px] accent-green-600">
-                        <img src="/images/user.png" class="w-10 h-10 rounded-full">
-                            อดัม ราชาเทพ
-                    </td>
-                    <!-- Role -->
-                    <td class="border-r border-white/10">
-                    </td>
-                    <!-- Manage User -->
-                    <td>
-                        <div class="flex justify-center gap-5">
-                            <div class="flex justify-center items-center gap-2 w-[75px] bg-[#4BA3E3] rounded-lg p-1.5">
-                                <i class="fa-regular fa-pen-to-square" style="color: rgb(255, 255, 255);"></i>
-                                <button>แก้ไข</button>
-                            </div>
-                            <div class="flex justify-center items-center gap-2 w-[75px] bg-[#FF0000] rounded-lg">
-                                <i class="fa-solid fa-trash" style="color: rgb(255, 255, 255);"></i>
-                                <button>ลบ</button>
+    <div class="relative z-10 text-white mt-[27%] w-[1147px] mx-auto">
+
+        <div class="bg-[#16233B] rounded-xl overflow-hidden mb-10">
+                <table class="w-full text-left">
+                    <thead class="bg-[#203354] text-gray-300 text-sm">
+                        <tr>
+                            <th class="p-4">
+                                <input type="checkbox">
+                                ชื่อผู้ใช้งาน</th>
+                            <th class="p-4">บทบาท</th>
+                            <th class="p-4">จัดการผู้ใช้</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-t border-white/5 hover:bg-white/5">
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div id="add-user-modal" tabindex="-1" 
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        
+        <form action="/user_management" method="POST"
+            class="flex flex-col bg-white rounded-xl shadow-lg w-[750px] h-[610px] p-6">
+            
+            <!-- Header -->
+            <div class="flex justify-between">
+                <p class="text-md font-normal text-[#9E9E9E] ml-5 mt-3">แก้ไขข้อมูล</p>
+                <button data-modal-hide="add-user-modal" class="mr-3">
+                        <i class="fa-solid fa-xmark text-2xl" style="color: #9E9E9E;"></i>
+                </button>
+            </div>
+            <h1 class="text-[36px] ml-5">เพิ่มผู้ใช้งาน</h1>
+
+            <!-- Body -->
+            <div class="flex gap-3 ml-5 mt-8">
+                <img class="w-[260px] h-[260px] rounded-full object-cover" src="/images/user.png" alt="">
+                <div class="flex flex-col w-[50%] ml-8">
+                    
+                    <span class="flex gap-3 mt-2">
+                        <div>
+                            <label for="username" class="text-[16px] text-[#9E9E9E]">ชื่อจริง</label>
+                            <input type="text" id="emp_firstname" name="emp_firstname" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                        </div>
+                        <div>
+                            <label for="username" class="text-[16px] text-[#9E9E9E] mt-2">นามสกุล</label>
+                            <input type="text" id="emp_lastname" name="emp_lastname" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                        </div>
+                    </span>
+
+                    <label for="username" class="text-[16px] text-[#9E9E9E] mt-2">ชื่อผู้ใช้</label>
+                    <input type="text" id="username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                
+                    <!-- บทบาท -->
+                    <div class="mt-2">
+                        <label class="block text-[#9E9E9E] text-[16px]">บทบาท</label>
+
+                        <!-- แสดง Tag บทบาทที่เลือกแล้ว -->
+                        <div id="selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2">
+                        <!-- Tag จะถูกเพิ่มที่นี่ด้วย JavaScript -->
+                        </div>
+
+                        <!-- Hidden inputs สำหรับส่งค่า roles ไปกับ form -->
+                        <div id="hiddenInputs"></div>
+
+                        <!-- ปุ่มเพิ่มบทบาท + Dropdown -->
+                        <div class="relative inline-block">
+                            <button
+                                type="button"
+                                id="addRoleBtn"
+                                class="border-2 border-dashed border-sky-400 text-sky-500 
+                                    px-6 py-2 rounded-full hover:bg-sky-50 
+                                    transition-colors flex items-center gap-2 font-medium"
+                            >
+                                <i class="fa-solid fa-plus" style="color: sky-400;"></i>
+                                เพิ่มบทบาท
+                            </button>
+                            <!-- Dropdown เลือกบทบาท -->
+                            <div
+                                id="roleDropdown"
+                                class="hidden absolute left-0 top-full mt-2 bg-white border border-gray-200 
+                                    rounded-xl shadow-xl z-10 overflow-hidden min-w-[200px]"
+                            >
+                                <button type="button" data-role="manager"
+                                class="role-option w-full text-left px-5 py-3 hover:bg-purple-50 
+                                        text-gray-700 transition-colors text-base font-medium 
+                                        border-b border-gray-100">
+                                ผู้จัดการ
+                                </button>
+                                <button type="button" data-role="sysadmin"
+                                class="role-option w-full text-left px-5 py-3 hover:bg-red-50 
+                                        text-gray-700 transition-colors text-base font-medium 
+                                        border-b border-gray-100">
+                                เจ้าหน้าที่ระบบ
+                                </button>
+                                <button type="button" data-role="warehouse"
+                                class="role-option w-full text-left px-5 py-3 hover:bg-green-50 
+                                        text-gray-700 transition-colors text-base font-medium">
+                                เจ้าหน้าที่คลังสินค้า
+                                </button>
                             </div>
                         </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-     </div>
+                    </div>
+                
+                </div>
+            </div>
+
+            <!-- Button -->
+            <div class="w-[100%] flex justify-end pt-5 gap-5 mt-auto mb-3 pr-3">
+                <button type="submit" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">
+                    ยืนยันการเพิ่ม
+                </button>
+                <button type="button" data-modal-hide="add-user-modal" class="px-[32px] py-[12px] bg-[#F00] rounded-[8px] text-white">
+                    ยกเลิก
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // ===============================
+        // กำหนดค่าบทบาท พร้อมสีของแต่ละบทบาท
+        // ===============================
+        const rolesConfig = {
+            manager: {
+                label: "ผู้จัดการ",
+                bg: "bg-[#8A38F5]/25",
+                text: "text-purple-700",
+                border: "border-[#8A38F5]",
+                closeBg: "bg-purple-400",
+                closeHover: "hover:bg-purple-500",
+            },
+            sysadmin: {
+                label: "เจ้าหน้าที่ระบบ",
+                bg: "bg-[#EA7987]/25",
+                text: "text-red-600",
+                border: "border-[#EA7987]",
+                closeBg: "bg-red-400",
+                closeHover: "hover:bg-red-500",
+            },
+            warehouse: {
+                label: "เจ้าหน้าที่คลังสินค้า",
+                bg: "bg-[#69D1BF]/25",
+                text: "text-[#69D1BF]",
+                border: "border-[#69D1BF]",
+                closeBg: "bg-[#69D1BF]",
+                closeHover: "hover:bg-[#50B5A3]",
+            },
+        };
+
+        // เก็บบทบาทที่เลือกแล้ว
+        const selectedRoles = new Set();
+
+        // DOM Elements
+        const addRoleBtn = document.getElementById("addRoleBtn");
+        const roleDropdown = document.getElementById("roleDropdown");
+        const selectedRolesContainer = document.getElementById("selectedRoles");
+        const hiddenInputsContainer = document.getElementById("hiddenInputs");
+        const roleOptions = document.querySelectorAll(".role-option");
+
+        // ===============================
+        // เปิด/ปิด Dropdown
+        // ===============================
+        addRoleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            roleDropdown.classList.toggle("hidden");
+        });
+
+        // ปิด Dropdown เมื่อคลิกข้างนอก
+        document.addEventListener("click", (e) => {
+            if (!roleDropdown.contains(e.target) && e.target !== addRoleBtn) {
+                roleDropdown.classList.add("hidden");
+            }
+        });
+
+        // ===============================
+        // เลือกบทบาทจาก Dropdown
+        // ===============================
+        roleOptions.forEach((option) => {
+            option.addEventListener("click", () => {
+                const roleKey = option.getAttribute("data-role");
+
+                // ถ้าเลือกไปแล้ว ไม่ต้องเพิ่มซ้ำ
+                if (selectedRoles.has(roleKey)) {
+                    roleDropdown.classList.add("hidden");
+                    return;
+                }
+
+                selectedRoles.add(roleKey);
+                renderTags();
+                roleDropdown.classList.add("hidden");
+                updateDropdownOptions();
+            });
+        });
+
+        // ===============================
+        // สร้าง Tag แสดงบทบาทที่เลือก
+        // ===============================
+        function renderTags() {
+            selectedRolesContainer.innerHTML = "";
+            hiddenInputsContainer.innerHTML = "";
+
+            selectedRoles.forEach((roleKey) => {
+                const config = rolesConfig[roleKey];
+
+                // สร้าง Tag Element
+                const tag = document.createElement("span");
+                tag.className = `inline-flex items-center gap-2 px-4 py-2 rounded-full 
+                                border border-2 ${config.bg} ${config.text} ${config.border} 
+                                text-base font-medium animate-fadeIn`;
+                tag.setAttribute("data-role", roleKey);
+
+                tag.innerHTML = `
+                ${config.label}
+                <button type="button" 
+                        class="w-5 h-5 flex items-center justify-center rounded-full 
+                                ${config.closeBg} ${config.closeHover} text-white 
+                                transition-colors ml-1"
+                        onclick="removeRole('${roleKey}')">
+                    <i class="fa-solid fa-xmark w-3.5" style="color: rgb(255, 255, 255);"></i>
+                </button>
+                `;
+
+                selectedRolesContainer.appendChild(tag);
+
+                // สร้าง Hidden Input สำหรับส่งค่าไปกับ Form
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "roles";
+                hiddenInput.value = roleKey;
+                hiddenInputsContainer.appendChild(hiddenInput);
+            });
+        }
+
+        // ===============================
+        // ลบบทบาท
+        // ===============================
+        function removeRole(roleKey) {
+            selectedRoles.delete(roleKey);
+            renderTags();
+            updateDropdownOptions();
+        }
+
+        // ===============================
+        // ซ่อนตัวเลือกที่เลือกไปแล้วใน Dropdown
+        // ===============================
+        function updateDropdownOptions() {
+            roleOptions.forEach((option) => {
+                const roleKey = option.getAttribute("data-role");
+                if (selectedRoles.has(roleKey)) {
+                    option.classList.add("hidden");
+                } else {
+                    option.classList.remove("hidden");
+                }
+            });
+
+            // ถ้าเลือกครบทุกบทบาทแล้ว ซ่อนปุ่มเพิ่ม
+            if (selectedRoles.size >= Object.keys(rolesConfig).length) {
+                addRoleBtn.classList.add("opacity-50", "pointer-events-none");
+            } else {
+                addRoleBtn.classList.remove("opacity-50", "pointer-events-none");
+            }
+        }
+    </script>
+
+    <!-- Animation -->
+    <!-- <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.2s ease-out;
+        }
+    </style> -->
 
 </body>
 </html>
