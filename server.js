@@ -268,8 +268,39 @@ app.get("/product_management", (req, res) => {
   res.render("management/product");
 });
 
-app.get("/supplier_management", (req, res) => {
-  res.render("management/supplier");
+// app.get("/supplier_management", (req, res) => {
+//   res.render("management/supplier");
+// });
+
+app.get("/supplier_management", async (req, res) => {
+  try {
+    const page   = parseInt(req.query.page)  || 1;
+    const limit  = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const [rows] = await pool.query(
+      "SELECT * FROM suppliers WHERE available = 1 ORDER BY sup_id DESC LIMIT ? OFFSET ?",
+      [limit, offset]
+    );
+
+    const [[{ total }]] = await pool.query(
+      "SELECT COUNT(*) as total FROM suppliers WHERE available = 1"
+    );
+
+    const totalPages = Math.ceil(total / limit);
+
+    res.render("management/supplier", {
+      suppliers: rows,
+      currentPage: page,
+      totalPages,
+      limit,
+      total,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.send("Database Error");
+  }
 });
 
 const PORT = 3000;

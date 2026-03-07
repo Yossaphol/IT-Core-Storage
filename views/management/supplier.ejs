@@ -6,7 +6,7 @@
     <title>Supplier Management</title>
     <style>
         /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
-        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        body { margin: 0; overflow-y: auto; background-color: #0E1324; }
         canvas { display: block; }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -23,7 +23,7 @@
     <div class="relative z-20 pointer-events-none">
         <%- include('../partials/header_with_path', { path1 : "การจัดการผู้จำหน่ายสินค้า", url_1 : "/supplier_management"}) %>
     </div>
-    <div class="absolute top-[17%] left-[12%]">
+    <div class="relative px-[12%] pt-[120px] pb-20">
         <p class="text-white text-[40px]">การจัดการผู้จำหน่ายสินค้า</p>
         <p class="text-gray-400 text-[15px] font-light">เพิ่ม / แก้ไข / ลบ ข้อมูล Supplier ได้ที่นี่</p>        
     </div>
@@ -31,7 +31,7 @@
     <img class="fixed w-70 right-10" src="/images/chklist.png" alt="">
 
     <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-center">
-        <p class="text-white text-[20px]">ผู้จำหน่ายทั้งหมด</p>
+        <p class="text-white text-[20px]">ผู้จำหน่ายทั้งหมด <%= total %></p>
         <p id="amount_user"></p>
                 
         <div class="flex items-center ml-auto gap-5">
@@ -67,27 +67,162 @@
     </div>
 
     <!-- User Table -->
-    <div class="relative z-10 text-white mt-[27%] w-[1147px] mx-auto">
+    
+    <!-- ===== ตาราง ===== -->
+<div class="relative z-10">
 
-        <div class="bg-[#16233B] rounded-xl overflow-hidden mb-10">
-                <table class="w-full text-left">
-                    <thead class="bg-[#203354] text-gray-300 text-sm">
-                        <tr>
-                            <th class="p-4">
-                                <input type="checkbox">
-                                ชื่อบริษัทผู้จำหน่าย</th>
-                            <th class="p-4">เบอร์ติดต่อ</th>
-                            <th class="p-4">จัดการผู้ใช้</th>
+    <!-- ✅ ไม่มี height ตายตัว / ไม่มี overflow-y ในตาราง -->
+    <div class="rounded-2xl overflow-hidden ml-[12%] mt-[8%]" style="width: 1147px;">
+        <table class="w-full table-fixed bg-[#1a2342] shadow-2xl rounded-2xl">
+            <thead>
+                <tr class="bg-[#2a3a6e]/90 text-white">
+                    <th class="py-4 px-5 text-left" style="width: 55px;">
+                        <input type="checkbox" id="checkAll" class="custom-check" />
+                    </th>
+                    <th class="py-4 px-4 text-left text-[16px] font-medium">บริษัทผู้จำหน่าย</th>
+                    <th class="py-4 px-4 text-left text-[16px] font-medium" style="width: 280px;">เบอร์ติดต่อ</th>
+                    <th class="py-4 px-4 text-left text-[16px] font-medium" style="width: 220px;">จัดการผู้ใช้</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (suppliers.length === 0) { %>
+                    <tr>
+                        <td colspan="4" class="text-center text-gray-400 py-20 text-xl">
+                            <i class="fas fa-inbox text-4xl mb-3 block"></i>
+                            ยังไม่มีผู้จำหน่ายในระบบ
+                        </td>
+                    </tr>
+                <% } %>
+
+                <!-- ✅ แถวข้อมูลจริง -->
+                <% suppliers.forEach((sup) => { %>
+                    <tr class="sup-row border-t border-[#2a3a6e]/60 hover:bg-[#1e2b50]/50 transition-colors"
+                        data-name="<%= sup.comp_name.toLowerCase() %>">
+                        <td class="py-4 px-5">
+                            <input type="checkbox" name="selected" value="<%= sup.sup_id %>" class="row-check custom-check" />
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="text-white text-[16px]"><%= sup.comp_name %></span>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="text-white text-[16px]"><%= sup.comp_phone %></span>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="flex gap-2">
+                                <button onclick="openEditModal(<%= sup.sup_id %>, '<%= sup.comp_name %>', '<%= sup.comp_phone %>')"
+                                    class="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2 rounded-lg font-medium text-[14px] transition-colors shadow flex items-center gap-2">
+                                    <i class="fas fa-pen-to-square text-xs"></i> แก้ไข
+                                </button>
+                                <button onclick="confirmDelete(<%= sup.sup_id %>, '<%= sup.comp_name %>')"
+                                    class="bg-[#EF4444] hover:bg-[#DC2626] text-white px-5 py-2 rounded-lg font-medium text-[14px] transition-colors shadow flex items-center gap-2">
+                                    <i class="fas fa-trash text-xs"></i> ลบ
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+
+                    <!-- ✅ แถวว่างเติมให้ครบ limit (เห็นช่องตาราง แต่ไม่มีข้อมูล) -->
+                    <% for (let i = suppliers.length; i < limit; i++) { %>
+                        <tr class="border-t border-[#2a3a6e]/60">
+                            <td class="py-4 px-5">&nbsp;</td>
+                            <td class="py-4 px-4">&nbsp;</td>
+                            <td class="py-4 px-4">&nbsp;</td>
+                            <td class="py-4 px-4">&nbsp;</td>
                         </tr>
-                    </thead>
-                    <tbody class="text-sm">
-                        <tr class="border-t border-white/5 hover:bg-white/5">
-                            
-                        </tr>
-                    </tbody>
-                </table>
+                    <% } %>
+            </tbody>
+        </table>
+        
+        <!-- ✅ Pagination — mt-6 ให้ห่างจากตาราง -->
+        <div class="flex items-center justify-between py-4 text-white text-[14px]" style="width: 1147px;">
+
+            <!-- ซ้าย -->
+            <div class="flex items-center gap-3">
+                <span class="text-gray-400">จำนวนแถวต่อ 1 หน้า</span>
+                <select id="limitSelect" onchange="changeLimit(this.value)"
+                        class="bg-[#1a2342] border border-[#4BA3E3]/40 text-white rounded-md
+                            pl-2 py-1 text-[14px] focus:outline-none cursor-pointer">
+                    <option value="5"  <%= limit===5  ? 'selected':'' %>>5</option>
+                    <option value="10" <%= limit===10 ? 'selected':'' %>>10</option>
+                    <option value="20" <%= limit===20 ? 'selected':'' %>>20</option>
+                    <option value="50" <%= limit===50 ? 'selected':'' %>>50</option>
+                </select>
+            </div>
+
+            <!-- ขวา -->
+            <div class="flex items-center gap-0.5">
+
+                <!-- ◄ ย้อนกลับ -->
+                <a href="/supplier_management?page=<%= Math.max(1, currentPage-1) %>&limit=<%= limit %>"
+                class="w-8 h-8 flex items-center justify-center
+                        <%= currentPage <= 1 ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                    <i class="fas fa-chevron-left text-xs"></i>
+                </a>
+
+                <!-- ✅ เลขหน้า — แสดงทุกหน้า -->
+                <% if (totalPages <= 7) { %>
+                    <!-- หน้าไม่เยอะ แสดงหมด -->
+                    <% for (let p = 1; p <= totalPages; p++) { %>
+                        <a href="/supplier_management?page=<%= p %>&limit=<%= limit %>"
+                        class="w-8 h-8 flex items-center justify-center text-[14px] font-medium rounded-md
+                                <%= p === currentPage
+                                    ? 'border border-[#4BA3E3] text-white bg-[#4BA3E3]/10'
+                                    : 'text-gray-400 hover:text-white' %>">
+                            <%= p %>
+                        </a>
+                    <% } %>
+                <% } else { %>
+                    <!-- หน้าเยอะ แสดง 1 ... 4 [5] 6 ... 10 -->
+                    <% if (currentPage > 3) { %>
+                        <a href="/supplier_management?page=1&limit=<%= limit %>"
+                        class="w-8 h-8 flex items-center justify-center text-[14px] text-gray-400 hover:text-white rounded-md">1</a>
+                        <span class="w-8 h-8 flex items-center justify-center text-gray-500">...</span>
+                    <% } %>
+
+                    <% 
+                        let start = Math.max(1, currentPage - 2);
+                        let end = Math.min(totalPages, currentPage + 2);
+                        if (currentPage <= 3) end = Math.min(totalPages, 5);
+                        if (currentPage >= totalPages - 2) start = Math.max(1, totalPages - 4);
+                    %>
+                    <% for (let p = start; p <= end; p++) { %>
+                        <a href="/supplier_management?page=<%= p %>&limit=<%= limit %>"
+                        class="w-8 h-8 flex items-center justify-center text-[14px] font-medium rounded-md
+                                <%= p === currentPage
+                                    ? 'border border-[#4BA3E3] text-white bg-[#4BA3E3]/10'
+                                    : 'text-gray-400 hover:text-white' %>">
+                            <%= p %>
+                        </a>
+                    <% } %>
+
+                    <% if (currentPage < totalPages - 2) { %>
+                        <span class="w-8 h-8 flex items-center justify-center text-gray-500">...</span>
+                        <a href="/supplier_management?page=<%= totalPages %>&limit=<%= limit %>"
+                        class="w-8 h-8 flex items-center justify-center text-[14px] text-gray-400 hover:text-white rounded-md"><%= totalPages %></a>
+                    <% } %>
+                <% } %>
+
+                <!-- ► ถัดไป -->
+                <a href="/supplier_management?page=<%= Math.min(totalPages, currentPage+1) %>&limit=<%= limit %>"
+                class="w-8 h-8 flex items-center justify-center
+                        <%= currentPage >= totalPages ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                    <i class="fas fa-chevron-right text-xs"></i>
+                </a>
+
+                <!-- ►► ไปหน้าสุดท้าย -->
+                <a href="/supplier_management?page=<%= totalPages %>&limit=<%= limit %>"
+                class="w-8 h-8 flex items-center justify-center
+                        <%= currentPage >= totalPages ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                    <i class="fas fa-angles-right text-xs"></i>
+                </a>
             </div>
         </div>
+
+
+
+
+
     </div>
 
 
