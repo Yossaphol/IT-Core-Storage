@@ -160,12 +160,12 @@
                                     <% inboundData.forEach(item=> { %>
                                         <tr class="data-row border-b border-[#182642] hover:bg-[#182642]/30 transition group">
                                             <td class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                TR-<%= item.trans_id %>
+                                                <%= item.trans_id %>
                                             </td>
                                             <td class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
                                                 <div class="flex items-center gap-2 lg:gap-3">
                                                     <div class="w-6 h-6 lg:w-7 lg:h-7 bg-white rounded-full flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden">
-                                                        <img src="/images/<%= item.prod_img %>" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'" class="object-contain w-full h-full">
+                                                        <img src="<%= item.prod_img %>" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'" class="object-contain w-full h-full">
                                                     </div>
                                                     <span class="truncate-text"><%= item.prod_name %></span>
                                                 </div>

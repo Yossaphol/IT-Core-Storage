@@ -11,6 +11,7 @@ const { isLoggedIn, allowRoles } = require("./middleware/auth.middleware");
 const shelfAPI = require("./api/shelf.api")
 const accountAPI = require("./api/account.api");
 const searchAPI = require("./api/search.api")
+const dashboardAPI = require("./api/dashboard.api");
 
 const app = express();
 app.use(cors());
@@ -233,6 +234,7 @@ app.get('/profile', isLoggedIn, (req, res) => {
   res.render('profile/profile');
 })
 
+app.get('/dashboard', isLoggedIn, dashboardAPI.getDashboardData);
 // upload profile
 app.post("/api/account/upload-profile", isLoggedIn, accountAPI.uploadProfileImage);
 
