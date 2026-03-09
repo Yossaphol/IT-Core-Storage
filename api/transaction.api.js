@@ -1,9 +1,7 @@
-// ดึง database มาใช้
 const pool = require("../db");
 
 exports.getTransactions = async (req, res) => {
     try {
-        // ดึงค่ามาจาก URL Query
         const { start, end, search } = req.query;
 
         const buildConditions = (type) => {
@@ -39,11 +37,10 @@ exports.getTransactions = async (req, res) => {
             };
         };
 
-        // 1. ดึงข้อมูล IN
         const inCondition = buildConditions("IN");
         const [inboundData] = await pool.query(`
             SELECT st.trans_id, p.prod_img, p.prod_name, p.brand, p.prod_code, p.prod_type, 
-                   st.date_time, s.comp_name AS sender, e.emp_firstname, e.emp_lastname
+                   st.date_time, st.amount, s.comp_name AS sender, e.emp_firstname, e.emp_lastname
             FROM stock_transition st
             LEFT JOIN products p ON st.prod_id = p.prod_id
             LEFT JOIN suppliers s ON st.sup_id = s.sup_id
@@ -52,11 +49,10 @@ exports.getTransactions = async (req, res) => {
             ORDER BY st.date_time DESC
         `, inCondition.paramsArr);
 
-        // 2. ดึงข้อมูล OUT
-        const outCondition = buildConditions("OUT");
+        const outCondition = buildConditions("issue");
         const [outboundData] = await pool.query(`
             SELECT st.trans_id, p.prod_img, p.prod_name, p.brand, p.prod_code, p.prod_type, 
-                   st.date_time, s.comp_name AS requester, e.emp_firstname, e.emp_lastname
+                   st.date_time, st.amount, s.comp_name AS requester, e.emp_firstname, e.emp_lastname
             FROM stock_transition st
             LEFT JOIN products p ON st.prod_id = p.prod_id
             LEFT JOIN suppliers s ON st.sup_id = s.sup_id
@@ -65,7 +61,6 @@ exports.getTransactions = async (req, res) => {
             ORDER BY st.date_time DESC
         `, outCondition.paramsArr);
 
-        // 3. ดึงข้อมูล ADJUST
         const adjustCondition = buildConditions("ADJUST");
         const [adjustData] = await pool.query(`
             SELECT st.trans_id, p.prod_img, p.prod_name, p.brand, p.prod_code, p.prod_type, 
@@ -78,23 +73,22 @@ exports.getTransactions = async (req, res) => {
             ORDER BY st.date_time DESC
         `, adjustCondition.paramsArr);
 
-        // คำนวณจำนวนทั้งหมด
         const totalRecords = inboundData.length + outboundData.length + adjustData.length;
 
-        const loggedInEmpId = req.session.user.emp_id; 
+        const loggedInEmpId = req.session.user.emp_id;
         const [employeeData] = await pool.query(
             `SELECT emp_role FROM employees WHERE emp_id = ?`,
             [loggedInEmpId]
         );
         const currentUserRole = employeeData.length > 0 ? employeeData[0].emp_role : null;
 
-        // Render ส่งหน้าเว็บกลับไป
         res.render('transactions/transaction', {
             inboundData,
             outboundData,
             adjustData,
             totalRecords,
             userRole: currentUserRole,
+            user: { role: currentUserRole },
             query: req.query
         });
 
