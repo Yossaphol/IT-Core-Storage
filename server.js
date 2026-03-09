@@ -242,6 +242,9 @@ app.get("/api/warehouses", warehouseAPI.getAllWarehouses);
 
 app.get("/api/warehouses/managers", warehouseAPI.getManagers);
 
+// get product type
+app.get("/api/product-types", warehouseAPI.getProductTypes);
+
 // create warehouse
 app.post("/api/warehouses/add", warehouseAPI.addWarehouse);
 

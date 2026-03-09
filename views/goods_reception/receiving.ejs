@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .datepicker {
             z-index: 1050 !important;
@@ -47,7 +48,7 @@
                 <div class="relative w-[350px] h-[260px] rounded-2xl overflow-hidden">
                     <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<%= item.prod_img %>');"></div>
                     <div class="absolute inset-0 bg-gradient-to-t from-[#0E1324]/90 via-[#0E1324]/60 to-transparent"></div>
-                    <div class="relative z-10 p-6 text-white flex flex-col justify-end h-full">
+                    <div class="relative z-10 p-6 text-white flex flex-col justify-end truncate h-full">
                         <span class="bg-blue-800 px-3 py-1 text-xs rounded-md w-fit mb-4"><%= item.prod_type %></span>
                         <h3 class="text-3xl font-bold"><%= item.prod_name %></h3>
                         <p class="truncate"><%= item.description %></p>
@@ -89,7 +90,9 @@
                             <%= item.prod_name %>
                         </td>
                         <td class="p-4"><%= item.comp_name %></td>
-                        <td class="p-4 text-blue-400">@<%= item.username %></td>
+                        <td class="p-4 text-blue-400">
+                            <%= item.emp_firstname %> <%= item.emp_lastname %>
+                        </td>
                         <td class="p-4 font-bold text-yellow-500"><%= item.amount %></td>
                         <td class="p-4 text-gray-400 text-xs">
                             <%= new Date(item.date_time).toLocaleString('th-TH') %>
@@ -201,32 +204,7 @@
         </div>
     </div>
     </div>
-    <script>
-    document.getElementById('receivingForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
-
-        try {
-            const response = await fetch('/api/receiving/add', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert(result.message);
-                window.location.reload();
-            } else {
-                alert('ล้มเหลว: ' + result.error);
-            }
-        } catch (err) {
-            alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
-        }
-    });
-    </script>
+    <script src="/receiving/receiving.js"></script>
    <script src="/js/currentdate.js"></script>
 </body>
 </html>
