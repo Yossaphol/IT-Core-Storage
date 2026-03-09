@@ -12,6 +12,8 @@ const shelfAPI = require("./api/shelf.api")
 const accountAPI = require("./api/account.api");
 const searchAPI = require("./api/search.api")
 const dashboardAPI = require("./api/dashboard.api");
+const receivingAPI = require("./api/receiving.api");
+const issuingAPI = require("./api/issuing.api");
 
 const app = express();
 app.use(cors());
@@ -217,14 +219,6 @@ app.get('/warehouse_management/stock/create', isLoggedIn, async (req, res) => {
   }
 });
 
-app.get('/receiving', isLoggedIn, (req, res) => {
-  res.render('goods_reception/receiving');
-});
-
-app.get('/issuing', isLoggedIn, (req, res) => {
-  res.render('goods_reception/issuing');
-});
-
 app.get('/adjustment', isLoggedIn, (req, res) => {
   res.render('goods_reception/adjustment');
 });
@@ -426,6 +420,19 @@ app.post("/supplier_management", async (req, res) => {
     console.error(err);
     res.status(500).send("Database Error");
   }
+});
+// receiving
+app.get('/receiving', isLoggedIn, receivingAPI.getReceivingPage);
+
+// add item to warehouse
+app.post("/api/receiving/add", isLoggedIn, receivingAPI.addReceiving);
+
+app.get('/issuing', isLoggedIn, issuingAPI.getIssuingPage);
+
+app.post("/api/issuing/add", isLoggedIn, issuingAPI.addIssuing);
+
+app.get('/user_management', (req, res) => {
+  res.render('management/user');
 });
 
 
