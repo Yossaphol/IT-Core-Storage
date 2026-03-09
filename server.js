@@ -11,6 +11,7 @@ const { isLoggedIn, allowRoles } = require("./middleware/auth.middleware");
 const shelfAPI = require("./api/shelf.api")
 const accountAPI = require("./api/account.api");
 const searchAPI = require("./api/search.api")
+const dashboardAPI = require("./api/dashboard.api");
 
 const app = express();
 app.use(cors());
@@ -232,6 +233,7 @@ app.get('/profile', isLoggedIn, (req, res) => {
   res.render('profile/profile');
 })
 
+app.get('/dashboard', isLoggedIn, dashboardAPI.getDashboardData);
 // upload profile
 app.post("/api/account/upload-profile", isLoggedIn, accountAPI.uploadProfileImage);
 
@@ -284,8 +286,146 @@ app.get("/product_management", (req, res) => {
   res.render("management/product");
 });
 
-app.get("/supplier_management", (req, res) => {
-  res.render("management/supplier");
+app.get("/supplier_management", async (req, res) => {
+  try {
+    const page   = parseInt(req.query.page)  || 1;
+    const limit  = parseInt(req.query.limit) || 5;
+    const search = req.query.search || "";
+    const sort   = req.query.sort   || "DESC"; 
+    const offset = (page - 1) * limit;
+
+    const searchPattern = `%${search}%`;
+
+    let orderBy = "";
+
+    if (sort === "NAME_ASC") {
+        // A-Z ก-ฮ
+        orderBy = `
+            CASE WHEN comp_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+            comp_name COLLATE utf8mb4_unicode_ci ASC`;
+    } else if (sort === "NAME_DESC") {
+        // Z-A ฮ-ก
+        orderBy = `
+            CASE WHEN comp_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+            comp_name COLLATE utf8mb4_unicode_ci DESC`;
+    } else if (sort === "ASC") {
+        orderBy = "sup_id ASC";
+    } else {
+        orderBy = "sup_id DESC";
+    }
+
+    const [rows] = await pool.query(
+      `SELECT * FROM suppliers WHERE available = 1 AND comp_name LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+      [searchPattern, limit, offset]
+    );
+
+    const [[{ total }]] = await pool.query(
+      "SELECT COUNT(*) as total FROM suppliers WHERE available = 1 AND comp_name LIKE ?",
+      [searchPattern]
+    );
+
+    res.render("management/supplier", {
+      suppliers: rows,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+      total,
+      search,
+      sort 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database Error");
+  }
+});
+
+app.post("/supplier_management/edit/:id", async (req, res) => {
+  try {
+    const { comp_name, comp_phone } = req.body;
+
+    await pool.query(
+      "UPDATE suppliers SET comp_name = ?, comp_phone = ? WHERE sup_id = ?",
+      [comp_name, comp_phone, req.params.id]
+    );
+
+    res.redirect("/supplier_management");
+
+  } catch (err) {
+    console.error(err);
+    res.redirect("/supplier_management");
+  }
+});
+
+app.post("/supplier_management/delete/:id", async (req, res) => {
+  try {
+    await pool.query(
+      "UPDATE suppliers SET available = 0 WHERE sup_id = ?",
+      [req.params.id]
+    );
+    res.redirect("/supplier_management");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/supplier_management");
+  }
+});
+
+app.post("/supplier_management/bulk-delete", async (req, res) => {
+  try {
+    const idsString = req.body.deleteIds;
+
+    if (!idsString) {
+      return res.redirect("/supplier_management");
+    }
+
+    // แปลง String ให้เป็น Array
+    const idsArray = idsString.split(',');
+
+    // IN (?) เพื่ออัปเดตหลาย ๆ id ในรอบเดียว
+    await pool.query(
+      "UPDATE suppliers SET available = 0 WHERE sup_id IN (?)",
+      [idsArray] 
+    );
+    
+    res.redirect("/supplier_management");
+  } catch (err) {
+    console.error("Error bulk deleting suppliers:", err);
+    res.redirect("/supplier_management");
+  }
+});
+
+app.post("/supplier_management", async (req, res) => {
+  try {
+    const { comp_name, comp_phone } = req.body;
+
+    // comp_name & comp_phone are the same
+    const [existing] = await pool.query(
+      "SELECT * FROM suppliers WHERE comp_name = ? AND comp_phone = ?",
+      [comp_name, comp_phone]
+    );
+
+    if (existing.length > 0) {
+      const supplier = existing[0];
+
+      if (supplier.available === 0) {
+        await pool.query(
+          "UPDATE suppliers SET available = 1 WHERE sup_id = ?",
+          [supplier.sup_id]
+        );
+      }
+
+    } else {
+      await pool.query(
+        "INSERT INTO suppliers (comp_name, comp_phone, available) VALUES (?, ?, 1)",
+        [comp_name, comp_phone]
+      );
+    }
+
+    res.redirect("/supplier_management");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database Error");
+  }
 });
 
 
