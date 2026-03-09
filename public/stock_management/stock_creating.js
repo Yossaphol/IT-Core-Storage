@@ -1,89 +1,94 @@
-const stock_name = document.getElementById('name');
-const capacity = document.getElementById('capacity');
-const warehouse = document.getElementById('warehouse');
+document.addEventListener("DOMContentLoaded", () => {
 
-const confirmBtn = document.getElementById('confirm');
-const cancelBtn = document.getElementById('cancel');
+  const nameInput = document.getElementById("name");
+  const capacityInput = document.getElementById("capacity");
+  const confirmBtn = document.getElementById("confirm");
+  const cancelBtn = document.getElementById("cancel");
+  const warehouseSelect = document.getElementById("warehouse");
+  const productTypeSelect = document.getElementById("product_type");
 
-confirmBtn.addEventListener('click', async () => {
+  cancelBtn.addEventListener("click", () => {
+    window.location = "/warehouse_management/edit";
+  });
 
-  const name = stock_name.value.trim();
-  const cap = capacity.value.trim();
-  const wh = warehouse.value;
+  confirmBtn.addEventListener("click", createStock);
 
-  if (name.length === 0) {
-    await Swal.fire({
-      icon: "warning",
-      title: "ข้อมูลไม่ครบ",
-      text: "กรุณากรอกชื่อโซนเก็บสินค้า"
-    });
-    stock_name.focus();
-    return;
-  }
+  async function createStock() {
 
-  if (cap.length === 0) {
-    await Swal.fire({
-      icon: "warning",
-      title: "ข้อมูลไม่ครบ",
-      text: "กรุณากรอกความจุ"
-    });
-    capacity.focus();
-    return;
-  }
+    const name = nameInput.value.trim();
+    const capacity = capacityInput.value.trim();
+    const productType = productTypeSelect.value;
+    const wh_id = warehouseSelect.value;
 
-  if (isNaN(cap)) {
-    await Swal.fire({
-      icon: "error",
-      title: "ข้อมูลไม่ถูกต้อง",
-      text: "ความจุต้องเป็นตัวเลข"
-    });
-    capacity.focus();
-    return;
-  }
+    if (name.length === 0) {
+      await Swal.fire({
+        icon: "warning",
+        title: "ข้อมูลไม่ครบ",
+        text: "กรุณากรอกชื่อโซนเก็บสินค้า"
+      });
+      nameInput.focus();
+      return;
+    }
 
-  if (parseInt(cap) <= 0) {
-    await Swal.fire({
-      icon: "error",
-      title: "ข้อมูลไม่ถูกต้อง",
-      text: "ความจุต้องมากกว่า 0"
-    });
-    capacity.focus();
-    return;
-  }
+    if (capacity.length === 0) {
+      await Swal.fire({
+        icon: "warning",
+        title: "ข้อมูลไม่ครบ",
+        text: "กรุณากรอกความจุโซนเก็บสินค้า"
+      });
+      capacityInput.focus();
+      return;
+    }
 
-  if (!wh) {
-    await Swal.fire({
-      icon: "warning",
-      title: "ข้อมูลไม่ครบ",
-      text: "กรุณาเลือกคลังสินค้า"
-    });
-    return;
-  }
+    if (isNaN(capacity)) {
+      await Swal.fire({
+        icon: "error",
+        title: "ข้อมูลไม่ถูกต้อง",
+        text: "ความจุต้องเป็นตัวเลข"
+      });
+      capacityInput.focus();
+      return;
+    }
 
-  try {
+    if (parseInt(capacity) <= 0) {
+      await Swal.fire({
+        icon: "error",
+        title: "ข้อมูลไม่ถูกต้อง",
+        text: "ความจุต้องมากกว่า 0"
+      });
+      capacityInput.focus();
+      return;
+    }
 
-    const res = await fetch(`/api/warehouses/stocks/create`, {
+   try {
+
+    const res = await fetch("/api/warehouses/stocks/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         stock_name: name,
-        capacity: parseInt(cap),
-        wh_id: parseInt(wh)
+        capacity: parseInt(capacity),
+        wh_id: wh_id,
+        product_type: productType
       })
     });
 
-    if (!res.ok) throw new Error("Create failed");
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Create failed");
+    }
 
     await Swal.fire({
       icon: "success",
       title: "สำเร็จ",
-      text: "เพิ่มโซนเก็บสินค้าสำเร็จ",
+      text: "สร้างโซนเก็บสินค้าสำเร็จ",
       confirmButtonText: "ตกลง"
     });
 
-    window.history.back();
+    window.location.href = `/warehouse_management/edit?wh_id=${wh_id}`;
 
   } catch (err) {
 
@@ -92,13 +97,33 @@ confirmBtn.addEventListener('click', async () => {
     Swal.fire({
       icon: "error",
       title: "เกิดข้อผิดพลาด",
-      text: "ไม่สามารถเพิ่มโซนเก็บสินค้าได้"
+      text: err.message
     });
 
   }
+  }
 
-});
+  async function loadProductTypes() {
 
-cancelBtn.addEventListener('click', () => {
-  window.location = '/warehouse_management/edit?wh_id=1';
+    try {
+      const res = await fetch("/api/product-types");
+      const types = await res.json();
+
+      productTypeSelect.innerHTML = "";
+
+      types.forEach(t => {
+        const option = document.createElement("option");
+        option.value = t.prod_type;
+        option.textContent = t.prod_type;
+        productTypeSelect.appendChild(option);
+      });
+
+    } catch (err) {
+      console.error("Load product types error:", err);
+    }
+
+  }
+
+  loadProductTypes();
+
 });

@@ -26,8 +26,11 @@ const getWarehouseById = async (req, res) => {
           w.wh_name,
           CONCAT(e.emp_firstname, ' ', e.emp_lastname) AS manager_name,
           w.address AS location,
+
           w.capacity,
+
           COALESCE(SUM(si.amount), 0) AS current
+
       FROM warehouse w
       LEFT JOIN employees e ON w.wh_manager_id = e.emp_id
       LEFT JOIN stock st ON st.wh_id = w.wh_id
@@ -37,10 +40,10 @@ const getWarehouseById = async (req, res) => {
       GROUP BY 
           w.wh_id,
           w.wh_name,
+          w.capacity,
           e.emp_firstname,
           e.emp_lastname,
-          w.address,
-          w.capacity;
+          w.address;
     `;
 
     const [rows] = await pool.query(query, [id]);
@@ -144,8 +147,8 @@ const getStocksByWarehouse = async (req, res) => {
       SELECT 
           s.stock_id,
           s.stock_name,
-		  s.wh_id,
-		  s.capacity,
+          s.wh_id,
+          s.capacity,
           COALESCE(SUM(si.amount),0) AS current_amount
       FROM stock s
       LEFT JOIN shelf sh ON sh.stock_id = s.stock_id
@@ -166,7 +169,7 @@ const getStocksByWarehouse = async (req, res) => {
 const updateStock = async (req, res) => {
   try {
     const { id } = req.params;
-    const { stock_name, capacity } = req.body;
+    const { stock_name, capacity, product_type } = req.body;
 
     const [result] = await pool.query(
       `UPDATE stock
@@ -178,6 +181,16 @@ const updateStock = async (req, res) => {
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Stock not found" });
+    }
+
+    // ถ้ามีการส่ง product_type มา ให้ update shelf ด้วย
+    if (product_type) {
+      await pool.query(
+        `UPDATE shelf
+         SET product_type = ?
+         WHERE stock_id = ?`,
+        [product_type, id]
+      );
     }
 
     const [rows] = await pool.query(
@@ -194,62 +207,141 @@ const updateStock = async (req, res) => {
 };
 
 const createStock = async (req, res) => {
-  try {
-    const { stock_name, capacity, wh_id } = req.body;
+  const conn = await pool.getConnection();
 
-    const [result] = await pool.query(
+  try {
+    const { stock_name, capacity, wh_id, product_type } = req.body;
+
+    await conn.beginTransaction();
+
+    // หา capacity ของ warehouse
+    const [warehouse] = await conn.query(
+      `SELECT capacity FROM warehouse WHERE wh_id = ?`,
+      [wh_id]
+    );
+
+    if (warehouse.length === 0) {
+      await conn.rollback();
+      return res.status(404).json({ message: "Warehouse not found" });
+    }
+
+    const warehouseCapacity = warehouse[0].capacity;
+
+    const [used] = await conn.query(
+      `SELECT COALESCE(SUM(capacity),0) AS used_capacity
+       FROM stock
+       WHERE wh_id = ?`,
+      [wh_id]
+    );
+
+    const usedCapacity = used[0].used_capacity;
+
+    if (usedCapacity + capacity > warehouseCapacity) {
+      await conn.rollback();
+      return res.status(400).json({
+        message: "ความจุของโซนเก็บสินค้าต้องไม่เกินความจุคลังสินค้า"
+      });
+    }
+
+    const [result] = await conn.query(
       `INSERT INTO stock (stock_name, capacity, wh_id) VALUES (?, ?, ?)`,
       [stock_name, capacity, wh_id]
     );
 
-    const [rows] = await pool.query(
+    const stockId = result.insertId;
+
+    let remaining = capacity;
+
+    while (remaining > 0) {
+
+      const shelfCapacity = remaining >= 10 ? 10 : remaining;
+
+      await conn.query(
+        `INSERT INTO shelf (stock_id, capacity, amount, product_type)
+         VALUES (?, ?, ?, ?)`,
+        [stockId, shelfCapacity, 0, product_type]
+      );
+
+      remaining -= shelfCapacity;
+    }
+
+    await conn.commit();
+
+    const [rows] = await conn.query(
       `SELECT * FROM stock WHERE stock_id = ?`,
-      [result.insertId]
+      [stockId]
     );
 
     res.json(rows[0]);
 
   } catch (err) {
+
+    await conn.rollback();
     console.error(err);
     res.status(500).json({ message: "Server error" });
+
+  } finally {
+    conn.release();
   }
 };
 
 const deleteStock = async (req, res) => {
+  const conn = await pool.getConnection();
+
   try {
+
     const { id } = req.params;
 
-    const checkQuery = `
-      SELECT COALESCE(SUM(si.amount),0) AS current_amount
-      FROM stock s
-      LEFT JOIN shelf sh ON sh.stock_id = s.stock_id
-      LEFT JOIN shelf_items si ON si.shelf_id = sh.shelf_id
-      WHERE s.stock_id = ?
-      GROUP BY s.stock_id;
-    `;
+    await conn.beginTransaction();
 
-    const [checkResult] = await pool.query(checkQuery, [id]);
+    const [checkResult] = await conn.query(
+      `SELECT COALESCE(SUM(si.amount),0) AS current_amount
+       FROM shelf_items si
+       JOIN shelf sh ON si.shelf_id = sh.shelf_id
+       WHERE sh.stock_id = ?`,
+      [id]
+    );
 
-    if (
-      checkResult.length > 0 &&
-      parseInt(checkResult[0].current_amount) > 0
-    ) {
+    if (checkResult[0].current_amount > 0) {
+      await conn.rollback();
       return res.status(400).json({ message: "Stock is not empty" });
     }
 
-    const [result] = await pool.query(
+    await conn.query(
+      `DELETE si
+       FROM shelf_items si
+       JOIN shelf sh ON si.shelf_id = sh.shelf_id
+       WHERE sh.stock_id = ?`,
+      [id]
+    );
+
+    await conn.query(
+      `DELETE FROM shelf WHERE stock_id = ?`,
+      [id]
+    );
+
+    const [result] = await conn.query(
       `DELETE FROM stock WHERE stock_id = ?`,
       [id]
     );
 
     if (result.affectedRows === 0) {
+      await conn.rollback();
       return res.status(404).json({ message: "Stock not found" });
     }
+
+    await conn.commit();
 
     res.json({ success: true });
 
   } catch (err) {
+
+    await conn.rollback();
+    console.error(err);
     res.status(500).json({ message: "Server error" });
+
+  } finally {
+    conn.release();
   }
 };
 
@@ -271,6 +363,25 @@ const getManagers = async (req, res) => {
   }
 };
 
+const getProductTypes = async (req, res) => {
+  try {
+
+    const [rows] = await pool.query(`
+      SELECT DISTINCT prod_type
+      FROM products
+      ORDER BY prod_type
+    `);
+
+    res.json(rows);
+
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+
+  }
+};
+
 module.exports = {
   getAllWarehouses,
   getWarehouseById,
@@ -280,5 +391,6 @@ module.exports = {
   updateStock,
   createStock,
   deleteStock,
-  getManagers
+  getManagers,
+  getProductTypes
 };
