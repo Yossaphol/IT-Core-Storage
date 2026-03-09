@@ -114,7 +114,7 @@ const search_query  = async (req, res) => {
                 searchType: 'supplier',
                 title: item.comp_name,
                 subtitle: item.sup_id,
-                url: `#` //Change this when a supplier management page available
+                url: `/supplier_management` //Change this when a supplier management page available
             }));
 
             const mappedProducts = productResult[0].map(item => ({
@@ -122,7 +122,7 @@ const search_query  = async (req, res) => {
                 title: item.prod_name,
                 subtitle: item.prod_code,
                 type: item.type,
-                url: `#` //Change this when a product management page available
+                url: `product_management` //Change this when a product management page available
             }));
 
             results = [...mappedUsers, ...mappedSuppliers, ...mappedProducts];
