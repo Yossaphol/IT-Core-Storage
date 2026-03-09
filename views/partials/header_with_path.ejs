@@ -67,12 +67,14 @@
     </div>
 
     <div class="flex flex-col items-center gap-4 mt-auto relative group px-4 py-2">
-        <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-[45px] h-[45px] rounded-full cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all">
+        <img src="/images/profile/<%= user && user.profile_image ? user.profile_image : 'user.png' %>" class="w-[45px] h-[45px] rounded-full cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all">
+        
+        <!-- <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-[45px] h-[45px] rounded-full cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all"> -->
         
         <div class="absolute left-[60px] bottom-0 hidden group-hover:block pl-6 z-50">
             <div class="w-60 bg-white rounded-xl shadow-2xl p-4 border border-gray-100">
                 <div class="flex items-center gap-3 mb-4">
-                    <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-12 h-12 rounded-full shadow-sm">
+                    <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-12 h-12 rounded-full shadow-sm object-cover overflow-hidden border-transparent group-hover:border-[#838CF1] transition-all">
                     <div>
                         <p class="text-[14px] font-bold text-gray-800 leading-tight"><%= user.username %></p>
                         <p class="text-[11px] text-blue-600 font-medium"><%= role %></p>

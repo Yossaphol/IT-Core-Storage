@@ -279,9 +279,141 @@ app.get("/api/search", searchAPI.search_query)
 // adjustment
 app.post("/api/adjustment", isLoggedIn, adjustmentAPI.adjustProductAmount);
 
-app.get("/user_management", (req, res) => {
-  res.render("management/user");
+app.get("/user_management", async (req, res) => {
+  try {
+    const page   = parseInt(req.query.page)  || 1;
+    const limit  = parseInt(req.query.limit) || 5;
+    const search = req.query.search || "";
+    const sort   = req.query.sort   || "DESC"; 
+    const offset = (page - 1) * limit;
+
+    const searchPattern = `%${search}%`;
+
+    let orderBy = "";
+
+    if (sort === "NAME_ASC") {
+        // A-Z ก-ฮ
+        orderBy = `
+            CASE WHEN emp_fistname REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+            emp_fistname COLLATE utf8mb4_unicode_ci ASC`;
+    } else if (sort === "NAME_DESC") {
+        // Z-A ฮ-ก
+        orderBy = `
+            CASE WHEN emp_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+            emp_firstname COLLATE utf8mb4_unicode_ci DESC`;
+    } else if (sort === "ASC") {
+        orderBy = "emp_id ASC";
+    } else {
+        orderBy = "emp_id DESC";
+    }
+
+    const [rows] = await pool.query(
+      `SELECT * FROM employees WHERE available = 1 AND emp_firstname LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+      [searchPattern, limit, offset]
+    );
+
+    const [[{ total }]] = await pool.query(
+      "SELECT COUNT(*) as total FROM employees WHERE available = 1 AND emp_firstname LIKE ?",
+      [searchPattern]
+    );
+
+    res.render("management/user", {
+      employees: rows,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+      total,
+      search,
+      sort 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database Error");
+  }
 });
+
+// 1. เรียกใช้โมดูล (ถ้าระบุไว้ที่บรรทัดบนสุดของไฟล์ server.js แล้ว ไม่ต้องใส่ซ้ำก็ได้ครับ)
+const multer = require("multer");
+
+// 2. ตั้งค่าที่เก็บไฟล์ (ต้องอยู่นอก app.post)
+const userStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // เก็บใน folder public/images
+    cb(null, "public/images"); 
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const filename = "user_" + Date.now() + ext;
+    cb(null, filename);
+  }
+});
+
+const uploadUserImg = multer({ 
+    storage: userStorage,
+    limits: { fileSize: 5 * 1024 * 1024 } // จำกัดขนาดไฟล์ 5MB
+});
+
+// 3. ประกาศ Route app.post แค่ตัวเดียว แล้วใส่ uploadUserImg.single() เป็น Middleware
+app.post("/user_management", uploadUserImg.single('emp_img'), async (req, res) => {
+  try {
+    const { emp_firstname, emp_lastname, username, roles } = req.body;
+
+    if (!username || !emp_firstname || !emp_lastname || !roles) {
+        console.log("Validation Failed: Missing required fields");
+        return res.redirect("/user_management"); // หรือส่ง res.send แจ้งเตือน
+    }
+    
+    // จัดการ roles กรณีที่มีการส่งมาเป็น Array ให้เชื่อมด้วยลูกน้ำ
+    const roleStr = Array.isArray(roles) ? roles.join(',') : (roles || '');
+    
+    // ตรวจสอบว่ามีไฟล์อัปโหลดมาหรือไม่ ถ้าไม่มีให้ใช้ชื่อรูป Default
+    const imageName = req.file ? req.file.filename : 'user.png';
+
+    // (ในระบบจริงควรมีการ hash รหัสผ่านตั้งต้นด้วย เช่น bcrypt.hash("12345678", 10))
+    const defaultPassword = "defaultPassword123"; 
+
+    // Insert ลง Database
+    await pool.query(
+      "INSERT INTO employees (username, password, emp_firstname, emp_lastname, emp_role, emp_img, available) VALUES (?, ?, ?, ?, ?, ?, 1)",
+      [username, defaultPassword, emp_firstname, emp_lastname, roleStr, imageName]
+    );
+
+    res.redirect("/user_management");
+  } catch (err) {
+    console.error("Error Adding User:", err);
+    res.status(500).send("Database Error");
+  }
+});
+
+app.post("/user_management/delete/:id", async (req, res) => {
+  try {
+    await pool.query(
+      "UPDATE employees SET available = 0 WHERE emp_id = ?",
+      [req.params.id]
+    );
+    res.redirect("/user_management");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/user_management");
+  }
+});
+
+// app.post("/user_management/edit/:id", async (req, res) => {
+//   try {
+//     const { emp_firstname, emp_lastname, emp_role } = req.body;
+
+//     await pool.query(
+//       "UPDATE employees SET emp_firstname = ?, emp_lastname = ?, emp_role = ? WHERE emp_id = ?",
+//       [emp_firstname, emp_lastname, emp_role, req.params.id]
+//     );
+
+//     res.redirect("/user_management");
+
+//   } catch (err) {
+//     console.error(err);
+//     res.redirect("/user_management");
+//   }
+// });
 
 app.get("/product_management", (req, res) => {
   res.render("management/product");

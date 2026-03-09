@@ -40,6 +40,19 @@
         if (capPercent > 100) capPercent = 100;
     %>
 
+    <script id="dash-data" type="application/json">
+        {
+            "typeDist": <%- typeof typeDist !== 'undefined' ? JSON.stringify(typeDist) : '[]' %>,
+            "monthlyTrans": <%- typeof monthlyTrans !== 'undefined' ? JSON.stringify(monthlyTrans) : '[]' %>,
+            "topCategoriesOut": <%- typeof topCategoriesOut !== 'undefined' ? JSON.stringify(topCategoriesOut) : '[]' %>,
+            "transIn": <%= (typeof transIn !== 'undefined' && transIn !== null) ? transIn : 0 %>,
+            "transOut": <%= (typeof transOut !== 'undefined' && transOut !== null) ? transOut : 0 %>,
+            "allProducts": <%- typeof allProducts !== 'undefined' ? JSON.stringify(allProducts) : '[]' %>,
+            "popularProducts": <%- typeof popularProducts !== 'undefined' ? JSON.stringify(popularProducts) : '[]' %>,
+            "warehouses": <%- typeof warehouses !== 'undefined' ? JSON.stringify(warehouses) : '[]' %>
+        }
+    </script>
+
     <div class="ml-0 lg:ml-[110px] mt-[80px] lg:mt-[100px] p-4 sm:p-6 lg:p-10 min-h-[calc(100vh-100px)] relative z-10">
 
         <div class="absolute right-0 lg:right-32 top-10 opacity-5 pointer-events-none hidden md:block">
@@ -69,7 +82,7 @@
             </div>
 
             <div class="flex flex-col items-start xl:items-end gap-4 w-full xl:w-auto mt-4 xl:mt-0">
-                <button class="bg-[#ECC164] hover:bg-[#f0cf85] text-black font-semibold px-4 py-2 rounded-lg text-xs md:text-[13px] flex items-center justify-center gap-2 transition shadow-[0_0_10px_rgba(236,193,100,0.3)] w-full sm:w-auto">
+                <button onclick="exportToCSV()" class="bg-[#ECC164] hover:bg-[#f0cf85] text-black font-semibold px-4 py-2 rounded-lg text-xs md:text-[13px] flex items-center justify-center gap-2 transition shadow-[0_0_10px_rgba(236,193,100,0.3)] w-full sm:w-auto">
                     <i class="fa-solid fa-file-export"></i> ส่งออกข้อมูล
                 </button>
 
@@ -101,12 +114,12 @@
             </div>
 
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
-                <div class="xl:col-span-2 bg-[#0A1020] border border-[#182642] p-4 lg:p-6 rounded-xl shadow-lg relative w-full overflow-hidden">
-                    <div class="flex justify-between items-center mb-4 lg:mb-6">
+                <div class="xl:col-span-2 bg-[#0A1020] border border-[#182642] p-4 lg:p-6 rounded-xl shadow-lg relative w-full overflow-hidden flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-4">
                         <h3 class="text-sm lg:text-[15px] text-[#D4D4D4]">จำนวนสินค้าตามประเภท</h3>
                         <button class="text-[#999] hover:text-white"><i class="fa-solid fa-expand"></i></button>
                     </div>
-                    <div class="relative h-[200px] sm:h-[250px] lg:h-[300px] w-full">
+                    <div class="relative w-full h-[320px]">
                         <canvas id="categoryChart"></canvas>
                     </div>
                 </div>
@@ -115,8 +128,8 @@
                     <div class="bg-[#0A1020] border border-[#182642] p-4 lg:p-5 rounded-xl shadow-lg flex-1">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-xs lg:text-[13px] text-[#999]">ความจุคลัง</h3>
-                            <select class="bg-[#182642] text-white text-[10px] lg:text-[11px] px-2 py-1 rounded outline-none border border-[#2A354D]">
-                                <option value="">คลังรวม</option>
+                            <select id="warehouseSelect" onchange="updateCapacity()" class="bg-[#182642] text-white text-[10px] lg:text-[11px] px-2 py-1 rounded outline-none border border-[#2A354D] cursor-pointer">
+                                <option value="all">คลังรวม</option>
                                 <% if(typeof warehouses !== 'undefined' && warehouses.length > 0) { %>
                                     <% warehouses.forEach(wh => { %>
                                         <option value="<%= wh.wh_id %>"><%= wh.wh_name %></option>
@@ -126,14 +139,14 @@
                         </div>
                         <div class="flex gap-4 lg:gap-6 h-[120px] lg:h-[160px] items-end pb-2">
                             <div class="w-16 sm:w-20 lg:w-24 bg-[#182642] rounded-xl relative overflow-hidden flex flex-col justify-end border border-[#2A354D] h-full">
-                                <div class="w-full bg-[#6EE7B7] flex items-center justify-center transition-all duration-1000" style="height: <%= capPercent %>%;">
-                                    <span class="text-[#0A1020] font-bold text-lg lg:text-2xl"><%= capPercent %>%</span>
+                                <div id="capBar" class="w-full bg-[#6EE7B7] flex items-center justify-center transition-all duration-1000" style="height: <%= capPercent %>%;">
+                                    <span id="capText" class="text-[#0A1020] font-bold text-lg lg:text-2xl"><%= capPercent %>%</span>
                                 </div>
                             </div>
                             <div class="flex flex-col justify-center gap-1 text-[11px] sm:text-xs lg:text-[13px] h-full">
-                                <p class="text-white">ประเภทสินค้า <span class="font-bold"><%= typeof typeDist !== 'undefined' ? typeDist.length : 0 %></span></p>
-                                <p class="text-white mb-1 lg:mb-2">รวมทั้งหมด <span class="font-bold"><%= typeof totalInStock !== 'undefined' ? totalInStock : 0 %></span></p>
-                                <div class="mt-1 lg:mt-2 text-[#D4D4D4] text-[10px] sm:text-[11px] lg:text-[12px]">สินค้าที่มีในระบบ <br><span class="font-bold"><%= typeof totalProducts !== 'undefined' ? totalProducts : 0 %></span> รายการ</div>
+                                <p class="text-white mb-1">ใช้งานแล้ว <span id="usedStock" class="font-bold text-[#69B4E3]">0</span> ชิ้น</p>
+                                <p class="text-white mb-1 lg:mb-2">ความจุรวม <span id="maxStock" class="font-bold text-[#FCD34D]">0</span> ชิ้น</p>
+                                <div class="mt-1 lg:mt-2 text-[#D4D4D4] text-[10px] sm:text-[11px] lg:text-[12px]">สถานะพื้นที่ <br><span id="capStatus" class="font-bold text-[#6EE7B7]">กำลังโหลด..</span></div>
                             </div>
                         </div>
                     </div>
@@ -170,7 +183,7 @@
                                         <td class="px-4 lg:px-5 py-2.5 lg:py-3 border-r border-[#182642]">
                                             <div class="flex items-center gap-2 lg:gap-3">
                                                 <div class="w-5 h-5 lg:w-6 lg:h-6 bg-white rounded-full flex items-center justify-center p-0.5 lg:p-1 shrink-0 overflow-hidden">
-                                                    <img src="<%= item.prod_img && item.prod_img.startsWith('http') ? item.prod_img : '/images/' + item.prod_img %>" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'" class="object-contain w-full h-full">
+                                                    <img src="<%= item.prod_img %>" onerror="this.onerror=null;" class="object-contain w-full h-full">
                                                 </div>
                                                 <span class="truncate-text"><%= item.prod_name %></span>
                                             </div>
@@ -300,7 +313,7 @@
                                         <td class="px-4 lg:px-5 py-2.5 lg:py-3 border-r border-[#182642]">
                                             <div class="flex items-center gap-2 lg:gap-3">
                                                 <div class="w-5 h-5 lg:w-6 lg:h-6 bg-white rounded-full flex items-center justify-center p-0.5 lg:p-1 shrink-0 overflow-hidden">
-                                                    <img src="<%= item.prod_img && item.prod_img.startsWith('http') ? item.prod_img : '/images/' + item.prod_img %>" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Intel_Core_i7_logo.svg/512px-Intel_Core_i7_logo.svg.png'" class="object-contain w-full h-full">
+                                                    <img src="<%= item.prod_img %>" onerror="this.onerror=null;" class="object-contain w-full h-full">
                                                 </div>
                                                 <span class="truncate-text"><%= item.prod_name %></span>
                                             </div>
@@ -324,7 +337,10 @@
     </div>
 
     <script>
+        let currentActiveTab = 'inventory';
+
         function switchTab(tabId) {
+            currentActiveTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => {
                 el.classList.add('hidden');
                 el.classList.remove('block');
@@ -345,9 +361,112 @@
             if (tabId === 'popular' && charts.topCat) charts.topCat.update();
         }
 
+        function exportToCSV() {
+            try {
+                const rawData = document.getElementById('dash-data').textContent;
+                const dbData = JSON.parse(rawData);
+                
+                let csvContent = "\uFEFF"; 
+                let filename = "export.csv";
+                const escapeCSV = (str) => String(str).replace(/"/g, '""');
+
+                if (currentActiveTab === 'inventory') {
+                    filename = "รายงานคลังสินค้า.csv";
+                    csvContent += "รหัสสินค้า,ชื่อสินค้า,แบรนด์,ประเภท,จำนวนคงเหลือ\n";
+                    dbData.allProducts.forEach(item => {
+                        csvContent += `"${escapeCSV(item.prod_code)}","${escapeCSV(item.prod_name)}","${escapeCSV(item.brand)}","${escapeCSV(item.prod_type)}","${item.amount}"\n`;
+                    });
+                } else if (currentActiveTab === 'transition') {
+                    filename = "รายงานแนวโน้มการรับจ่ายรายเดือน.csv";
+                    csvContent += "เดือน,ประเภทการทำรายการ,จำนวน(ชิ้น)\n";
+                    const monthsMap = { 1: 'ม.ค.', 2: 'ก.พ.', 3: 'มี.ค.', 4: 'เม.ย.', 5: 'พ.ค.', 6: 'มิ.ย.', 7: 'ก.ค.', 8: 'ส.ค.', 9: 'ก.ย.', 10: 'ต.ค.', 11: 'พ.ย.', 12: 'ธ.ค.' };
+                    dbData.monthlyTrans.forEach(item => {
+                        let monthName = monthsMap[item.month] || item.month;
+                        let typeName = item.type === 'IN' ? 'รับเข้า' : 'จ่ายออก';
+                        csvContent += `"${monthName}","${typeName}","${item.sum}"\n`;
+                    });
+                } else if (currentActiveTab === 'popular') {
+                    filename = "รายงานสินค้ายอดนิยม.csv";
+                    csvContent += "อันดับ,รหัสสินค้า,ชื่อสินค้า,แบรนด์,ประเภท,จำนวนยอดเบิกสะสม(ชิ้น)\n";
+                    dbData.popularProducts.forEach((item, index) => {
+                        csvContent += `"${index + 1}","${escapeCSV(item.prod_code)}","${escapeCSV(item.prod_name)}","${escapeCSV(item.brand)}","${escapeCSV(item.prod_type)}","${item.total_out}"\n`;
+                    });
+                }
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+            } catch (error) {
+                console.error("Error exporting CSV:", error);
+                alert("เกิดข้อผิดพลาดในการส่งออกข้อมูล");
+            }
+        }
+
+        function updateCapacity() {
+            try {
+                const rawData = document.getElementById('dash-data').textContent;
+                const dbData = JSON.parse(rawData);
+                const whId = document.getElementById('warehouseSelect').value;
+                
+                let currentStock = 0;
+                let maxCap = 0;
+                
+                if (whId === 'all' || whId === '') {
+                    dbData.warehouses.forEach(w => {
+                        currentStock += Number(w.current_stock) || 0;
+                        maxCap += Number(w.max_capacity) || 0;
+                    });
+                } else {
+                    const selectedWh = dbData.warehouses.find(w => String(w.wh_id) === String(whId));
+                    if (selectedWh) {
+                        currentStock = Number(selectedWh.current_stock) || 0;
+                        maxCap = Number(selectedWh.max_capacity) || 0;
+                    }
+                }
+                
+                if(maxCap === 0) maxCap = currentStock > 0 ? currentStock * 2 : 100;
+                
+                let percent = Math.round((currentStock / maxCap) * 100);
+                if (percent > 100) percent = 100;
+                
+                const capBar = document.getElementById('capBar');
+                const capText = document.getElementById('capText');
+                const capStatus = document.getElementById('capStatus');
+                
+                capBar.style.height = percent + '%';
+                capText.innerText = percent + '%';
+                document.getElementById('usedStock').innerText = currentStock.toLocaleString();
+                document.getElementById('maxStock').innerText = maxCap.toLocaleString();
+                
+                if (percent >= 90) {
+                    capBar.className = "w-full flex items-center justify-center transition-all duration-1000 bg-[#F87171]";
+                    capStatus.innerText = "หนาแน่น";
+                    capStatus.className = "font-bold text-[#F87171]";
+                } else if (percent >= 70) {
+                    capBar.className = "w-full flex items-center justify-center transition-all duration-1000 bg-[#FCD34D]";
+                    capStatus.innerText = "ปานกลาง";
+                    capStatus.className = "font-bold text-[#FCD34D]";
+                } else {
+                    capBar.className = "w-full flex items-center justify-center transition-all duration-1000 bg-[#6EE7B7]";
+                    capStatus.innerText = "ปกติ (ว่าง)";
+                    capStatus.className = "font-bold text-[#6EE7B7]";
+                }
+            } catch (error) {
+                console.error("Error updating capacity:", error);
+            }
+        }
+
         function applyDashFilters() {
             const startDate = document.getElementById('dashStartDate').value;
             const endDate = document.getElementById('dashEndDate').value;
+            const searchInput = document.getElementById('dashSearchInput');
             
             let url = new URL(window.location.href);
 
@@ -357,11 +476,8 @@
             if (endDate) url.searchParams.set('end', endDate);
             else url.searchParams.delete('end');
 
-            const searchInput = document.getElementById('dashSearchInput');
-            if (searchInput) {
-                if (searchInput.value) url.searchParams.set('search', searchInput.value);
-                else url.searchParams.delete('search');
-            }
+            if (searchInput && searchInput.value) url.searchParams.set('search', searchInput.value);
+            else url.searchParams.delete('search');
 
             window.location.href = url.href;
         }
@@ -369,11 +485,17 @@
         const charts = {};
 
         document.addEventListener('DOMContentLoaded', function () {
-            const typeDistData = <%- JSON.stringify(typeof typeDist !== 'undefined' ? typeDist : []) %>;
-            const monthlyData = <%- JSON.stringify(typeof monthlyTrans !== 'undefined' ? monthlyTrans : []) %>;
-            const topCatData = <%- JSON.stringify(typeof topCategoriesOut !== 'undefined' ? topCategoriesOut : []) %>;
-            const totalIn = Number("<%= typeof transIn !== 'undefined' ? transIn : 0 %>");
-            const totalOut = Number("<%= typeof transOut !== 'undefined' ? transOut : 0 %>");
+            
+            updateCapacity();
+
+            const rawData = document.getElementById('dash-data').textContent;
+            const dbData = JSON.parse(rawData);
+            
+            const typeDistData = dbData.typeDist || [];
+            const monthlyData = dbData.monthlyTrans || [];
+            const topCatData = dbData.topCategoriesOut || [];
+            const totalIn = Number(dbData.transIn) || 0;
+            const totalOut = Number(dbData.transOut) || 0;
 
             Chart.defaults.color = '#999';
             Chart.defaults.font.family = 'Prompt';
@@ -388,11 +510,12 @@
                         data: typeDistData.length > 0 ? typeDistData.map(d => Number(d.sum) || 0) : [0],
                         backgroundColor: ['#FCD34D', '#EF4444', '#C084FC', '#818CF8', '#FB7185'],
                         borderRadius: 4,
-                        barThickness: window.innerWidth < 640 ? 15 : (window.innerWidth < 1024 ? 25 : 45)
+                        maxBarThickness: 50,
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
+                    responsive: true, 
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { grid: { display: false }, ticks: { font: { size: window.innerWidth < 640 ? 10 : 12 } } },
@@ -410,7 +533,7 @@
                 return found ? Number(found.sum) : 0;
             });
             let dataOut = uniqMonths.map(m => {
-                let found = monthlyData.find(d => d.month === m && d.type === 'OUT');
+                let found = monthlyData.find(d => d.month === m && d.type === 'issue');
                 return found ? Number(found.sum) : 0;
             });
 
@@ -474,7 +597,7 @@
                         data: topCatData.length > 0 ? topCatData.map(d => Number(d.total_out) || 0) : [0],
                         backgroundColor: ['#FCD34D', '#6EE7B7', '#F472B6', '#EF4444', '#A855F7', '#86EFAC'],
                         borderRadius: 4,
-                        barThickness: window.innerWidth < 640 ? 10 : 15
+                        maxBarThickness: 30
                     }]
                 },
                 options: {
@@ -485,17 +608,6 @@
                         x: { beginAtZero: true, grid: { color: '#2A354D' }, border: { display: false }, ticks: { font: { size: window.innerWidth < 640 ? 10 : 12 } } },
                         y: { grid: { display: false }, ticks: { color: '#D4D4D4', font: { size: window.innerWidth < 640 ? 10 : 12 } } }
                     }
-                }
-            });
-            
-            window.addEventListener('resize', function() {
-                if(charts.category) {
-                    charts.category.data.datasets[0].barThickness = window.innerWidth < 640 ? 15 : (window.innerWidth < 1024 ? 25 : 45);
-                    charts.category.update();
-                }
-                if(charts.topCat) {
-                    charts.topCat.data.datasets[0].barThickness = window.innerWidth < 640 ? 10 : 15;
-                    charts.topCat.update();
                 }
             });
 
