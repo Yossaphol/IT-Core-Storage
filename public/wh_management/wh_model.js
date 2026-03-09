@@ -29,12 +29,10 @@ export class Warehouse_model {
         this.createHitZoneAndBorder();
         this.createWarehouse(); 
         
-        // หมุนกลุ่มโมเดลโกดังให้เฉียงซ้ายเล็กน้อย
         this.group.rotation.y = Math.PI / 18; 
     }
 
     createHitZoneAndBorder() {
-        // ขยายพื้นที่โซน Hover ให้ลึกขึ้นเพื่อครอบคลุมรถบรรทุกที่ขยับออกมา
         const blockWidth = 11.0; 
         const blockDepth = 14.0; 
         
@@ -45,7 +43,6 @@ export class Warehouse_model {
         this.hitZone.position.y = 0.1;
         this.hitZone.userData.stockInstance = this; 
         
-        // กรอบ Hover สีนีออนฟ้า
         this.borderMat = new THREE.MeshBasicMaterial({ 
             color: 0x00e5ff, 
             transparent: true, 

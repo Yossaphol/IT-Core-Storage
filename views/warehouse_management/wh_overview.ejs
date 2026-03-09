@@ -10,11 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=SN+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="/js/tailwindConfig.js"></script>
 	<style type="text/css">
 		@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
 
-		/* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
         body { 
 			margin: 0; 
 			overflow: hidden; 
@@ -22,11 +22,6 @@
 			font-family: 'Prompt', Arial, Helvetica, sans-serif !important;
 		}
         canvas { display: block; }
-
-		/* บังคับพวก Input, Button, Sidebar ให้ใช้ฟอนต์เดียวกัน */
-		/* input, button, select, textarea, span, p, a, div {
-			font-family: 'Prompt', sans-serif !important;
-		} */
 	</style>
 </head>
 <body>
@@ -62,7 +57,6 @@
 				<p class="text-white font-bold text-[20px]">เพิ่มคลัง</p>
 			</button>
 		</a>
-
     </div>
 
     <!-- popup -->
@@ -97,6 +91,7 @@
 	<div id="trash" class="z-50 opacity-0 scale-75 pointer-events-none bg-[#F00] rounded-full fixed bottom-[12%] right-[10%] w-[75px] h-[70px] flex items-center justify-center transition-all duration-300 transform">
     	<i class="fa-solid fa-trash text-white text-[45px]"></i>
     </div>
+	
 	<!-- delete confirm -->
 	<div id="popup" class="z-50 opacity-0 scale-95 pointer-events-none fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-white rounded-xl flex flex-col justify-between overflow-hidden transition-all duration-300 transform">
 		<div class="flex flex-col items-center justify-center mt-8">

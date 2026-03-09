@@ -4,6 +4,7 @@ const get_translated_transction_type = (type) =>{
 	if (type === "OUT") return `<span style="color:red;">เบิกออก</span>`
 	if (type === "ADJUST") return `<span style="color:blue;">ปรับแก้ไข</span>`
 }
+
 const get_translated_emp_role = (role) =>{
 	if (role === "MANAGER") return `<span style="color:purple;">ผู้จัดการ</span>`
 	if (role === "WAREHOUSE") return `<span style="color:green;">เจ้าหน้าที่คลังสินค้า</span>`
@@ -37,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 300); 
     });
+	
     function renderResults(results) {
         if (results.length === 0) {
             searchResults.innerHTML = '<div class="p-4 text-sm text-gray-500 text-center">ไม่พบข้อมูลที่ตรงกัน</div>';

@@ -393,13 +393,15 @@ confirmBtn.addEventListener('click', function () {
         return res.json();
     })
     .then(() => {
-        alert("ลบคลังสำเร็จ");
         popup.classList.remove('opacity-100','scale-100');
         popup.classList.add('opacity-0','scale-95','pointer-events-none');
         location.reload();
     })
     .catch(err => {
-        alert("เกิดข้อผิดพลาด");
+        Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด'
+        });
         console.error(err);
     });
 });
@@ -411,6 +413,5 @@ cancelBtn.addEventListener('click', function () {
 
 updateTime();
 setInterval(updateTime, 1000);
-
 loadWarehouses();
 animate();

@@ -2,7 +2,6 @@ const warehouse_name = document.getElementById('name');
 const capacity = document.getElementById('capacity');
 const manager = document.getElementById('manager');
 const address = document.getElementById('address');
-
 const confirmBtn = document.getElementById('confirm');
 
 confirmBtn.addEventListener("click", addWarehouse);

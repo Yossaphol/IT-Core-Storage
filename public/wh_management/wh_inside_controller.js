@@ -1,20 +1,12 @@
-// main.js
 import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
 import { StockBlock } from './wh_inside_model.js';
 
-// ==========================================
-// 1. Scene, Camera, Renderer
-// ==========================================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0E1324); 
 
-/**
- * เปลี่ยนจาก PerspectiveCamera เป็น OrthographicCamera 
- * เพื่อให้ภาพแบนราบ (Flat) ไม่มีมุมเอียงของวัตถุ
- */
 const aspect = window.innerWidth / window.innerHeight;
-const frustumSize = 60; // ขนาดพื้นที่การมองเห็น (ปรับค่านี้เพื่อซูมเข้า/ออก)
+const frustumSize = 60;
 const activeWarehouseId = document.getElementById("activeWarehouseId").value;
 const stockZones = [];
 const spacingX = 15;
@@ -30,7 +22,6 @@ const camera = new THREE.OrthographicCamera(
     1000
 );
 
-// ปรับตำแหน่งกล้องให้สูงขึ้นและอยู่ตรงกลาง (X และ Z ใกล้ 0 เพื่อให้มองตรงลงไป)
 camera.position.set(0, 100, 0); 
 camera.lookAt(0, 0, 0);
 
@@ -44,21 +35,16 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 container.appendChild(renderer.domElement);
 renderer.setSize(container.clientWidth, container.clientHeight);
 
-// ==========================================
-// 2. Controls & Environment
-// ==========================================
 const controls = new MapControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-controls.enableRotate = false; // ปิดการหมุนเพื่อคงความแบน
+controls.enableRotate = false;
 controls.enablePan = true; 
 controls.enableZoom = true;    
 
-// สำหรับ OrthographicCamera จะใช้การเปลี่ยนค่า Zoom ของตัวกล้องแทนระยะทาง
 controls.minZoom = 0.5; 
 controls.maxZoom = 3.0;
 
-// --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0x333333, 0.4); 
 scene.add(ambientLight);
 
@@ -73,7 +59,6 @@ dirLight.shadow.camera.right = 60;
 dirLight.shadow.bias = -0.0005; 
 scene.add(dirLight);
 
-// Floor
 const floorGeo = new THREE.PlaneGeometry(400, 400);
 const floorMat = new THREE.MeshStandardMaterial({ 
     color: 0x1a1f30,
@@ -85,16 +70,12 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true; 
 scene.add(floor);
 
-// Grid
 const gridHelper = new THREE.GridHelper(400, 200, 0x304060, 0x2a3550);
 gridHelper.position.y = 0.01; 
 gridHelper.material.transparent = true;
 gridHelper.material.opacity = 0.2;
 scene.add(gridHelper);
 
-// ==========================================
-// 3. Generate Warehouse
-// ==========================================
 async function loadStocks() {
   try {
     const response = await fetch(`/api/warehouses/${activeWarehouseId}/stocks`);
@@ -128,9 +109,6 @@ async function loadStocks() {
   }
 }
 
-// ==========================================
-// 4. Raycaster & Animation Loop
-// ==========================================
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let currentHoveredStock = null; 

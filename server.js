@@ -36,7 +36,6 @@ app.use((req, res, next) => {
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 
-// context สำหรับเช็ค role user
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.role = req.session.user?.role || null;

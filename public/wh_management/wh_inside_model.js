@@ -1,20 +1,20 @@
-// StockBlock.js
 import * as THREE from 'three';
 import gsap from 'gsap';
 
-// --- Shared Assets (ปรับชั้นวางให้สว่างขึ้น) ---
 const metalShelfMat = new THREE.MeshStandardMaterial({ 
-    color: 0xdde5ed, // เปลี่ยนเป็นสีเงินสว่าง (Light Silver / Platinum)
-    roughness: 0.4,  // ลดความสากลงนิดหน่อย ให้แสงเงาตกกระทบได้คมชัดขึ้น
-    metalness: 0.5   // ลดจาก 0.7 เป็น 0.5 เพื่อให้สีพื้นฐาน (สีขาว/เงิน) เด้งออกมามากขึ้น ไม่จมไปกับเงามืด
+    color: 0xdde5ed,
+    roughness: 0.4,
+    metalness: 0.5
 });
 
-// สีกล่องสดใสเหมือนเดิม ตัดกับชั้นวางสว่างและพื้นหลังมืด
 const boxColors = [0xff4757, 0x2ed573, 0x1e90ff, 0xffa502, 0x3742fa, 0xe84118, 0xfbc531];
 const boxGeo = new THREE.BoxGeometry(0.7, 0.7, 0.7); 
 
-const shelfWidth = 3.2, shelfDepth = 1.6, shelfHeight = 2.2;
-const legThickness = 0.1, shelfThickness = 0.05;
+const shelfWidth = 3.2;
+const shelfDepth = 1.6;
+const shelfHeight = 2.2;
+const legThickness = 0.1;
+const shelfThickness = 0.05;
 
 const legGeo = new THREE.BoxGeometry(legThickness, shelfHeight, legThickness);
 const shelfPlateGeo = new THREE.BoxGeometry(shelfWidth, shelfThickness, shelfDepth);
@@ -52,7 +52,6 @@ export class StockBlock {
             name: this.name
         };
         
-        // กรอบ Hover สีนีออนฟ้า
         this.borderMat = new THREE.MeshBasicMaterial({ 
             color: 0x00e5ff, 
             transparent: true, 
