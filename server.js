@@ -282,56 +282,63 @@ app.get("/api/search", searchAPI.search_query)
 app.post("/api/adjustment", isLoggedIn, adjustmentAPI.adjustProductAmount);
 
 app.get("/user_management", async (req, res) => {
-  try {
-    const page   = parseInt(req.query.page)  || 1;
-    const limit  = parseInt(req.query.limit) || 5;
-    const search = req.query.search || "";
-    const sort   = req.query.sort   || "DESC"; 
-    const offset = (page - 1) * limit;
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || "";
+        const sort   = req.query.sort   || "DESC"; 
+        const offset = (page - 1) * limit;
 
-    const searchPattern = `%${search}%`;
+        const searchQuery = `%${search}%`;
+        
+        let orderBy = "";
 
-    let orderBy = "";
+        if (sort === "NAME_ASC") {
+            // A-Z ก-ฮ
+            orderBy = `
+                CASE WHEN emp_firstname REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+                emp_firstname COLLATE utf8mb4_unicode_ci ASC`;
+        } else if (sort === "NAME_DESC") {
+            // Z-A ฮ-ก
+            orderBy = `
+                CASE WHEN emp_firstname REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+                emp_firstname COLLATE utf8mb4_unicode_ci DESC`;
+        } else if (sort === "ASC") {
+            orderBy = "emp_id ASC";
+        } else {
+            orderBy = "emp_id DESC";
+        }
 
-    if (sort === "NAME_ASC") {
-        // A-Z ก-ฮ
-        orderBy = `
-            CASE WHEN emp_fistname REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
-            emp_fistname COLLATE utf8mb4_unicode_ci ASC`;
-    } else if (sort === "NAME_DESC") {
-        // Z-A ฮ-ก
-        orderBy = `
-            CASE WHEN emp_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
-            emp_firstname COLLATE utf8mb4_unicode_ci DESC`;
-    } else if (sort === "ASC") {
-        orderBy = "emp_id ASC";
-    } else {
-        orderBy = "emp_id DESC";
+        const sql = `
+            SELECT * FROM employees 
+            WHERE available = 1 
+            AND (emp_firstname LIKE ? OR emp_lastname LIKE ? OR CONCAT(emp_firstname, ' ', emp_lastname) LIKE ?)
+            LIMIT ? OFFSET ?`;
+
+        const [employees] = await pool.query(sql, [searchQuery, searchQuery, searchQuery, limit, offset]);
+
+        // นับจำนวนทั้งหมดเพื่อทำ Pagination
+        const [countResult] = await pool.query(
+            "SELECT COUNT(*) as total FROM employees WHERE available = 1 AND (emp_firstname LIKE ? OR emp_lastname LIKE ?)",
+            [searchQuery, searchQuery]
+        );
+        
+        const total = countResult[0].total;
+        const totalPages = Math.ceil(total / limit);
+
+        res.render("management/user", {
+            employees,
+            total,
+            currentPage: page,
+            totalPages,
+            limit,
+            sort,
+            search
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
     }
-
-    const [rows] = await pool.query(
-      `SELECT * FROM employees WHERE available = 1 AND emp_firstname LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
-      [searchPattern, limit, offset]
-    );
-
-    const [[{ total }]] = await pool.query(
-      "SELECT COUNT(*) as total FROM employees WHERE available = 1 AND emp_firstname LIKE ?",
-      [searchPattern]
-    );
-
-    res.render("management/user", {
-      employees: rows,
-      currentPage: page,
-      totalPages: Math.ceil(total / limit),
-      limit,
-      total,
-      search,
-      sort 
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Database Error");
-  }
 });
 
 const multer = require("multer");

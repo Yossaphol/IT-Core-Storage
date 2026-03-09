@@ -267,3 +267,41 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('deleteModal').classList.remove('hidden');
     });
 });
+
+// ฟังก์ชันจัดการการเรียงลำดับ (Sort)
+function handleSort(sortValue) {
+    const searchInput = document.getElementById('searchInput');
+    const limitSelect = document.getElementById('limitSelect');
+    
+    const keyword = searchInput ? searchInput.value : '';
+    const limit = limitSelect ? limitSelect.value : 10;
+    
+    // เมื่อกดเปลี่ยนการกรอง ให้กลับไปเริ่มที่หน้า 1 เสมอ
+    window.location.href = `/user_management?page=1&limit=${limit}&search=${encodeURIComponent(keyword)}&sort=${sortValue}`;
+}
+
+// อัปเดตฟังก์ชัน handleSearch ให้รักษาค่า Sort เดิมไว้ด้วย
+function handleSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const limitSelect = document.getElementById('limitSelect');
+    
+    const keyword = searchInput ? searchInput.value : '';
+    const limit = limitSelect ? limitSelect.value : 10;
+    
+    // ดึงค่า sort ปัจจุบันจาก URL เพื่อไม่ให้ค่าหายเวลาค้นหา
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSort = urlParams.get('sort') || '';
+
+    window.location.href = `/user_management?page=1&limit=${limit}&search=${encodeURIComponent(keyword)}&sort=${currentSort}`;
+}
+
+// อัปเดตฟังก์ชัน changeLimit ให้รักษาค่า Sort เดิมไว้ด้วย
+function changeLimit(value) {
+    const searchInput = document.getElementById('searchInput');
+    const keyword = searchInput ? searchInput.value : '';
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentSort = urlParams.get('sort') || '';
+            
+    window.location.href = `/user_management?page=1&limit=${value}&search=${encodeURIComponent(keyword)}&sort=${currentSort}`;
+}
