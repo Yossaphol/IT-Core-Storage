@@ -14,6 +14,7 @@ const searchAPI = require("./api/search.api")
 const dashboardAPI = require("./api/dashboard.api");
 const receivingAPI = require("./api/receiving.api");
 const issuingAPI = require("./api/issuing.api");
+const adjustmentAPI = require("./api/adjustment.api");
 
 const app = express();
 app.use(cors());
@@ -274,6 +275,9 @@ app.get("/api/get-shelf/:id/products", shelfAPI.getAllProductInShelf);
 
 // get all query data from searching
 app.get("/api/search", searchAPI.search_query)
+
+// adjustment
+app.post("/api/adjustment", isLoggedIn, adjustmentAPI.adjustProductAmount);
 
 app.get("/user_management", (req, res) => {
   res.render("management/user");

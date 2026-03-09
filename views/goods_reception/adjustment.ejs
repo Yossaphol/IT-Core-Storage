@@ -8,20 +8,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { margin: 0; overflow: hidden; background-color: #0E1324; font-family: 'Prompt', sans-serif; }
         canvas { display: block; }
         
-        /* ซ่อน Scrollbar สำหรับ Chrome, Safari และ Opera */
         #detail-panel::-webkit-scrollbar { display: none; }
         #detail-panel { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
-    <div id="three-container" class="fixed inset-0 z-0"></div>
+    <div id="three-container" class="fixed top-[80px] left-0 right-0 bottom-0 z-0"></div>
 
     <div class="relative pointer-events-none z-50">
         <%- include('../partials/header_with_path', { path1 : "ปรับแก้ไขสินค้า", url_1 : "/adjustment"}) %>
+    </div>
+
+    <div class="absolute top-[20%] right-[5%] w-[210px]">
+
+    <div class="relative">
+            <select 
+                name="warehouse"
+                id="warehouse"
+                class="w-auto h-[50px] bg-white/5 backdrop-blur-md border border-white/20 text-white text-[14px] font-medium rounded-full px-6 pr-10 
+                appearance-none outline-none cursor-pointer hover:border-white/50 transition-all duration-200">
+            </select>
+
+            <div class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/60">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+            </div>
+        </div>
     </div>
 
     <div class="absolute top-[20%] left-[10%] text-white pointer-events-none z-10">
@@ -85,16 +101,8 @@
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm text-gray-400 mb-1">ประเภทสินค้า</label>
-                    <input id="edit-type" type="text" class="w-full bg-[#0E1324] border border-white/20 rounded-lg p-3 outline-none focus:border-[#6BB8E7]">
-                </div>
-                <div>
                     <label class="block text-sm text-gray-400 mb-1">จำนวน</label>
                     <input id="edit-qty" type="number" class="w-full bg-[#0E1324] border border-white/20 rounded-lg p-3 outline-none focus:border-[#6BB8E7]">
-                </div>
-                <div>
-                    <label class="block text-sm text-gray-400 mb-1">คำอธิบาย</label>
-                    <textarea id="edit-desc" rows="3" class="w-full bg-[#0E1324] border border-white/20 rounded-lg p-3 outline-none focus:border-[#6BB8E7]"></textarea>
                 </div>
             </div>
 
@@ -116,138 +124,5 @@
     </script>
     
     <script type="module" src="/adjustment/main.js"></script>
-
-    <script>
-        const detailPanel = document.getElementById('detail-panel');
-    let currentProductsInShelf = []; // เก็บข้อมูลสินค้าของชั้นที่กำลังเปิดอยู่
-
-    // 1. ฟังก์ชันเปิด Panel และรับข้อมูล
-    window.showShelfDetails = function(data) {
-        document.getElementById('detail-name').innerText = data.name;
-        document.getElementById('detail-id').innerText = data.id;
-        document.getElementById('detail-current').innerText = data.current;
-        document.getElementById('detail-max').innerText = data.max;
-        
-        const percent = (data.current / data.max) * 100;
-        document.getElementById('detail-progress').style.width = percent + '%';
-        
-        // เก็บข้อมูลสินค้าไว้ในตัวแปร Global ของหน้านี้ เพื่อใช้ Sort
-        currentProductsInShelf = data.items || [];
-        
-        // รีเซ็ตค่าการเรียงลำดับเป็น A-Z ทุกครั้งที่เปิดชั้นใหม่
-        document.getElementById('product-sort').value = 'name-asc';
-        
-        // สั่งวาดรายการสินค้าครั้งแรก
-        sortAndRender();
-
-        // สไลด์เปิด Panel
-        detailPanel.classList.remove('translate-x-full');
-    };
-
-    // 2. ฟังก์ชันปิด Panel
-    window.closeDetailPanel = function() {
-        detailPanel.classList.add('translate-x-full');
-    };
-
-    // 3. ฟังก์ชันจัดการการเรียงลำดับและวาดใหม่
-    function sortAndRender() {
-        const sortBy = document.getElementById('product-sort').value;
-        let sorted = [...currentProductsInShelf];
-
-        switch (sortBy) {
-            case 'name-asc':
-                sorted.sort((a, b) => a.name.localeCompare(b.name, 'th'));
-                break;
-            case 'name-desc':
-                sorted.sort((a, b) => b.name.localeCompare(a.name, 'th'));
-                break;
-            case 'qty-desc':
-                sorted.sort((a, b) => b.qty - a.qty);
-                break;
-            case 'qty-asc':
-                sorted.sort((a, b) => a.qty - b.qty);
-                break;
-            case 'time-desc':
-                sorted.sort((a, b) => b.timestamp - a.timestamp);
-                break;
-            case 'time-asc':
-                sorted.sort((a, b) => a.timestamp - b.timestamp);
-                break;
-        }
-        renderProducts(sorted);
-    }
-
-    // 4. ฟังก์ชันวาด HTML ของรายการสินค้า
-    // ฟังก์ชัน renderProducts เดิม + เพิ่มปุ่มแก้ไข
-    function renderProducts(products) {
-        const list = document.getElementById('product-list');
-        if (products.length === 0) {
-            list.innerHTML = `<div class="text-center py-10 text-gray-500 italic">ไม่มีสินค้าในชั้นวางนี้</div>`;
-            return;
-        }
-
-        list.innerHTML = products.map((p, index) => `
-            <div class="bg-white/5 p-4 rounded-xl border border-white/5 relative group">
-                <button onclick="openEditModal(${index})" class="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors bg-white/10 p-2 rounded-full text-xs">
-                    <i class="fa-solid fa-pencil"></i>
-                </button>
-                
-                <div class="flex gap-4 items-center">
-                    <div class="w-14 h-14 bg-white/10 rounded-lg flex-shrink-0 flex items-center justify-center">
-                        <i class="fa-solid fa-box text-gray-500"></i>
-                    </div>
-                    <div class="flex-1 min-w-0 pr-8">
-                        <p class="text-[12px] text-gray-500 uppercase">${p.sku || 'NO-SKU'}</p>
-                        <p class="text-white font-medium truncate">${p.name}</p>
-                        <div class="flex gap-4 mt-2 text-[12px]">
-                            <span class="text-blue-300">ประเภท: ${p.type || '-'}</span>
-                            <span class="text-[#6DE4B3]">จำนวน: ${p.qty}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // ==========================================
-    // ส่วนจัดการ Modal แก้ไขข้อมูล
-    // ==========================================
-    let editingIndex = null;
-
-    function openEditModal(index) {
-        editingIndex = index;
-        const product = currentProductsInShelf[index];
-        
-        // เติมข้อมูลลงในฟอร์ม
-        document.getElementById('edit-name').innerText = product.name;
-        document.getElementById('edit-type').value = product.type || '';
-        document.getElementById('edit-qty').value = product.qty;
-        document.getElementById('edit-desc').value = product.description || '';
-        
-        // แสดง Modal
-        document.getElementById('edit-modal').classList.remove('hidden');
-    }
-
-    function closeEditModal() {
-        document.getElementById('edit-modal').classList.add('hidden');
-    }
-
-    function saveProductChanges() {
-        // อัปเดตข้อมูลใน array หลัก
-        currentProductsInShelf[editingIndex] = {
-            ...currentProductsInShelf[editingIndex],
-            type: document.getElementById('edit-type').value,
-            qty: parseInt(document.getElementById('edit-qty').value),
-            description: document.getElementById('edit-desc').value
-        };
-
-        closeEditModal();
-        sortAndRender(); // วาดรายการใหม่
-        alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-    }
-
-    // ดักฟังการเปลี่ยนค่าใน Dropdown
-    document.getElementById('product-sort').addEventListener('change', sortAndRender);
-    </script>
 </body>
 </html>
