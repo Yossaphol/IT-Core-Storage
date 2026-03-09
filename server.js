@@ -72,6 +72,8 @@ app.post("/login", async (req, res) => {
     const user = rows[0];
 
     const match = await bcrypt.compare(password, user.password);
+    console.log("Password Match Status:", match); // ดูใน Terminal ว่าเป็น true หรือ false
+    console.log("Hashed Password from DB:", user.password);
 
     if (!match) {
       return res.render("login/login", {
@@ -332,14 +334,12 @@ app.get("/user_management", async (req, res) => {
   }
 });
 
-// 1. เรียกใช้โมดูล (ถ้าระบุไว้ที่บรรทัดบนสุดของไฟล์ server.js แล้ว ไม่ต้องใส่ซ้ำก็ได้ครับ)
 const multer = require("multer");
-
 // 2. ตั้งค่าที่เก็บไฟล์ (ต้องอยู่นอก app.post)
 const userStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     // เก็บใน folder public/images
-    cb(null, "public/images"); 
+    cb(null, "public/images/profile"); 
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -353,35 +353,59 @@ const uploadUserImg = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // จำกัดขนาดไฟล์ 5MB
 });
 
-// 3. ประกาศ Route app.post แค่ตัวเดียว แล้วใส่ uploadUserImg.single() เป็น Middleware
 app.post("/user_management", uploadUserImg.single('emp_img'), async (req, res) => {
   try {
-    const { emp_firstname, emp_lastname, username, roles } = req.body;
+    const { emp_firstname, emp_lastname, username, roles, password } = req.body;
 
-    if (!username || !emp_firstname || !emp_lastname || !roles) {
-        console.log("Validation Failed: Missing required fields");
-        return res.redirect("/user_management"); // หรือส่ง res.send แจ้งเตือน
-    }
-    
-    // จัดการ roles กรณีที่มีการส่งมาเป็น Array ให้เชื่อมด้วยลูกน้ำ
-    const roleStr = Array.isArray(roles) ? roles.join(',') : (roles || '');
-    
-    // ตรวจสอบว่ามีไฟล์อัปโหลดมาหรือไม่ ถ้าไม่มีให้ใช้ชื่อรูป Default
-    const imageName = req.file ? req.file.filename : 'user.png';
-
-    // (ในระบบจริงควรมีการ hash รหัสผ่านตั้งต้นด้วย เช่น bcrypt.hash("12345678", 10))
-    const defaultPassword = "defaultPassword123"; 
-
-    // Insert ลง Database
-    await pool.query(
-      "INSERT INTO employees (username, password, emp_firstname, emp_lastname, emp_role, emp_img, available) VALUES (?, ?, ?, ?, ?, ?, 1)",
-      [username, defaultPassword, emp_firstname, emp_lastname, roleStr, imageName]
+    // 1. ตรวจสอบว่ามีผู้ใช้ชื่อ-นามสกุลนี้อยู่ในระบบหรือไม่ (รวมทั้งที่ available = 0 และ 1)
+    const [existingUsers] = await pool.query(
+      "SELECT * FROM employees WHERE emp_firstname = ? AND emp_lastname = ?",
+      [emp_firstname, emp_lastname]
     );
+
+    // จัดการเรื่องบทบาท (Role) ให้เป็น SYSTEM, MANAGER...
+    const roleArray = Array.isArray(roles) ? roles : [roles];
+    const roleStr = roleArray.map(r => {
+        if (r === 'system') return 'SYSTEM';
+        if (r === 'manager') return 'MANAGER';
+        if (r === 'warehouse') return 'WAREHOUSE';
+        return r.toUpperCase();
+    }).join(',');
+
+    // จัดการรูปภาพ
+    const imageName = req.file ? req.file.filename : 'user.png';
+    // Hash รหัสผ่านใหม่
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    if (existingUsers.length > 0) {
+      const user = existingUsers[0];
+
+      if (user.available === 1) {
+        //  kasus A: มีผู้ใช้นี้อยู่แล้วและกำลังใช้งานอยู่ (ห้ามเพิ่มซ้ำ)
+        return res.status(400).send("ผู้ใช้งานชื่อนี้มีอยู่ในระบบแล้ว");
+      } else {
+        // kasus B: มีชื่อนี้แต่เคยถูกลบ (available = 0) -> ให้ดึงกลับมาและอัปเดตข้อมูลใหม่
+        await pool.query(
+          `UPDATE employees 
+           SET username = ?, password = ?, emp_role = ?, emp_img = ?, available = 1 
+           WHERE emp_id = ?`,
+          [username, hashedPassword, roleStr, imageName, user.emp_id]
+        );
+        console.log(`ดึงผู้ใช้เดิมกลับมาใช้งาน: ${emp_firstname}`);
+      }
+    } else {
+      // kasus C: ไม่เคยมีชื่อนี้เลย -> เพิ่มใหม่ปกติ
+      await pool.query(
+        "INSERT INTO employees (username, password, emp_firstname, emp_lastname, emp_role, emp_img, available) VALUES (?, ?, ?, ?, ?, ?, 1)",
+        [username, hashedPassword, emp_firstname, emp_lastname, roleStr, imageName]
+      );
+      console.log(`เพิ่มผู้ใช้ใหม่เรียบร้อย: ${emp_firstname}`);
+    }
 
     res.redirect("/user_management");
   } catch (err) {
-    console.error("Error Adding User:", err);
-    res.status(500).send("Database Error");
+    console.error("Error:", err);
+    res.status(500).send("ไม่สามารถบันทึกข้อมูลได้");
   }
 });
 
@@ -398,22 +422,74 @@ app.post("/user_management/delete/:id", async (req, res) => {
   }
 });
 
-// app.post("/user_management/edit/:id", async (req, res) => {
-//   try {
-//     const { emp_firstname, emp_lastname, emp_role } = req.body;
+app.post("/user_management/bulk-delete", async (req, res) => {
+  try {
+    const idsString = req.body.deleteIds;
 
-//     await pool.query(
-//       "UPDATE employees SET emp_firstname = ?, emp_lastname = ?, emp_role = ? WHERE emp_id = ?",
-//       [emp_firstname, emp_lastname, emp_role, req.params.id]
-//     );
+    if (!idsString) {
+      return res.redirect("/user_management");
+    }
 
-//     res.redirect("/user_management");
+    // แปลง String ให้เป็น Array
+    const idsArray = idsString.split(',');
 
-//   } catch (err) {
-//     console.error(err);
-//     res.redirect("/user_management");
-//   }
-// });
+    // IN (?) เพื่ออัปเดตหลาย ๆ id ในรอบเดียว
+    await pool.query(
+      "UPDATE employees SET available = 0 WHERE emp_id IN (?)",
+      [idsArray] 
+    );
+    
+    res.redirect("/user_management");
+  } catch (err) {
+    console.error("Error bulk deleting employees:", err);
+    res.redirect("/user_management");
+  }
+});
+
+app.post("/user_management/edit/:id", uploadUserImg.single('emp_img'), async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { emp_firstname, emp_lastname, username, roles } = req.body;
+
+    const roleStr = Array.isArray(roles) ? roles.join(',') : roles;
+
+    // ดึงข้อมูลรูปเดิมจาก DB
+    const [rows] = await pool.query(
+      "SELECT emp_img FROM employees WHERE emp_id = ?",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.redirect("/user_management");
+    }
+
+    let imageName = rows[0].emp_img;
+
+    // ถ้ามีการอัปโหลดรูปใหม่
+    if (req.file) {
+      imageName = req.file.filename;
+    }
+
+    // update database
+    await pool.query(
+      `UPDATE employees 
+       SET emp_firstname = ?, 
+           emp_lastname = ?, 
+           username = ?, 
+           emp_role = ?, 
+           emp_img = ?
+       WHERE emp_id = ?`,
+      [emp_firstname, emp_lastname, username, roleStr, imageName, id]
+    );
+
+    res.redirect("/user_management");
+
+  } catch (err) {
+    console.error("Edit user error:", err);
+    res.redirect("/user_management");
+  }
+});
+
 
 app.get("/product_management", (req, res) => {
   res.render("management/product");
@@ -570,9 +646,7 @@ app.get('/issuing', isLoggedIn, issuingAPI.getIssuingPage);
 
 app.post("/api/issuing/add", isLoggedIn, issuingAPI.addIssuing);
 
-app.get('/user_management', (req, res) => {
-  res.render('management/user');
-});
+
 
 
 const PORT = 3000;

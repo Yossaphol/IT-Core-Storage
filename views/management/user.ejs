@@ -8,6 +8,22 @@
         /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
         body { margin: 0; overflow: hidden; background-color: #0E1324; }
         canvas { display: block; }
+
+        .custom-check {
+            appearance: none; -webkit-appearance: none;
+            width: 1.3rem; height: 1.3rem;
+            border: 2px solid #6b7280; border-radius: 0.3rem;
+            background-color: transparent; cursor: pointer;
+            position: relative; transition: all 0.15s ease;
+        }
+        .custom-check:checked { background-color: #22c55e; border-color: #22c55e; }
+        .custom-check:checked::after {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            content: '\f00c'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); color: white; font-size: 0.8rem; font-weight: bold;
+        }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css">
@@ -34,11 +50,13 @@
 
     <img class="fixed w-70 right-10 top-0" src="/images/chklist.png" alt="">
 
-    <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-center">
-        <p class="text-white text-[20px]">ผู้ใช้ทั้งหมด <%= total %></p>
-        <p id="amount_user"></p>
-                
-        <div class="flex items-center ml-auto gap-5">
+    <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-start justify-between">
+        
+        <div class="flex h-14 items-center">
+            <p class="text-white text-[20px]">ผู้ใช้ทั้งหมด <%= total %></p>
+        </div>
+        
+        <div class="flex items-start gap-5">
 
             <!-- Search Bar -->
             <div class="relative flex h-14 w-[500px] items-center overflow-hidden rounded-full border border-[#4BA3E3]/20 bg-transparent">
@@ -60,12 +78,21 @@
             <!-- Button -->
             <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
                 <i class="fi fi-br-bars-filter mt-2"></i>
-                กรอง</button>
-            <button data-modal-target="add-user-modal" data-modal-toggle="add-user-modal"
-                class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
-                <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
-                เพิ่มผู้ใช้
+                กรอง
             </button>
+            
+            <div class="flex flex-col gap-3 items-end w-[160px]">
+                <button data-modal-target="add-user-modal" data-modal-toggle="add-user-modal"
+                    class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
+                    <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
+                    เพิ่มผู้ใช้
+                </button>
+                <button id="bulkDeleteBtn" type="button" 
+                        class="hidden text-[white] text-[20px] flex justify-center items-center w-[160px] h-[50px] rounded-[11px] bg-[#FF0000] gap-3 hover:bg-[#CC0000] transition-colors cursor-pointer">
+                        <i class="fas fa-trash text-white"></i>
+                        ลบทั้งหมด
+                </button>
+            </div>
         </div>
 
     </div>
@@ -176,10 +203,10 @@
     
 
     <!-- Add User Modal -->
-    <div id="add-user-modal" tabindex="-1" enctype="multipart/form-data"
+    <div id="add-user-modal" tabindex="-1"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         
-        <form action="/user_management" method="POST"
+        <form action="/user_management" method="POST" enctype="multipart/form-data"
             class="flex flex-col bg-white rounded-xl shadow-lg w-[750px] h-[610px] p-6">
             
             <!-- Header -->
@@ -202,7 +229,7 @@
                     </div>
                 </div>
 
-                <input type="file" id="add_imageInput" name="emp_img" accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="previewAddImage(event)">
+                <input type="file" id="add_imageInput" name="emp_img" accept="image/*" class="hidden" onchange="previewAddImage(event)">
 
                 <div class="flex flex-col w-[50%] ml-8">
                     
@@ -228,18 +255,18 @@
                         <label class="block text-[#9E9E9E] text-[16px]">บทบาท</label>
 
                         <!-- แสดง Tag บทบาทที่เลือกแล้ว -->
-                        <div id="selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2">
+                        <div id="add_selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2">
                         <!-- Tag จะถูกเพิ่มที่นี่ด้วย JavaScript -->
                         </div>
 
                         <!-- Hidden inputs สำหรับส่งค่า roles ไปกับ form -->
-                        <div id="hiddenInputs"></div>
+                        <div id="add_hiddenInputs"></div>
 
                         <!-- ปุ่มเพิ่มบทบาท + Dropdown -->
                         <div class="relative inline-block">
                             <button
                                 type="button"
-                                id="addRoleBtn"
+                                id="add_addRoleBtn"
                                 class="border-2 border-dashed border-sky-400 text-sky-500 
                                     px-6 py-2 rounded-full hover:bg-sky-50 
                                     transition-colors flex items-center gap-2 font-medium"
@@ -249,7 +276,7 @@
                             </button>
                             <!-- Dropdown เลือกบทบาท -->
                             <div
-                                id="roleDropdown"
+                                id="add_roleDropdown"
                                 class="hidden absolute left-0 top-full mt-2 bg-white border border-gray-200 
                                     rounded-xl shadow-xl z-10 overflow-hidden min-w-[200px]"
                             >
@@ -259,7 +286,7 @@
                                         border-b border-gray-100">
                                 ผู้จัดการ
                                 </button>
-                                <button type="button" data-role="sysadmin"
+                                <button type="button" data-role="system"
                                 class="role-option w-full text-left px-5 py-3 hover:bg-red-50 
                                         text-gray-700 transition-colors text-base font-medium 
                                         border-b border-gray-100">
