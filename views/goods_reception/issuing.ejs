@@ -240,10 +240,9 @@
                 return;
             }
 
-            // ตั้งค่าคำที่ต้องพิมพ์ตามชื่อสินค้าที่กรอกใน Modal แรก
             targetNameSpan.innerText = productName;
-            verifyInput.value = ""; // ล้างค่าเก่า
-            finalConfirmBtn.disabled = true; // ปิดปุ่มยืนยันไว้ก่อน
+            verifyInput.value = "";
+            finalConfirmBtn.disabled = true;
             
             verifyModal.classList.remove('hidden');
         }
@@ -256,7 +255,6 @@
             const targetText = targetNameSpan.innerText;
             const enteredText = verifyInput.value;
 
-            // ถ้าพิมพ์ตรงกันเป๊ะ ปุ่มยืนยันจะกดได้
             if (enteredText === targetText) {
                 finalConfirmBtn.disabled = false;
             } else {
@@ -265,7 +263,6 @@
         }
    </script>
    <script>
-        // เพิ่มฟังก์ชันส่งข้อมูลเมื่อ Modal ที่สองกดยืนยัน
         finalConfirmBtn.addEventListener('click', async () => {
             const formData = {
                 prod_name: document.getElementById('prod_name').value,

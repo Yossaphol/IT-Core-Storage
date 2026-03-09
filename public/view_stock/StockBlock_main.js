@@ -2,14 +2,10 @@ import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
 import { StockBlock } from './StockBlock.js';
 
-// ==========================================
-// 1. Scene, Camera, Renderer
-// ==========================================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0E1324); 
 scene.fog = new THREE.FogExp2(0x0E1324, 0.008);
 
-// กลับมาใช้ PerspectiveCamera แบบเวอร์ชันแรก
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
 camera.position.set(15, 50, 15); 
 camera.lookAt(0, 0, 0);
@@ -20,16 +16,12 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.getElementById("three-container").appendChild(renderer.domElement);
 
-// ==========================================
-// 2. Controls & Environment
-// ==========================================
 const controls = new MapControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.enableRotate = false; 
 controls.enablePan = true; 
 controls.enableZoom = true;    
-// ตั้งค่าระยะซูมให้เหมือนเวอร์ชันแรก
 controls.minDistance = 20; 
 controls.maxDistance = 250;     
 
@@ -64,9 +56,6 @@ gridHelper.material.transparent = true;
 gridHelper.material.opacity = 0.2; 
 scene.add(gridHelper);
 
-// ==========================================
-// 3. Generate Warehouse จาก API
-// ==========================================
 const stockZones = []; 
 const spacingX = 18; 
 const spacingZ = 16; 
@@ -115,7 +104,6 @@ const loadStockAndBuild = async () => {
             const posZ = (row - (totalRows - 1) / 2) * spacingZ;
             const max_capa = stock_data.capacity; 
             
-            // 1. เรียก API
             let shelvesData = [];
             try {
                 const shelfRes = await fetch(`/api/get-shelf/${stock_data.stock_id}`);
@@ -126,15 +114,12 @@ const loadStockAndBuild = async () => {
                 console.error("Failed to load shelves for stock", stock_data.stock_id, err);
             }
 
-            // 2. เพิ่มพารามิเตอร์ shelvesData ส่งเข้าไปใน StockBlock
             const stockBlock = new StockBlock(posX, posZ, stock_data, wh_id, max_capa, shelvesData);
             scene.add(stockBlock.group);
             
-            // คืนค่า Hit Zone ออกมา
             return stockBlock.shelfHitZones;
         });
 
-        // รอจนวาดทุก Stock เสร็จ แล้วเอาข้อมูล HitZone ทั้งหมดไปยัดใส่ stockZones เพื่อให้คลิกได้
         const allHitZones = await Promise.all(stockPromises);
         allHitZones.forEach(zones => stockZones.push(...zones));
 
@@ -145,14 +130,10 @@ const loadStockAndBuild = async () => {
 
 loadStockAndBuild();
 
-// ==========================================
-// 4. Raycaster & Events
-// ==========================================
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let currentHoveredStock = null; 
 
-// เพิ่มขอบเขตการลากกล้อง (Panning Limits) กลับมาให้เหมือนเดิม
 const minPan = new THREE.Vector3(-100, 0, -200); 
 const maxPan = new THREE.Vector3(100, 0, 200);
 
@@ -191,7 +172,6 @@ window.addEventListener('mouseup', (event) => {
     }
 });
 
-// ปรับ Resize ให้รองรับ PerspectiveCamera
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -202,7 +182,6 @@ function animate() {
     requestAnimationFrame(animate);
     controls.update(); 
 
-    // ล็อคขอบเขตการลากกล้องไม่ให้หลุดออกไปนอกโกดัง
     const clampedTarget = controls.target.clone().clamp(minPan, maxPan);
     if (!clampedTarget.equals(controls.target)) {
         const delta = clampedTarget.clone().sub(controls.target);

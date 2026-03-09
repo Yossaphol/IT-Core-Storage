@@ -17,7 +17,9 @@
     <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/flowbite@latest/dist/flowbite.min.js"></script>
+    <script src="management/user.js"></script>
 </head>
+
 <body>
     
     <div class="relative z-20 pointer-events-none">
@@ -105,7 +107,7 @@
                                 </td>
                                 <td class="py-4 px-4 border-t border-[#4BA3E3]/20">
                                     <div class="flex gap-4">
-                                        <button onclick="openEditModal(<%= emp.emp_id %>, `<%= emp.emp_firstname %>`,`<%= emp.emp_lastname %>`, `<%= emp.username %>`, `<%= emp.emp_role %>`, `<%= emp.emp_img %>`)"
+                                        <button onclick="openEditModal('<%= emp.emp_id %>', `<%= emp.emp_firstname %>`,`<%= emp.emp_lastname %>`, `<%= emp.username %>`, `<%= emp.emp_role %>`, `<%= emp.emp_img %>`)"
                                             class="bg-[#4BA3E3] hover:bg-[#2C8BD0] text-white px-4 py-2 rounded-lg font-normal text-[14px] transition-colors shadow flex items-center gap-2">
                                             <i class="fas fa-pen-to-square text-s"></i> แก้ไข
                                         </button>
@@ -171,110 +173,10 @@
             </div>
         </div>
     </div>
+    
 
-    <!-- Edit Sup MOdal -->
-    <div id="edit-sup-modal"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-
-        <form id="editForm" method="POST"
-            class="flex flex-col bg-white rounded-xl shadow-lg w-[750px] h-[610px] p-6">
-
-            <!-- Header -->
-            <div class="flex justify-between">
-                <p class="text-md font-normal text-[#9E9E9E] ml-5 mt-3">แก้ไขข้อมูล</p>
-                <button data-modal-hide="add-user-modal" class="mr-3">
-                        <i class="fa-solid fa-xmark text-2xl" style="color: #9E9E9E;"></i>
-                </button>
-            </div>
-            <h1 class="text-[36px] ml-5">เพิ่มผู้ใช้งาน</h1>
-
-            <!-- Content -->
-            <div class="flex gap-3 ml-5 mt-8">
-                <img id="edit_emp_img" class="w-[260px] h-[260px] rounded-full object-cover" src="/images/user.png" alt="">
-                <div class="flex flex-col w-[50%] ml-8">
-                    
-                    <span class="flex gap-3 mt-2">
-                        <div>
-                            <label for="username" class="text-[16px] text-[#9E9E9E]">ชื่อจริง</label>
-                            <input type="text" id="edit_emp_firstname" name="emp_firstname" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
-                        </div>
-                        <div>
-                            <label for="username" class="text-[16px] text-[#9E9E9E] mt-2">นามสกุล</label>
-                            <input type="text" id="edit_emp_lastname" name="emp_lastname" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
-                        </div>
-                    </span>
-
-                    <label for="username" class="text-[16px] text-[#9E9E9E] mt-2">ชื่อผู้ใช้</label>
-                    <input type="text" id="edit_username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
-                
-                    <!-- บทบาท -->
-                    <div class="mt-2">
-                        <label class="block text-[#9E9E9E] text-[16px]">บทบาท</label>
-
-                        <!-- แสดง Tag บทบาทที่เลือกแล้ว -->
-                        <div id="selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2">
-                        <!-- Tag จะถูกเพิ่มที่นี่ด้วย JavaScript -->
-                        </div>
-
-                        <!-- Hidden inputs สำหรับส่งค่า roles ไปกับ form -->
-                        <div id="hiddenInputs"></div>
-
-                        <!-- ปุ่มเพิ่มบทบาท + Dropdown -->
-                        <div class="relative inline-block">
-                            <button
-                                type="button"
-                                id="addRoleBtn"
-                                class="border-2 border-dashed border-sky-400 text-sky-500 
-                                    px-6 py-2 rounded-full hover:bg-sky-50 
-                                    transition-colors flex items-center gap-2 font-medium"
-                            >
-                                <i class="fa-solid fa-plus" style="color: sky-400;"></i>
-                                เพิ่มบทบาท
-                            </button>
-                            <!-- Dropdown เลือกบทบาท -->
-                            <div
-                                id="roleDropdown"
-                                class="hidden absolute left-0 top-full mt-2 bg-white border border-gray-200 
-                                    rounded-xl shadow-xl z-10 overflow-hidden min-w-[200px]"
-                            >
-                                <button type="button" data-role="manager"
-                                class="role-option w-full text-left px-5 py-3 hover:bg-purple-50 
-                                        text-gray-700 transition-colors text-base font-medium 
-                                        border-b border-gray-100">
-                                ผู้จัดการ
-                                </button>
-                                <button type="button" data-role="sysadmin"
-                                class="role-option w-full text-left px-5 py-3 hover:bg-red-50 
-                                        text-gray-700 transition-colors text-base font-medium 
-                                        border-b border-gray-100">
-                                เจ้าหน้าที่ระบบ
-                                </button>
-                                <button type="button" data-role="warehouse"
-                                class="role-option w-full text-left px-5 py-3 hover:bg-green-50 
-                                        text-gray-700 transition-colors text-base font-medium">
-                                เจ้าหน้าที่คลังสินค้า
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                
-                </div>
-            </div>
-
-            <!-- Button -->
-            <div class="w-[100%] flex justify-end pt-5 gap-5 mt-auto mb-3 pr-3">
-                <button type="submit" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">
-                    ยืนยันการแก้ไข
-                </button>
-                <button type="button" onclick="closeEditModal()" class="px-[32px] py-[12px] bg-[#F00] rounded-[8px] text-white">
-                    ยกเลิก
-                </button>
-            </div>
-        </form>
-    </div>
-
-
-    <div id="add-user-modal" tabindex="-1" 
+    <!-- Add User Modal -->
+    <div id="add-user-modal" tabindex="-1" enctype="multipart/form-data"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         
         <form action="/user_management" method="POST"
@@ -282,7 +184,7 @@
             
             <!-- Header -->
             <div class="flex justify-between">
-                <p class="text-md font-normal text-[#9E9E9E] ml-5 mt-3">แก้ไขข้อมูล</p>
+                <p class="text-md font-normal text-[#9E9E9E] ml-5 mt-3">เพิ่มข้อมูล</p>
                 <button data-modal-hide="add-user-modal" class="mr-3">
                         <i class="fa-solid fa-xmark text-2xl" style="color: #9E9E9E;"></i>
                 </button>
@@ -291,22 +193,35 @@
 
             <!-- Body -->
             <div class="flex gap-3 ml-5 mt-8">
-                <img class="w-[260px] h-[260px] rounded-full object-cover" src="/images/user.png" alt="">
+                
+                <!-- Upload Profile -->
+                <div class="relative cursor-pointer group shrink-0" onclick="document.getElementById('add_imageInput').click()">
+                    <img id="add_imgPreview" class="w-[260px] h-[260px] rounded-full object-cover group-hover:opacity-50 transition-opacity" src="/images/profile/user.png" alt="">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full w-[260px] h-[260px]">
+                        <i class="fa-solid fa-camera text-white text-4xl"></i>
+                    </div>
+                </div>
+
+                <input type="file" id="add_imageInput" name="emp_img" accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="previewAddImage(event)">
+
                 <div class="flex flex-col w-[50%] ml-8">
                     
                     <span class="flex gap-3 mt-2">
                         <div>
-                            <label for="username" class="text-[16px] text-[#9E9E9E]">ชื่อจริง</label>
-                            <input type="text" id="emp_firstname" name="emp_firstname" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                            <label for="firstname" class="text-[16px] text-[#9E9E9E]">ชื่อจริง</label>
+                            <input type="text" id="emp_firstname" name="emp_firstname" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
                         </div>
                         <div>
-                            <label for="username" class="text-[16px] text-[#9E9E9E] mt-2">นามสกุล</label>
-                            <input type="text" id="emp_lastname" name="emp_lastname" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                            <label for="lastname" class="text-[16px] text-[#9E9E9E] mt-2">นามสกุล</label>
+                            <input type="text" id="emp_lastname" name="emp_lastname" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
                         </div>
                     </span>
 
                     <label for="username" class="text-[16px] text-[#9E9E9E] mt-2">ชื่อผู้ใช้</label>
-                    <input type="text" id="username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                    <input type="text" id="username" name="username" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+
+                    <label for="password" class="text-[16px] text-[#9E9E9E] mt-2">รหัสผ่าน</label>
+                    <input type="text" id="password" name="password" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
                 
                     <!-- บทบาท -->
                     <div class="mt-2">
@@ -373,213 +288,68 @@
             </div>
         </form>
     </div>
-    
-    <script>
-        // ===============================
-        // กำหนดค่าบทบาท พร้อมสีของแต่ละบทบาท
-        // ===============================
-        const rolesConfig = {
-            manager: {
-                label: "ผู้จัดการ",
-                bg: "bg-[#8A38F5]/25",
-                text: "text-purple-700",
-                border: "border-[#8A38F5]",
-                closeBg: "bg-purple-400",
-                closeHover: "hover:bg-purple-500",
-            },
-            sysadmin: {
-                label: "เจ้าหน้าที่ระบบ",
-                bg: "bg-[#EA7987]/25",
-                text: "text-red-600",
-                border: "border-[#EA7987]",
-                closeBg: "bg-red-400",
-                closeHover: "hover:bg-red-500",
-            },
-            warehouse: {
-                label: "เจ้าหน้าที่คลังสินค้า",
-                bg: "bg-[#69D1BF]/25",
-                text: "text-[#69D1BF]",
-                border: "border-[#69D1BF]",
-                closeBg: "bg-[#69D1BF]",
-                closeHover: "hover:bg-[#50B5A3]",
-            },
-        };
 
-        // เก็บบทบาทที่เลือกแล้ว
-        const selectedRoles = new Set();
-
-        // DOM Elements
-        const addRoleBtn = document.getElementById("addRoleBtn");
-        const roleDropdown = document.getElementById("roleDropdown");
-        const selectedRolesContainer = document.getElementById("selectedRoles");
-        const hiddenInputsContainer = document.getElementById("hiddenInputs");
-        const roleOptions = document.querySelectorAll(".role-option");
-
-        // ===============================
-        // เปิด/ปิด Dropdown
-        // ===============================
-        addRoleBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            roleDropdown.classList.toggle("hidden");
-        });
-
-        // ปิด Dropdown เมื่อคลิกข้างนอก
-        document.addEventListener("click", (e) => {
-            if (!roleDropdown.contains(e.target) && e.target !== addRoleBtn) {
-                roleDropdown.classList.add("hidden");
-            }
-        });
-
-        // ===============================
-        // เลือกบทบาทจาก Dropdown
-        // ===============================
-        roleOptions.forEach((option) => {
-            option.addEventListener("click", () => {
-                const roleKey = option.getAttribute("data-role");
-
-                // ถ้าเลือกไปแล้ว ไม่ต้องเพิ่มซ้ำ
-                if (selectedRoles.has(roleKey)) {
-                    roleDropdown.classList.add("hidden");
-                    return;
-                }
-
-                selectedRoles.add(roleKey);
-                renderTags();
-                roleDropdown.classList.add("hidden");
-                updateDropdownOptions();
-            });
-        });
-
-        // ===============================
-        // สร้าง Tag แสดงบทบาทที่เลือก
-        // ===============================
-        function renderTags() {
-            selectedRolesContainer.innerHTML = "";
-            hiddenInputsContainer.innerHTML = "";
-
-            selectedRoles.forEach((roleKey) => {
-                const config = rolesConfig[roleKey];
-
-                // สร้าง Tag Element
-                const tag = document.createElement("span");
-                tag.className = `inline-flex items-center gap-2 px-4 py-2 rounded-full 
-                                border border-2 ${config.bg} ${config.text} ${config.border} 
-                                text-base font-medium animate-fadeIn`;
-                tag.setAttribute("data-role", roleKey);
-
-                tag.innerHTML = `
-                ${config.label}
-                <button type="button" 
-                        class="w-5 h-5 flex items-center justify-center rounded-full 
-                                ${config.closeBg} ${config.closeHover} text-white 
-                                transition-colors ml-1"
-                        onclick="removeRole('${roleKey}')">
-                    <i class="fa-solid fa-xmark w-3.5" style="color: rgb(255, 255, 255);"></i>
+    <div id="edit-sup-modal" tabindex="-1" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <form id="editForm" method="POST" enctype="multipart/form-data" class="flex flex-col bg-white rounded-xl shadow-lg w-[750px] h-[610px] p-6">
+            
+            <div class="flex justify-between">
+                <p class="text-md font-normal text-[#9E9E9E] ml-5 mt-3">แก้ไขข้อมูล</p>
+                <button type="button" onclick="closeEditModal()" class="mr-3">
+                    <i class="fa-solid fa-xmark text-2xl" style="color: #9E9E9E;"></i>
                 </button>
-                `;
+            </div>
+            <h1 class="text-[36px] ml-5">แก้ไขผู้ใช้งาน</h1>
 
-                selectedRolesContainer.appendChild(tag);
+            <div class="flex gap-3 ml-5 mt-8">
+                
+                <div class="relative cursor-pointer group shrink-0" onclick="document.getElementById('edit_imageInput').click()">
+                    <img id="edit_imgPreview" class="w-[260px] h-[260px] rounded-full object-cover group-hover:opacity-50 transition-opacity" src="/images/user.png" alt="Profile Image">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full w-[260px] h-[260px]">
+                        <i class="fa-solid fa-camera text-white text-4xl"></i>
+                    </div>
+                </div>
+                
+                <input type="file" id="edit_imageInput" name="emp_img" accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="previewEditImage(event)">
 
-                // สร้าง Hidden Input สำหรับส่งค่าไปกับ Form
-                const hiddenInput = document.createElement("input");
-                hiddenInput.type = "hidden";
-                hiddenInput.name = "roles";
-                hiddenInput.value = roleKey;
-                hiddenInputsContainer.appendChild(hiddenInput);
-            });
-        }
+                <div class="flex flex-col w-[50%] ml-8">
+                    <span class="flex gap-3 mt-2">
+                        <div>
+                            <label for="edit_emp_firstname" class="text-[16px] text-[#9E9E9E]">ชื่อจริง</label>
+                            <input type="text" id="edit_emp_firstname" name="emp_firstname" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                        </div>
+                        <div>
+                            <label for="edit_emp_lastname" class="text-[16px] text-[#9E9E9E] mt-2">นามสกุล</label>
+                            <input type="text" id="edit_emp_lastname" name="emp_lastname" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                        </div>
+                    </span>
 
-        // ===============================
-        // ลบบทบาท
-        // ===============================
-        function removeRole(roleKey) {
-            selectedRoles.delete(roleKey);
-            renderTags();
-            updateDropdownOptions();
-        }
+                    <label for="edit_username" class="text-[16px] text-[#9E9E9E] mt-2">ชื่อผู้ใช้</label>
+                    <input type="text" id="edit_username" name="username" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
+                
+                    <div class="mt-2">
+                        <label class="block text-[#9E9E9E] text-[16px]">บทบาท</label>
+                        <div id="edit_selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2"></div>
+                        <div id="edit_hiddenInputs"></div>
+                        <div class="relative inline-block">
+                            <button type="button" id="edit_addRoleBtn" class="border-2 border-dashed border-sky-400 text-sky-500 px-6 py-2 rounded-full hover:bg-sky-50 transition-colors flex items-center gap-2 font-medium">
+                                <i class="fa-solid fa-plus" style="color: sky-400;"></i> เพิ่มบทบาท
+                            </button>
+                            <div id="edit_roleDropdown" class="hidden absolute left-0 top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-10 overflow-hidden min-w-[200px]">
+                                <button type="button" data-role="manager" class="role-option w-full text-left px-5 py-3 hover:bg-purple-50 text-gray-700 transition-colors text-base font-medium border-b border-gray-100">ผู้จัดการ</button>
+                                <button type="button" data-role="sysadmin" class="role-option w-full text-left px-5 py-3 hover:bg-red-50 text-gray-700 transition-colors text-base font-medium border-b border-gray-100">เจ้าหน้าที่ระบบ</button>
+                                <button type="button" data-role="warehouse" class="role-option w-full text-left px-5 py-3 hover:bg-green-50 text-gray-700 transition-colors text-base font-medium">เจ้าหน้าที่คลังสินค้า</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        // ===============================
-        // ซ่อนตัวเลือกที่เลือกไปแล้วใน Dropdown
-        // ===============================
-        function updateDropdownOptions() {
-            roleOptions.forEach((option) => {
-                const roleKey = option.getAttribute("data-role");
-                if (selectedRoles.has(roleKey)) {
-                    option.classList.add("hidden");
-                } else {
-                    option.classList.remove("hidden");
-                }
-            });
-
-            // ถ้าเลือกครบทุกบทบาทแล้ว ซ่อนปุ่มเพิ่ม
-            if (selectedRoles.size >= Object.keys(rolesConfig).length) {
-                addRoleBtn.classList.add("opacity-50", "pointer-events-none");
-            } else {
-                addRoleBtn.classList.remove("opacity-50", "pointer-events-none");
-            }
-        }
-
-        // Edit Sup Modal
-        // function openEditModal(id, firstname, lastname, username, role, img) {
-        //     document.getElementById('edit_emp_firstname').value = firstname;
-        //     document.getElementById('edit_emp_lastname').value = lastname;
-        //     document.getElementById('edit_username').value = username;
-        //     document.getElementById('selectedRoles').value = role;
-        //     document.getElementById('edit_emp_img').value = img;
-
-        //     // จัดการรูปภาพ (ถ้ามีข้อมูลรูปใน DB ให้เปลี่ยน src ถ้าไม่มีให้ใช้รูปตั้งต้น)
-        //     const imgPreview = document.querySelector('#edit_emp_img');
-        //     if (img && img !== 'null' && img !== '') {
-        //         imgPreview.src = `/uploads/${img}`; // หรือ path ที่คุณเก็บรูปไว้
-        //     } else {
-        //         imgPreview.src = `/images/user.png`; // รูป Default
-        //     }
-
-        //     selectedRoles.clear();
-
-        //     document.getElementById('editForm').action = `/user_management/edit/${id}`;
-
-        //     document.getElementById('edit-sup-modal').classList.remove('hidden');
-        // }
-
-        // function closeEditModal() {
-        //     document.getElementById('edit-sup-modal').classList.add('hidden');
-        // }
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') {
-                closeEditModal();
-                closeDeleteModal();
-            }
-        });
-
-        function confirmDelete(id, name) {
-            document.getElementById('deleteForm').action = `/user_management/delete/${id}`;
-            document.getElementById('deleteModal').classList.remove('hidden');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.add('hidden');
-        }
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeDeleteModal();
-        });
-
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) closeDeleteModal();
-        });
-
-        const modal = document.getElementById('add-sup-modal');
-
-        function openModal() {
-            modal.classList.remove('hidden');
-        }
-
-        function closeModal() {
-            modal.classList.add('hidden');
-        }
-    </script>
+            <div class="w-[100%] flex justify-end pt-5 gap-5 mt-auto mb-3 pr-3">
+                <button type="submit" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">ยืนยันการแก้ไข</button>
+                <button type="button" onclick="closeEditModal()" class="px-[32px] py-[12px] bg-[#F00] rounded-[8px] text-white">ยกเลิก</button>
+            </div>
+        </form>
+    </div>
 
     <!-- Animation -->
     <!-- <style>

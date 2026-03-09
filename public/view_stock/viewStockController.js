@@ -8,10 +8,8 @@ window.closePopup = function() {
     setTimeout(() => { popup.classList.add('hidden'); }, 300);
 };
 
-// 1. เปลี่ยนกลับมาเป็น Array ว่างๆ เพื่อเอาไว้เก็บข้อมูลที่ดึงมาจาก API
 let currentProducts = [];
 
-// 2. ฟังก์ชันสำหรับเรนเดอร์ HTML
 function renderProducts(products) {
     const list = document.getElementById('product-list');
     
@@ -34,7 +32,6 @@ function renderProducts(products) {
         </div>`).join('');
 }
 
-// 3. Sorting Event Listener (เหมือนเดิม ไม่ต้องแก้)
 document.getElementById('product-sort').addEventListener('change', function(e) {
     const sortBy = e.target.value;
     let sortedArray = [...currentProducts]; 
@@ -61,34 +58,27 @@ document.getElementById('product-sort').addEventListener('change', function(e) {
     renderProducts(sortedArray);
 });
 
-// ==============================================================
-// 4. ฟังก์ชันดึงข้อมูลจาก API จริง
-// ==============================================================
 async function fetchProductsFromAPI(shelf_id) {
     try {
         const res = await fetch(`/api/get-shelf/${shelf_id}/products`);
         if (!res.ok) throw new Error("Failed to fetch");
         const dbProducts = await res.json();
 
-        // แปลงชื่อ Column จาก Database ให้ตรงกับที่ UI ต้องการใช้งาน
         currentProducts = dbProducts.map(item => ({
-            id: item.prod_code, // ใช้รหัสสินค้า
-            name: item.prod_name,               // ใช้ชื่อสินค้า
-            brand: item.brand,                  // ใช้แบรนด์
-            qty: item.amount,                   // จำนวนที่อยู่บนชั้นวางนี้ (จาก table shelf_items)
-            img: item.prod_img || 'https://via.placeholder.com/150', // รูปภาพ
-            time: new Date(item.created_at || Date.now()).getTime() // เวลา (ถ้ามี)
+            id: item.prod_code,
+            name: item.prod_name,
+            brand: item.brand,
+            qty: item.amount,
+            img: item.prod_img || 'https://via.placeholder.com/150',
+            time: new Date(item.created_at || Date.now()).getTime()
         }));
 
     } catch (err) {
         console.error("Error fetching products:", err);
-        currentProducts = []; // ถ้าดึงไม่สำเร็จให้เคลียร์เป็นค่าว่าง
+        currentProducts = [];
     }
 }
 
-// ==============================================================
-// 5. Logic to update the Detail Panel data (เปลี่ยนเป็น async)
-// ==============================================================
 window.updateDetailPanelData = async function(data) {
     document.getElementById('detail-name').innerText = data.name;
     document.getElementById('detail-id').innerText = data.id;
@@ -101,23 +91,16 @@ window.updateDetailPanelData = async function(data) {
     const percent = data.max > 0 ? (data.current / data.max) * 100 : 0;
     document.getElementById('detail-progress').style.width = percent + '%';
     
-    // Reset sort dropdown to default
     document.getElementById('product-sort').value = 'name-asc';
     
-    // --- เริ่มดึง API ก่อนเรนเดอร์ ---
     document.getElementById('product-list').innerHTML = '<p class="text-gray-400 p-4 text-center">กำลังโหลดข้อมูลสินค้า...</p>';
     
-    // data.id ตรงนี้คือ shelf_id ที่ผูกมาจากไฟล์ StockBlock.js ครับ
     await fetchProductsFromAPI(data.id); 
     
-    // Initial render: Sort A-Z by default after fetching
     let initialSort = [...currentProducts].sort((a, b) => a.name.localeCompare(b.name, 'th'));
     renderProducts(initialSort);
 };
 
-// ==============================================================
-// 6. Interaction Functions 
-// ==============================================================
 let activeShelfData = null; 
 
 window.openStockPopup = function(data) {
@@ -139,7 +122,6 @@ window.openStockPopup = function(data) {
         popup.classList.add('scale-100', 'opacity-100');
     }, 10);
 
-    // AUTO-UPDATE
     if (!detailPanel.classList.contains('translate-x-full')) {
         window.updateDetailPanelData(data);
     }
@@ -156,9 +138,6 @@ window.closeDetailPanel = function() {
     detailPanel.classList.add('translate-x-full');
 };
 
-// ==============================================================
-// 7. Select Warehouse Button
-// ==============================================================
 document.addEventListener('DOMContentLoaded', () => {
     const warehouseSelect = document.getElementById("warehouseSelect");
 
