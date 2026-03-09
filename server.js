@@ -275,9 +275,88 @@ app.get("/api/get-shelf/:id/products", shelfAPI.getAllProductInShelf);
 // get all query data from searching
 app.get("/api/search", searchAPI.search_query)
 
-app.get("/user_management", (req, res) => {
-  res.render("management/user");
+app.get("/user_management", async (req, res) => {
+  try {
+    const page   = parseInt(req.query.page)  || 1;
+    const limit  = parseInt(req.query.limit) || 5;
+    const search = req.query.search || "";
+    const sort   = req.query.sort   || "DESC"; 
+    const offset = (page - 1) * limit;
+
+    const searchPattern = `%${search}%`;
+
+    let orderBy = "";
+
+    if (sort === "NAME_ASC") {
+        // A-Z ก-ฮ
+        orderBy = `
+            CASE WHEN emp_fistname REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+            emp_fistname COLLATE utf8mb4_unicode_ci ASC`;
+    } else if (sort === "NAME_DESC") {
+        // Z-A ฮ-ก
+        orderBy = `
+            CASE WHEN emp_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+            emp_firstname COLLATE utf8mb4_unicode_ci DESC`;
+    } else if (sort === "ASC") {
+        orderBy = "emp_id ASC";
+    } else {
+        orderBy = "emp_id DESC";
+    }
+
+    const [rows] = await pool.query(
+      `SELECT * FROM employees WHERE available = 1 AND emp_firstname LIKE ? ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+      [searchPattern, limit, offset]
+    );
+
+    const [[{ total }]] = await pool.query(
+      "SELECT COUNT(*) as total FROM employees WHERE available = 1 AND emp_firstname LIKE ?",
+      [searchPattern]
+    );
+
+    res.render("management/user", {
+      employees: rows,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+      total,
+      search,
+      sort 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database Error");
+  }
 });
+
+app.post("/user_management/delete/:id", async (req, res) => {
+  try {
+    await pool.query(
+      "UPDATE employees SET available = 0 WHERE emp_id = ?",
+      [req.params.id]
+    );
+    res.redirect("/user_management");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/user_management");
+  }
+});
+
+// app.post("/user_management/edit/:id", async (req, res) => {
+//   try {
+//     const { emp_firstname, emp_lastname, emp_role } = req.body;
+
+//     await pool.query(
+//       "UPDATE employees SET emp_firstname = ?, emp_lastname = ?, emp_role = ? WHERE emp_id = ?",
+//       [emp_firstname, emp_lastname, emp_role, req.params.id]
+//     );
+
+//     res.redirect("/user_management");
+
+//   } catch (err) {
+//     console.error(err);
+//     res.redirect("/user_management");
+//   }
+// });
 
 app.get("/product_management", (req, res) => {
   res.render("management/product");
