@@ -4,8 +4,20 @@ const getShelfByStockId = async(req, res)=>{
 	try{
 		const stock_id = req.params.id;
 	
-		const [rows] = await pool.query('select * from shelf where stock_id = ?', [stock_id])
-		res.json(rows)
+		const [rows] = await pool.query(`
+            SELECT 
+                s.shelf_id,
+                s.capacity,
+                s.product_type,
+                COALESCE(SUM(si.amount),0) AS real_amount
+            FROM shelf s
+            LEFT JOIN shelf_items si 
+                ON s.shelf_id = si.shelf_id
+            WHERE s.stock_id = ?
+            GROUP BY s.shelf_id
+        `, [stock_id]);
+
+        res.json(rows);
 	}catch (err) {
     res.status(500).json({ message: "Server error" });
   }
