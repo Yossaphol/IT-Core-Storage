@@ -6,8 +6,28 @@
     <title>User Management</title>
     <style>
         /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
-        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        body { margin: 0; overflow: auto; background-color: #0E1324; }
         canvas { display: block; }
+
+        .custom-check {
+            appearance: none; -webkit-appearance: none;
+            width: 1.3rem; height: 1.3rem;
+            border: 2px solid #6b7280; border-radius: 0.3rem;
+            background-color: transparent; cursor: pointer;
+            position: relative; transition: all 0.15s ease;
+        }
+        .custom-check:checked { background-color: #22c55e; border-color: #22c55e; }
+        .custom-check:checked::after {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            content: '\f00c'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); color: white; font-size: 0.8rem; font-weight: bold;
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #2a3a6e; border-radius: 3px; }
+
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css">
@@ -18,6 +38,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/flowbite@latest/dist/flowbite.min.js"></script>
     <script src="management/user.js"></script>
+    
 </head>
 
 <body>
@@ -34,22 +55,25 @@
 
     <img class="fixed w-70 right-10 top-0" src="/images/chklist.png" alt="">
 
-    <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-center">
-        <p class="text-white text-[20px]">ผู้ใช้ทั้งหมด <%= total %></p>
-        <p id="amount_user"></p>
-                
-        <div class="flex items-center ml-auto gap-5">
+    <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-start justify-between">
+        
+        <div class="flex h-14 items-center">
+            <p class="text-white text-[20px]">ผู้ใช้ทั้งหมด <%= total %></p>
+        </div>
+        
+        <div class="flex items-start gap-5">
 
             <!-- Search Bar -->
             <div class="relative flex h-14 w-[500px] items-center overflow-hidden rounded-full border border-[#4BA3E3]/20 bg-transparent">
-                <input type="text" placeholder="ค้นหา ชื่อ-นามสกุล พนักงาน" 
+                <input type="text" id="searchInput" placeholder="ค้นหา ชื่อ-นามสกุล พนักงาน" 
                     class="h-full flex-1 bg-transparent px-8 text-white placeholder-gray-500 outline-none"
+                    value="<%= search %>"
                 />
 
                 <div class="relative h-full w-32 shrink-0">
                     <div class="absolute inset-0 bg-[#1B3563]" style="clip-path: polygon(5% 0%, 60% 0%, 40% 50%, 35% 50%);"></div>
                     <div class="absolute inset-0 bg-[#4BA3E3]/50" style="clip-path: polygon(55% 15%, 35% 50%, 60% 100%, 6% 100%);"></div>
-                    <button 
+                    <button onclick="handleSearch()"
                         class="absolute inset-0 flex items-center justify-end bg-gradient-to-r from-[#3fa9f5] to-[#1c92d2] text-white hover:brightness-110 transition-all"
                         style="clip-path: polygon(35% 50%, 60% 0%, 100% 0%, 100% 100%, 60% 100%);">
                         <i class="fa-solid fa-magnifying-glass text-2xl mr-8"></i>
@@ -57,15 +81,52 @@
                 </div>
             </div>
 
-            <!-- Button -->
-            <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
-                <i class="fi fi-br-bars-filter mt-2"></i>
-                กรอง</button>
-            <button data-modal-target="add-user-modal" data-modal-toggle="add-user-modal"
-                class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
-                <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
-                เพิ่มผู้ใช้
-            </button>
+            <!-- Sort Button-->
+             <div class="relative">
+                <button id="dropdownSortButton" data-dropdown-toggle="dropdownSort"
+                    class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
+                    <i class="fi fi-br-bars-filter mt-2"></i>
+                    กรอง
+                </button>
+                <div id="dropdownSort" class="z-50 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-40 border border-[#4BA3E3]/30">
+                    <ul class="py-2 text-sm text-[#1B3563]" aria-labelledby="dropdownSortButton">
+                        <li>
+                            <button onclick="handleSort('DESC')" class="block w-full text-left px-4 py-3 hover:bg-[#4BA3E3]/20 transition-colors">
+                                <i class="fa-solid fa-arrows-up-down mr-2.5"></i> ใหม่สุด
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="handleSort('ASC')" class="block w-full text-left px-4 py-3 hover:bg-[#4BA3E3]/20 transition-colors">
+                                <i class="fa-solid fa-arrows-up-down mr-2.5"></i> เก่าสุด
+                            </button>
+                        </li>
+                        <hr class="border-[#4BA3E3]/20">
+                        <li>
+                            <button onclick="handleSort('NAME_ASC')" class="block w-full text-left px-3 py-2 hover:bg-[#4BA3E3]/20 transition-colors font-normal">
+                                <i class="fa-solid fa-sort-alpha-down mr-2"></i> ชื่อ ก-ฮ (A-Z)
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="handleSort('NAME_DESC')" class="block w-full text-left px-3 py-2 hover:bg-[#4BA3E3]/20 transition-colors font-normal">
+                                <i class="fa-solid fa-sort-alpha-up mr-2"></i> ชื่อ ฮ-ก (Z-A)
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-3 items-end w-[160px]">
+                <button data-modal-target="add-user-modal" data-modal-toggle="add-user-modal"
+                    class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
+                    <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
+                    เพิ่มผู้ใช้
+                </button>
+                <button id="bulkDeleteBtn" type="button" 
+                        class="hidden text-[white] text-[20px] flex justify-center items-center w-[160px] h-[50px] rounded-[11px] bg-[#FF0000] gap-3 hover:bg-[#CC0000] transition-colors cursor-pointer">
+                        <i class="fas fa-trash text-white"></i>
+                        ลบทั้งหมด
+                </button>
+            </div>
         </div>
 
     </div>
@@ -132,6 +193,80 @@
                 </tbody>
             </table>
             
+            <!-- Pagination -->
+            <div class="flex items-center justify-between py-4 text-white text-[14px]" style="width: 1147px;">
+
+                <!-- Left -->
+                <div class="flex items-center gap-3">
+                    <span class="text-gray-400">จำนวนแถวต่อ 1 หน้า</span>
+                    <select id="limitSelect" onchange="changeLimit(this.value)"
+                            class="bg-[#1a2342] border border-[#4BA3E3]/40 text-white rounded-md
+                                pl-2 py-1 text-[14px] focus:outline-none cursor-pointer">
+                        <option value="5"  <%= limit===5  ? 'selected':'' %>>5</option>
+                        <option value="10" <%= limit===10 ? 'selected':'' %>>10</option>
+                        <option value="20" <%= limit===20 ? 'selected':'' %>>20</option>
+                    </select>
+                </div>
+
+                <!-- Right -->
+                <div class="flex items-center gap-0.5">
+
+                    <a href="/user_management?page=1&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                    class="w-8 h-8 flex items-center justify-center <%= currentPage <= 1 ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                        <i class="fas fa-angles-left text-xs"></i>
+                    </a>
+
+                    <a href="/user_management?page=<%= Math.max(1, currentPage-1) %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                    class="w-8 h-8 flex items-center justify-center <%= currentPage <= 1 ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                        <i class="fas fa-chevron-left text-xs"></i>
+                    </a>
+
+                    <% if (totalPages <= 7) { %>
+                        <% for (let p = 1; p <= totalPages; p++) { %>
+                            <a href="/user_management?page=<%= p %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                            class="w-8 h-8 flex items-center justify-center text-[14px] font-medium rounded-md
+                                    <%= p === currentPage ? 'border border-[#4BA3E3] text-white bg-[#4BA3E3]/10' : 'text-gray-400 hover:text-white' %>">
+                                <%= p %>
+                            </a>
+                        <% } %>
+                    <% } else { %>
+                        <% if (currentPage > 3) { %>
+                            <a href="/user_management?page=1&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white">1</a>
+                            <span class="w-8 h-8 flex items-center justify-center text-gray-500">...</span>
+                        <% } %>
+
+                        <% 
+                            let start = Math.max(1, currentPage - 2);
+                            let end = Math.min(totalPages, currentPage + 2);
+                            if (currentPage <= 3) end = Math.min(totalPages, 5);
+                            if (currentPage >= totalPages - 2) start = Math.max(1, totalPages - 4);
+                        %>
+                        <% for (let p = start; p <= end; p++) { %>
+                            <a href="/user_management?page=<%= p %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                            class="w-8 h-8 flex items-center justify-center text-[14px] font-medium rounded-md
+                                    <%= p === currentPage ? 'border border-[#4BA3E3] text-white bg-[#4BA3E3]/10' : 'text-gray-400 hover:text-white' %>">
+                                <%= p %>
+                            </a>
+                        <% } %>
+
+                        <% if (currentPage < totalPages - 2) { %>
+                            <span class="w-8 h-8 flex items-center justify-center text-gray-500">...</span>
+                            <a href="/user_management?page=<%= totalPages %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white"><%= totalPages %></a>
+                        <% } %>
+                    <% } %>
+
+                    <a href="/user_management?page=<%= Math.min(totalPages, currentPage+1) %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                    class="w-8 h-8 flex items-center justify-center <%= currentPage >= totalPages ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </a>
+
+                    <a href="/user_management?page=<%= totalPages %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                    class="w-8 h-8 flex items-center justify-center <%= currentPage >= totalPages ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                        <i class="fas fa-angles-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -176,10 +311,10 @@
     
 
     <!-- Add User Modal -->
-    <div id="add-user-modal" tabindex="-1" enctype="multipart/form-data"
+    <div id="add-user-modal" tabindex="-1"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         
-        <form action="/user_management" method="POST"
+        <form action="/user_management" method="POST" enctype="multipart/form-data"
             class="flex flex-col bg-white rounded-xl shadow-lg w-[750px] h-[610px] p-6">
             
             <!-- Header -->
@@ -202,7 +337,7 @@
                     </div>
                 </div>
 
-                <input type="file" id="add_imageInput" name="emp_img" accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="previewAddImage(event)">
+                <input type="file" id="add_imageInput" name="emp_img" accept="image/*" class="hidden" onchange="previewAddImage(event)">
 
                 <div class="flex flex-col w-[50%] ml-8">
                     
@@ -228,18 +363,18 @@
                         <label class="block text-[#9E9E9E] text-[16px]">บทบาท</label>
 
                         <!-- แสดง Tag บทบาทที่เลือกแล้ว -->
-                        <div id="selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2">
+                        <div id="add_selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2">
                         <!-- Tag จะถูกเพิ่มที่นี่ด้วย JavaScript -->
                         </div>
 
                         <!-- Hidden inputs สำหรับส่งค่า roles ไปกับ form -->
-                        <div id="hiddenInputs"></div>
+                        <div id="add_hiddenInputs"></div>
 
                         <!-- ปุ่มเพิ่มบทบาท + Dropdown -->
                         <div class="relative inline-block">
                             <button
                                 type="button"
-                                id="addRoleBtn"
+                                id="add_addRoleBtn"
                                 class="border-2 border-dashed border-sky-400 text-sky-500 
                                     px-6 py-2 rounded-full hover:bg-sky-50 
                                     transition-colors flex items-center gap-2 font-medium"
@@ -249,7 +384,7 @@
                             </button>
                             <!-- Dropdown เลือกบทบาท -->
                             <div
-                                id="roleDropdown"
+                                id="add_roleDropdown"
                                 class="hidden absolute left-0 top-full mt-2 bg-white border border-gray-200 
                                     rounded-xl shadow-xl z-10 overflow-hidden min-w-[200px]"
                             >
@@ -259,7 +394,7 @@
                                         border-b border-gray-100">
                                 ผู้จัดการ
                                 </button>
-                                <button type="button" data-role="sysadmin"
+                                <button type="button" data-role="system"
                                 class="role-option w-full text-left px-5 py-3 hover:bg-red-50 
                                         text-gray-700 transition-colors text-base font-medium 
                                         border-b border-gray-100">
