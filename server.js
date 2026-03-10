@@ -653,9 +653,6 @@ app.get('/issuing', isLoggedIn, issuingAPI.getIssuingPage);
 
 app.post("/api/issuing/add", isLoggedIn, issuingAPI.addIssuing);
 
-
-
-
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
