@@ -88,7 +88,7 @@ exports.getTransactions = async (req, res) => {
             adjustData,
             totalRecords,
             userRole: currentUserRole,
-            user: { role: currentUserRole },
+            // user: { role: currentUserRole },
             query: req.query
         });
 
