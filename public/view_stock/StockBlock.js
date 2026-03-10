@@ -100,7 +100,7 @@ export class StockBlock {
         const st_id = this.stockData.stock_id || '00';
         const dbShelfName = `${st_name}-${currentShelfData?.shelf_id}`;
         const dbShelfId = currentShelfData?.shelf_id || `ST${st_id}-SH${currentShelfData?.shelf_id}`;
-        const dbShelfCurrent = currentShelfData?.amount || 0;
+        const dbShelfCurrent = currentShelfData?.real_amount || 0;
         const dbShelfMax = currentShelfData?.capacity || Math.floor((this.max_capa || 100) / totalShelves);
 
         hitZone.userData = {

@@ -210,7 +210,13 @@ const createStock = async (req, res) => {
   const conn = await pool.getConnection();
 
   try {
-    const { stock_name, capacity, wh_id, product_type } = req.body;
+    let { stock_name, capacity, wh_id, product_type } = req.body;
+
+    const stockCapacity = Number(capacity);
+
+    if (!stock_name || !stockCapacity || !wh_id) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
     await conn.beginTransaction();
 
@@ -225,8 +231,9 @@ const createStock = async (req, res) => {
       return res.status(404).json({ message: "Warehouse not found" });
     }
 
-    const warehouseCapacity = warehouse[0].capacity;
+    const warehouseCapacity = Number(warehouse[0].capacity);
 
+    // หา capacity ที่ใช้ไปแล้ว
     const [used] = await conn.query(
       `SELECT COALESCE(SUM(capacity),0) AS used_capacity
        FROM stock
@@ -234,23 +241,26 @@ const createStock = async (req, res) => {
       [wh_id]
     );
 
-    const usedCapacity = used[0].used_capacity;
+    const usedCapacity = Number(used[0].used_capacity);
 
-    if (usedCapacity + capacity > warehouseCapacity) {
+    // เช็คความจุรวม
+    if (usedCapacity + stockCapacity > warehouseCapacity) {
       await conn.rollback();
       return res.status(400).json({
         message: "ความจุของโซนเก็บสินค้าต้องไม่เกินความจุคลังสินค้า"
       });
     }
 
+    // เพิ่ม stock
     const [result] = await conn.query(
       `INSERT INTO stock (stock_name, capacity, wh_id) VALUES (?, ?, ?)`,
-      [stock_name, capacity, wh_id]
+      [stock_name, stockCapacity, wh_id]
     );
 
     const stockId = result.insertId;
 
-    let remaining = capacity;
+    // สร้าง shelf อัตโนมัติ (ช่องละ 10)
+    let remaining = stockCapacity;
 
     while (remaining > 0) {
 
@@ -350,7 +360,7 @@ const getManagers = async (req, res) => {
     const query = `
       SELECT emp_id, username, emp_firstname, emp_lastname
       FROM employees
-      WHERE emp_role = 'MANAGER'
+      WHERE emp_role = 'MANAGER' and available = 1
       ORDER BY emp_firstname;
     `;
 

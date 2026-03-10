@@ -517,6 +517,13 @@
             }
         });
 
+        function handleSearch() {
+            const keyword = document.getElementById('searchInput').value;
+            const limit = document.getElementById('limitSelect').value;
+            const currentSort = '<%= sort %>'; // รักษาค่าการกรองเดิมไว้
+
+            window.location.href = `/supplier_management?page=1&limit=${limit}&search=${encodeURIComponent(keyword)}&sort=${currentSort}`;
+        }
         // Sort Func
         function changeLimit(value) {
             const keyword = document.getElementById('searchInput').value;
@@ -526,7 +533,6 @@
             window.location.href = `/supplier_management?page=1&limit=${value}&search=${encodeURIComponent(keyword)}&sort=${currentSort}`;
         }
 
-        // ฟังก์ชันจัดการการเรียงลำดับ
         function handleSort(sortValue) {
             const keyword = document.getElementById('searchInput').value;
             const limit = document.getElementById('limitSelect').value;
@@ -535,14 +541,6 @@
             window.location.href = `/supplier_management?page=1&limit=${limit}&search=${encodeURIComponent(keyword)}&sort=${sortValue}`;
         }
 
-        // ปรับปรุงฟังก์ชัน Search เดิมให้ส่งค่า sort ไปด้วย (เพื่อไม่ให้ค่า sort หายเวลาค้นหา)
-        function handleSearch() {
-            const keyword = document.getElementById('searchInput').value;
-            const limit = document.getElementById('limitSelect').value;
-            const currentSort = '<%= sort %>'; // รักษาค่าการกรองเดิมไว้
-
-            window.location.href = `/supplier_management?page=1&limit=${limit}&search=${encodeURIComponent(keyword)}&sort=${currentSort}`;
-        }
                 
 
     </script>
