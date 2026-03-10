@@ -1,7 +1,12 @@
 <div class="fixed top-0 left-0 z-40 flex flex-col w-[110px] h-screen items-center gap-5 pt-10 pb-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20 border-r border-white/5">
+<<<<<<< HEAD
     <!-- sidebar -->
     <div class="text-white font-bold text-[14px] h-10 mb-2">
         <div class="w-[7px] h-[6px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px] mb-1"></div>
+=======
+    <div class="text-white font-bold text-[14px] h-10 text-center mb-2">
+        <div class="w-[7px] h-[6px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px] mx-auto mb-1"></div>
+>>>>>>> bfa7c7a39b885a547bfe7ec4de5aeab60fa6e94f
         <a href="/">
             <p class="leading-none text-[10px]">IT CORE</p>
             <p class="leading-none text-[10px]">STORAGE</p>
@@ -10,7 +15,6 @@
 
     <div class="flex flex-col gap-5 h-[450px] items-center">
         
-        <!-- Good reception -->
         <% if (user && role === 'WAREHOUSE') { %>
         <div class="group relative flex flex-col items-center py-2 px-4">
             <i class="fa-solid fa-box text-white text-[40px] group-hover:text-[#838CF1] cursor-pointer transition-colors"></i>
@@ -25,8 +29,7 @@
         </div>
         <% } %>
 
-         <!-- Warehouse Management -->
-        <% if (user && role === 'MANAGER') { %>
+         <% if (user && role === 'MANAGER') { %>
         <div class="group relative flex flex-col items-center py-2 px-4">
             <i class="fa-solid fa-warehouse text-white text-[35px] group-hover:text-[#838CF1] cursor-pointer transition-colors"></i>
             <div class="absolute left-[60px] top-[-10px] hidden group-hover:block pl-6 z-50">
@@ -38,7 +41,6 @@
         </div>
         <% } %>
 
-        <!-- Transaction -->
         <% if (user && (role === 'WAREHOUSE' || role === 'MANAGER')) { %>
         <div class="group relative flex flex-col items-center py-2 px-4">
             <i class="fa-solid fa-list-check text-white text-[40px] group-hover:text-[#838CF1] cursor-pointer transition-colors"></i>
@@ -51,7 +53,6 @@
         </div>
         <% } %>
 
-        <!-- Dashboard -->
         <% if (user && role === 'MANAGER') { %>
         <div class="group relative flex flex-col items-center py-2 px-4">
             <i class="fa-solid fa-chart-area text-white text-[40px] group-hover:text-[#838CF1] cursor-pointer transition-colors"></i>
@@ -67,16 +68,16 @@
     </div>
 
     <div class="flex flex-col items-center gap-4 mt-auto relative group px-4 py-2">
-            <!-- <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-[45px] h-[45px] rounded-full cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all"> -->
             <img 
             src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" 
             class="w-[45px] h-[45px] rounded-full object-cover overflow-hidden cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all">
+            
             <div class="absolute left-[60px] bottom-0 hidden group-hover:block pl-6 z-50">
                 <div class="w-60 bg-white rounded-xl shadow-2xl p-4 border border-gray-100">
                     <div class="flex items-center gap-3 mb-4">
-                        <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-12 h-12 rounded-full shadow-sm object-cover overflow-hidden border-transparent group-hover:border-[#838CF1] transition-all">
+                        <img src="/images/profile/<%= (user && user.profile_image) ? user.profile_image : 'user.png' %>" class="w-12 h-12 rounded-full shadow-sm object-cover overflow-hidden border-transparent group-hover:border-[#838CF1] transition-all">
                         <div>
-                            <p class="text-[14px] font-bold text-gray-800 leading-tight"> <%= user.username %></p>
+                            <p class="text-[14px] font-bold text-gray-800 leading-tight"> <%= user ? user.username : 'Guest' %></p>
                             <p class="text-[11px] text-blue-600 font-medium"><%= role %></p>
                         </div>
                     </div>
@@ -91,7 +92,6 @@
     </a>
 </div>
 
-<!-- path -->
 <div class="fixed top-0 left-[110px] right-0 h-[100px]
             flex items-center justify-between pr-10
             backdrop-blur-md bg-[#0E1324]/40
@@ -102,9 +102,9 @@
         <p class="text-[#999] flex gap-3">
             <a href="/" class="text-white">ภาพรวมสินค้าคงคลัง</a>
 
-            <% if (path1) { %>
+            <% if (typeof path1 !== 'undefined' && path1) { %>
                 >
-                <a href="<%= url_1 %>" class="text-white capitalize">
+                <a href="<%= typeof url_1 !== 'undefined' ? url_1 : '#' %>" class="text-white capitalize">
                     <%= path1 %>
                 </a>
             <% } %>

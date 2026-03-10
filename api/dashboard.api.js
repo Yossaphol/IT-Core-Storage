@@ -59,7 +59,7 @@ exports.getDashboardData = async (req, res) => {
         );
 
         const transAdjDate = buildDateCondition('date_time');
-        const transAdjConditions = ["type = 'ADJUST'", ...transAdjDate.conditions];
+        const transAdjConditions = ["type = 'ADJUSTMENT'", ...transAdjDate.conditions];
         const [[transAdjRow]] = await pool.query(
             `SELECT COUNT(*) as count FROM stock_transition 
              WHERE ${transAdjConditions.join(' AND ')}`,
