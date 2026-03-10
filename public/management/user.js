@@ -267,6 +267,12 @@ function handleSearch() {
     window.location.href = `/user_management?page=1&limit=${limit}&search=${encodeURIComponent(keyword)}&sort=${currentSort}`;
 }
 
+document.getElementById('searchInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        handleSearch();
+    }
+});
+
 function changeLimit(value) {
     const searchInput = document.getElementById('searchInput');
     const keyword = searchInput ? searchInput.value : '';

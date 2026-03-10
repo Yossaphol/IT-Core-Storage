@@ -168,3 +168,13 @@ function previewEditImage(event) {
 function closeEditModal() {
     document.getElementById('edit-product-modal').classList.add('hidden');
 }
+
+function handleSort(sortValue) {
+    const searchInput = document.getElementById('searchInput');
+    const limitSelect = document.getElementById('limitSelect');
+    
+    const keyword = searchInput ? searchInput.value : '';
+    const limit = limitSelect ? limitSelect.value : 10;
+    
+    window.location.href = `/product_management?page=1&limit=${limit}&search=${encodeURIComponent(keyword)}&sort=${sortValue}`;
+}

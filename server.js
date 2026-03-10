@@ -580,7 +580,6 @@ app.post("/product_management/bulk-delete", async (req, res) => {
   }
 });
 
-// ตั้งค่าให้ Multer เซฟชื่อไฟล์ชั่วคราวไปก่อน
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'public/images/products_img'); 

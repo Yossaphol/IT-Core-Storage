@@ -74,13 +74,42 @@
                 </div>
             </div>
 
-            <!-- Button -->
-            <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
-                <i class="fi fi-br-bars-filter mt-2"></i>
-                เรียง</button>
+            <!-- Sort Button-->
+             <div class="relative">
+                <button id="dropdownSortButton" data-dropdown-toggle="dropdownSort"
+                    class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
+                    <i class="fi fi-br-bars-filter mt-2"></i>
+                    เรียง
+                </button>
+                <div id="dropdownSort" class="z-50 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-40 border border-[#4BA3E3]/30">
+                    <ul class="py-2 text-sm text-[#1B3563]" aria-labelledby="dropdownSortButton">
+                        <li>
+                            <button onclick="handleSort('DESC')" class="block w-full text-left px-4 py-3 hover:bg-[#4BA3E3]/20 transition-colors">
+                                <i class="fa-solid fa-arrows-up-down mr-2.5"></i> ใหม่สุด
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="handleSort('ASC')" class="block w-full text-left px-4 py-3 hover:bg-[#4BA3E3]/20 transition-colors">
+                                <i class="fa-solid fa-arrows-up-down mr-2.5"></i> เก่าสุด
+                            </button>
+                        </li>
+                        <hr class="border-[#4BA3E3]/20">
+                        <li>
+                            <button onclick="handleSort('NAME_ASC')" class="block w-full text-left px-3 py-2 hover:bg-[#4BA3E3]/20 transition-colors font-normal">
+                                <i class="fa-solid fa-sort-alpha-down mr-2"></i> A-Z
+                            </button>
+                        </li>
+                        <li>
+                            <button onclick="handleSort('NAME_DESC')" class="block w-full text-left px-3 py-2 hover:bg-[#4BA3E3]/20 transition-colors font-normal">
+                                <i class="fa-solid fa-sort-alpha-up mr-2"></i> Z-A
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
             <!-- Add/Delete Product Button -->
-            <div class="flex flex-col gap-3 items-end">
+            <div class="flex flex-col gap-3 items-end w-[160px]">
                 <button data-modal-target="add-product-modal" data-modal-toggle="add-product-modal"
                     class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
                     <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
@@ -118,7 +147,7 @@
                         <tr class="border-t border-white/5 hover:bg-white/5">
                             <% if (products.length === 0) { %>
                         <tr>
-                            <td colspan="4" class="text-center text-gray-400 py-28 text-xl border-none">
+                            <td colspan="7" class="text-center text-gray-400 py-28 text-xl border-none">
                                 <i class="fas fa-inbox text-5xl mb-4 block text-gray-600"></i>
                                 <span class="font-light">ไม่พบสินค้าที่คุณค้นหา</span>
                             </td>
@@ -489,6 +518,5 @@
     </script>
 
     <script src="/management/product.js"></script>
-    <script src="/js/currentdate.js"></script>
 </body>
 </html>
