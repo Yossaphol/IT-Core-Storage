@@ -72,7 +72,7 @@ app.post("/login", async (req, res) => {
     const user = rows[0];
 
     const match = await bcrypt.compare(password, user.password);
-    console.log("Password Match Status:", match); // ดูใน Terminal ว่าเป็น true หรือ false
+    console.log("Password Match Status:", match);
     console.log("Hashed Password from DB:", user.password);
 
     if (!match) {
@@ -294,12 +294,10 @@ app.get("/user_management", async (req, res) => {
         let orderBy = "";
 
         if (sort === "NAME_ASC") {
-            // A-Z ก-ฮ
             orderBy = `
                 CASE WHEN emp_firstname REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
                 emp_firstname COLLATE utf8mb4_unicode_ci ASC`;
         } else if (sort === "NAME_DESC") {
-            // Z-A ฮ-ก
             orderBy = `
                 CASE WHEN emp_firstname REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
                 emp_firstname COLLATE utf8mb4_unicode_ci DESC`;
@@ -322,7 +320,6 @@ app.get("/user_management", async (req, res) => {
             [searchQuery, searchQuery, searchQuery, limit, offset]
         );
 
-        // นับจำนวนทั้งหมดเพื่อทำ Pagination
         const [countResult] = await pool.query(
             "SELECT COUNT(*) as total FROM employees WHERE available = 1 AND (emp_firstname LIKE ? OR emp_lastname LIKE ?)",
             [searchQuery, searchQuery]
@@ -347,10 +344,8 @@ app.get("/user_management", async (req, res) => {
 });
 
 const multer = require("multer");
-// 2. ตั้งค่าที่เก็บไฟล์ (ต้องอยู่นอก app.post)
 const userStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // เก็บใน folder public/images
     cb(null, "public/images/profile"); 
   },
   filename: (req, file, cb) => {
@@ -362,20 +357,18 @@ const userStorage = multer.diskStorage({
 
 const uploadUserImg = multer({ 
     storage: userStorage,
-    limits: { fileSize: 5 * 1024 * 1024 } // จำกัดขนาดไฟล์ 5MB
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 app.post("/user_management", uploadUserImg.single('emp_img'), async (req, res) => {
   try {
     const { emp_firstname, emp_lastname, username, roles, password } = req.body;
 
-    // 1. ตรวจสอบว่ามีผู้ใช้ชื่อ-นามสกุลนี้อยู่ในระบบหรือไม่ (รวมทั้งที่ available = 0 และ 1)
     const [existingUsers] = await pool.query(
       "SELECT * FROM employees WHERE emp_firstname = ? AND emp_lastname = ?",
       [emp_firstname, emp_lastname]
     );
 
-    // จัดการเรื่องบทบาท (Role) ให้เป็น SYSTEM, MANAGER...
     const roleArray = Array.isArray(roles) ? roles : [roles];
     const roleStr = roleArray.map(r => {
         if (r === 'system') return 'SYSTEM';
@@ -384,19 +377,15 @@ app.post("/user_management", uploadUserImg.single('emp_img'), async (req, res) =
         return r.toUpperCase();
     }).join(',');
 
-    // จัดการรูปภาพ
     const imageName = req.file ? req.file.filename : 'user.png';
-    // Hash รหัสผ่านใหม่
     const hashedPassword = await bcrypt.hash(password, 10);
 
     if (existingUsers.length > 0) {
       const user = existingUsers[0];
 
       if (user.available === 1) {
-        //  kasus A: มีผู้ใช้นี้อยู่แล้วและกำลังใช้งานอยู่ (ห้ามเพิ่มซ้ำ)
         return res.status(400).send("ผู้ใช้งานชื่อนี้มีอยู่ในระบบแล้ว");
       } else {
-        // kasus B: มีชื่อนี้แต่เคยถูกลบ (available = 0) -> ให้ดึงกลับมาและอัปเดตข้อมูลใหม่
         await pool.query(
           `UPDATE employees 
            SET username = ?, password = ?, emp_role = ?, emp_img = ?, available = 1 
@@ -406,7 +395,6 @@ app.post("/user_management", uploadUserImg.single('emp_img'), async (req, res) =
         console.log(`ดึงผู้ใช้เดิมกลับมาใช้งาน: ${emp_firstname}`);
       }
     } else {
-      // kasus C: ไม่เคยมีชื่อนี้เลย -> เพิ่มใหม่ปกติ
       await pool.query(
         "INSERT INTO employees (username, password, emp_firstname, emp_lastname, emp_role, emp_img, available) VALUES (?, ?, ?, ?, ?, ?, 1)",
         [username, hashedPassword, emp_firstname, emp_lastname, roleStr, imageName]
@@ -442,10 +430,8 @@ app.post("/user_management/bulk-delete", async (req, res) => {
       return res.redirect("/user_management");
     }
 
-    // แปลง String ให้เป็น Array
     const idsArray = idsString.split(',');
 
-    // IN (?) เพื่ออัปเดตหลาย ๆ id ในรอบเดียว
     await pool.query(
       "UPDATE employees SET available = 0 WHERE emp_id IN (?)",
       [idsArray] 
@@ -465,7 +451,6 @@ app.post("/user_management/edit/:id", uploadUserImg.single('emp_img'), async (re
 
     const roleStr = Array.isArray(roles) ? roles.join(',') : roles;
 
-    // ดึงข้อมูลรูปเดิมจาก DB
     const [rows] = await pool.query(
       "SELECT emp_img FROM employees WHERE emp_id = ?",
       [id]
@@ -477,12 +462,10 @@ app.post("/user_management/edit/:id", uploadUserImg.single('emp_img'), async (re
 
     let imageName = rows[0].emp_img;
 
-    // ถ้ามีการอัปโหลดรูปใหม่
     if (req.file) {
       imageName = req.file.filename;
     }
 
-    // update database
     await pool.query(
       `UPDATE employees 
        SET emp_firstname = ?, 
@@ -516,12 +499,10 @@ try {
     let orderBy = "";
 
     if (sort === "NAME_ASC") {
-        // A-Z ก-ฮ
         orderBy = `
             CASE WHEN prod_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
             prod_name COLLATE utf8mb4_unicode_ci ASC`;
     } else if (sort === "NAME_DESC") {
-        // Z-A ฮ-ก
         orderBy = `
             CASE WHEN prod_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
             prod_name COLLATE utf8mb4_unicode_ci DESC`;
@@ -574,12 +555,10 @@ app.get("/supplier_management", async (req, res) => {
     let orderBy = "";
 
     if (sort === "NAME_ASC") {
-        // A-Z ก-ฮ
         orderBy = `
             CASE WHEN comp_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
             comp_name COLLATE utf8mb4_unicode_ci ASC`;
     } else if (sort === "NAME_DESC") {
-        // Z-A ฮ-ก
         orderBy = `
             CASE WHEN comp_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
             comp_name COLLATE utf8mb4_unicode_ci DESC`;
@@ -652,10 +631,8 @@ app.post("/supplier_management/bulk-delete", async (req, res) => {
       return res.redirect("/supplier_management");
     }
 
-    // แปลง String ให้เป็น Array
     const idsArray = idsString.split(',');
 
-    // IN (?) เพื่ออัปเดตหลาย ๆ id ในรอบเดียว
     await pool.query(
       "UPDATE suppliers SET available = 0 WHERE sup_id IN (?)",
       [idsArray] 
@@ -672,7 +649,6 @@ app.post("/supplier_management", async (req, res) => {
   try {
     const { comp_name, comp_phone } = req.body;
 
-    // comp_name & comp_phone are the same
     const [existing] = await pool.query(
       "SELECT * FROM suppliers WHERE comp_name = ? AND comp_phone = ?",
       [comp_name, comp_phone]
@@ -702,6 +678,7 @@ app.post("/supplier_management", async (req, res) => {
     res.status(500).send("Database Error");
   }
 });
+
 // receiving
 app.get('/receiving', isLoggedIn, receivingAPI.getReceivingPage);
 
@@ -711,9 +688,6 @@ app.post("/api/receiving/add", isLoggedIn, receivingAPI.addReceiving);
 app.get('/issuing', isLoggedIn, issuingAPI.getIssuingPage);
 
 app.post("/api/issuing/add", isLoggedIn, issuingAPI.addIssuing);
-
-
-
 
 const PORT = 3000;
 app.listen(PORT, () => {

@@ -11,7 +11,6 @@ const adjustProductAmount = async (req, res) => {
 
         await conn.beginTransaction();
 
-        // update shelf_items
         await conn.query(
             `UPDATE shelf_items
              SET amount = ?
@@ -19,7 +18,6 @@ const adjustProductAmount = async (req, res) => {
             [new_amount, shelf_id, prod_id]
         );
 
-        // หา supplier จาก transaction ล่าสุดที่รับเข้า
         const [supRow] = await conn.query(
             `SELECT sup_id
              FROM stock_transition
@@ -31,7 +29,6 @@ const adjustProductAmount = async (req, res) => {
 
         const sup_id = supRow.length ? supRow[0].sup_id : null;
 
-        // insert transition ใหม่
         await conn.query(
             `INSERT INTO stock_transition
             (type, sup_id, emp_id, prod_id, amount, status, date_time, remaining)

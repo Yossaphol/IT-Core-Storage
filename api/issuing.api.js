@@ -5,7 +5,6 @@ const getIssuingPage = async (req, res) => {
 
     try {
 
-        // auto clear pending issue
         try {
             await conn.beginTransaction();
             await autoIssuePending(conn);
@@ -15,7 +14,6 @@ const getIssuingPage = async (req, res) => {
             throw err;
         }
 
-        // 1. รายการล่าสุด
         const [latestItems] = await conn.query(`
             SELECT st.trans_id, st.amount, st.date_time, 
                    p.prod_name, p.prod_img, 
@@ -31,7 +29,6 @@ const getIssuingPage = async (req, res) => {
             LIMIT 10
         `);
 
-        // 2. pending issue
         const [pendingIssues] = await conn.query(`
             SELECT st.trans_id, st.amount, st.date_time,
                    p.prod_name, p.prod_img, p.description, p.prod_type
@@ -42,7 +39,6 @@ const getIssuingPage = async (req, res) => {
             ORDER BY st.date_time DESC
         `);
 
-        // 3. employees
         const [employees] = await conn.query(`
             SELECT emp_id, emp_firstname, emp_lastname
             FROM employees
@@ -75,7 +71,6 @@ const addIssuing = async (req, res) => {
     try {
         await conn.beginTransaction();
 
-        // หา product
         const [product] = await conn.query(
             "SELECT prod_id FROM products WHERE prod_code = ?",
             [prod_code]
@@ -85,7 +80,6 @@ const addIssuing = async (req, res) => {
 
         const prod_id = product[0].prod_id;
 
-        // SUM จำนวนสินค้าจาก shelf_items
         const [stock] = await conn.query(
             "SELECT SUM(amount) AS total FROM shelf_items WHERE prod_id = ?",
             [prod_id]
@@ -93,7 +87,6 @@ const addIssuing = async (req, res) => {
 
         const availableQty = stock[0].total || 0;
 
-        // หา supplier
         let [sups] = await conn.query(
             "SELECT sup_id FROM suppliers WHERE comp_name = ?",
             [comp_name]
@@ -111,12 +104,10 @@ const addIssuing = async (req, res) => {
             sup_id = newSup.insertId;
         }
 
-        // ====== สินค้าพอ ======
         if (availableQty >= qty) {
 
             let remaining = qty;
 
-            // เอา shelf ที่มีสินค้านี้
             const [shelves] = await conn.query(`
                 SELECT shelf_id, amount
                 FROM shelf_items
@@ -130,14 +121,12 @@ const addIssuing = async (req, res) => {
 
                 const take = Math.min(s.amount, remaining);
 
-                // ลด shelf_items
                 await conn.query(`
                     UPDATE shelf_items
                     SET amount = amount - ?
                     WHERE shelf_id = ? AND prod_id = ?
                 `, [take, s.shelf_id, prod_id]);
 
-                // ลด shelf.amount
                 await conn.query(`
                     UPDATE shelf
                     SET amount = amount - ?
@@ -147,13 +136,11 @@ const addIssuing = async (req, res) => {
                 remaining -= take;
             }
 
-            // ลบ record ที่หมด
             await conn.query(`
                 DELETE FROM shelf_items
                 WHERE amount <= 0
             `);
 
-            // บันทึก transition
             await conn.query(`
                 INSERT INTO stock_transition
                 (type, sup_id, emp_id, prod_id, amount, remaining, status)
@@ -168,7 +155,6 @@ const addIssuing = async (req, res) => {
             });
 
         } 
-        // ====== สินค้าไม่พอ ======
         else {
 
             await conn.query(`

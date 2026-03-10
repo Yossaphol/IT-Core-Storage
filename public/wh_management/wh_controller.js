@@ -1,4 +1,3 @@
-// main.js
 import * as THREE from 'three';
 import { MapControls } from 'three/addons/controls/MapControls.js';
 import {Warehouse_model } from './wh_model.js';
@@ -11,9 +10,6 @@ const popup = document.getElementById('popup');
 const confirmBtn = document.getElementById('confirm');
 const cancelBtn = document.getElementById('cancel');
 
-// ==========================================
-// 1. Scene, Camera, Renderer
-// ==========================================
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0E1324); 
 scene.fog = new THREE.FogExp2(0x0E1324, 0.008);
@@ -27,9 +23,6 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.getElementById("three-container").appendChild(renderer.domElement);
 
-// ==========================================
-// 2. Controls & Environment
-// ==========================================
 const controls = new MapControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
@@ -37,7 +30,6 @@ controls.enableRotate = false; controls.enablePan = true; controls.enableZoom = 
 controls.minDistance = 20; controls.maxDistance = 85;     
 controls.maxPolarAngle = Math.PI / 2 - 0.05; 
 
-// --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0x333333, 0.5); 
 scene.add(ambientLight);
 
@@ -52,7 +44,6 @@ dirLight.shadow.camera.right = 60;
 dirLight.shadow.bias = -0.0005; 
 scene.add(dirLight);
 
-// Floor
 const floorGeo = new THREE.PlaneGeometry(400, 400);
 const floorMat = new THREE.MeshStandardMaterial({ 
     color: 0x1a1f30,  
@@ -64,53 +55,43 @@ floor.rotation.x = -Math.PI / 2;
 floor.receiveShadow = true; 
 scene.add(floor);
 
-// Grid
 const gridHelper = new THREE.GridHelper(400, 200, 0x304060, 0x2a3550);
 gridHelper.position.y = 0.01; 
 gridHelper.material.transparent = true;
 gridHelper.material.opacity = 0.2;
 scene.add(gridHelper);
 
-// ==========================================
-// 3. Generate Warehouse & Add Button
-// ==========================================
 const stockZones = []; 
 const spacingX = 15; 
-const spacingZ = 16; // ขยายระยะห่างแนวลึก (Z) ระหว่างแถวขึ้นนิดหน่อยเพื่อรองรับรถที่ยื่นออกมา
+const spacingZ = 16;
 
 const stockCountFromDB = 7; 
-const totalItems = stockCountFromDB + 1; // รวมปุ่ม "+เพิ่ม" เข้าไปในลำดับการวาด
+const totalItems = stockCountFromDB + 1;
 const columnsPerRow = 3; 
 const totalRows = Math.ceil(totalItems / columnsPerRow);
 
-// สร้าง Canvas Texture สำหรับข้อความภาษาไทย
 function createAddTextTexture() {
     const canvas = document.createElement('canvas');
     canvas.width = 512; canvas.height = 512;
     const ctx = canvas.getContext('2d');
 
-    // พื้นหลังโปร่งใส
     ctx.clearRect(0, 0, 512, 512);
 
-    // สีและการเรืองแสง (Glow) สีนีออน
     ctx.fillStyle = '#00e5ff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.shadowColor = '#00e5ff';
     ctx.shadowBlur = 10;
 
-    // เครื่องหมาย +
     ctx.font = 'bold 150px "Kanit", "Prompt", sans-serif';
     ctx.fillText('+', 256, 180);
 
-    // ข้อความ 'เพิ่ม'
     ctx.font = 'bold 90px "Kanit", "Prompt", sans-serif';
     ctx.fillText('เพิ่ม', 256, 330);
 
     return new THREE.CanvasTexture(canvas);
 }
 
-// ดึงข้อมูลและสร้าง warehouse จาก database
 async function loadWarehouses() {
   try {
     const response = await fetch("/api/warehouses");
@@ -141,7 +122,6 @@ async function loadWarehouses() {
   }
 }
 
-// สร้างพื้นที่สำหรับกดเพิ่ม warehouse
 function createAddButton(index, columnsPerRow, totalRows) {
 
     const col = index % columnsPerRow;
@@ -196,7 +176,6 @@ function createAddButton(index, columnsPerRow, totalRows) {
     borderGroup.add(top, bottom, left, right);
     addGroup.add(borderGroup);
 
-    // ข้อความ
     const textMat = new THREE.MeshBasicMaterial({
     map: createAddTextTexture(),
     transparent: true,
@@ -214,7 +193,6 @@ function createAddButton(index, columnsPerRow, totalRows) {
 
     addGroup.add(textPlane);
 
-    // hover
     addHitZone.userData = {
     isAddButton: true,
     borderMat: borderMat
@@ -224,9 +202,6 @@ function createAddButton(index, columnsPerRow, totalRows) {
     stockZones.push(addHitZone);
 }
 
-// ==========================================
-// 4. Raycaster, Limits & Animation Loop
-// ==========================================
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 let currentHoveredObj = null; 
@@ -261,13 +236,11 @@ function animate() {
 
     let newlyHovered = null;
     if (intersects.length > 0) {
-        newlyHovered = intersects[0].object.userData; // ดึง userData ออกมาเช็ค
+        newlyHovered = intersects[0].object.userData; 
     }
 
-    // จัดการ Event Hover (รองรับทั้งโกดัง และ ปุ่ม Add)
     if (newlyHovered !== currentHoveredObj) {
         if (currentHoveredObj) {
-            // Hover Out
             if (currentHoveredObj.stockInstance) {
                 currentHoveredObj.stockInstance.hoverOut();
             } else if (currentHoveredObj.isAddButton) {
@@ -278,7 +251,6 @@ function animate() {
         }
 
         if (newlyHovered) {
-             // Hover In
              if (newlyHovered.stockInstance) {
                  newlyHovered.stockInstance.hoverIn();
              } else if (newlyHovered.isAddButton) {
@@ -293,7 +265,6 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// display popup
 let mouseDownPosition = new THREE.Vector2();
 
 window.addEventListener('mousedown', (event) => {

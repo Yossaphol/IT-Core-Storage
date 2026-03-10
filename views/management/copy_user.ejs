@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
     <style>
-        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
         body { margin: 0; overflow: hidden; background-color: #0E1324; }
         canvas { display: block; }
     </style>
@@ -170,19 +169,14 @@
                     <label for="username" class="text-[16px] text-[#9E9E9E] mt-2">ชื่อผู้ใช้</label>
                     <input type="text" id="username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
                 
-                    <!-- บทบาท -->
                     <div class="mt-2">
                         <label class="block text-[#9E9E9E] text-[16px]">บทบาท</label>
 
-                        <!-- แสดง Tag บทบาทที่เลือกแล้ว -->
                         <div id="selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2">
-                        <!-- Tag จะถูกเพิ่มที่นี่ด้วย JavaScript -->
                         </div>
 
-                        <!-- Hidden inputs สำหรับส่งค่า roles ไปกับ form -->
                         <div id="hiddenInputs"></div>
 
-                        <!-- ปุ่มเพิ่มบทบาท + Dropdown -->
                         <div class="relative inline-block">
                             <button
                                 type="button"
@@ -194,7 +188,6 @@
                                 <i class="fa-solid fa-plus" style="color: sky-400;"></i>
                                 เพิ่มบทบาท
                             </button>
-                            <!-- Dropdown เลือกบทบาท -->
                             <div
                                 id="roleDropdown"
                                 class="hidden absolute left-0 top-full mt-2 bg-white border border-gray-200 
@@ -237,9 +230,6 @@
     </div>
     
     <script>
-        // ===============================
-        // กำหนดค่าบทบาท พร้อมสีของแต่ละบทบาท
-        // ===============================
         const rolesConfig = {
             manager: {
                 label: "ผู้จัดการ",
@@ -267,39 +257,29 @@
             },
         };
 
-        // เก็บบทบาทที่เลือกแล้ว
         const selectedRoles = new Set();
 
-        // DOM Elements
         const addRoleBtn = document.getElementById("addRoleBtn");
         const roleDropdown = document.getElementById("roleDropdown");
         const selectedRolesContainer = document.getElementById("selectedRoles");
         const hiddenInputsContainer = document.getElementById("hiddenInputs");
         const roleOptions = document.querySelectorAll(".role-option");
 
-        // ===============================
-        // เปิด/ปิด Dropdown
-        // ===============================
         addRoleBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             roleDropdown.classList.toggle("hidden");
         });
 
-        // ปิด Dropdown เมื่อคลิกข้างนอก
         document.addEventListener("click", (e) => {
             if (!roleDropdown.contains(e.target) && e.target !== addRoleBtn) {
                 roleDropdown.classList.add("hidden");
             }
         });
 
-        // ===============================
-        // เลือกบทบาทจาก Dropdown
-        // ===============================
         roleOptions.forEach((option) => {
             option.addEventListener("click", () => {
                 const roleKey = option.getAttribute("data-role");
 
-                // ถ้าเลือกไปแล้ว ไม่ต้องเพิ่มซ้ำ
                 if (selectedRoles.has(roleKey)) {
                     roleDropdown.classList.add("hidden");
                     return;
@@ -312,9 +292,6 @@
             });
         });
 
-        // ===============================
-        // สร้าง Tag แสดงบทบาทที่เลือก
-        // ===============================
         function renderTags() {
             selectedRolesContainer.innerHTML = "";
             hiddenInputsContainer.innerHTML = "";
@@ -322,7 +299,6 @@
             selectedRoles.forEach((roleKey) => {
                 const config = rolesConfig[roleKey];
 
-                // สร้าง Tag Element
                 const tag = document.createElement("span");
                 tag.className = `inline-flex items-center gap-2 px-4 py-2 rounded-full 
                                 border border-2 ${config.bg} ${config.text} ${config.border} 
@@ -342,7 +318,6 @@
 
                 selectedRolesContainer.appendChild(tag);
 
-                // สร้าง Hidden Input สำหรับส่งค่าไปกับ Form
                 const hiddenInput = document.createElement("input");
                 hiddenInput.type = "hidden";
                 hiddenInput.name = "roles";
@@ -351,18 +326,12 @@
             });
         }
 
-        // ===============================
-        // ลบบทบาท
-        // ===============================
         function removeRole(roleKey) {
             selectedRoles.delete(roleKey);
             renderTags();
             updateDropdownOptions();
         }
 
-        // ===============================
-        // ซ่อนตัวเลือกที่เลือกไปแล้วใน Dropdown
-        // ===============================
         function updateDropdownOptions() {
             roleOptions.forEach((option) => {
                 const roleKey = option.getAttribute("data-role");
@@ -373,7 +342,6 @@
                 }
             });
 
-            // ถ้าเลือกครบทุกบทบาทแล้ว ซ่อนปุ่มเพิ่ม
             if (selectedRoles.size >= Object.keys(rolesConfig).length) {
                 addRoleBtn.classList.add("opacity-50", "pointer-events-none");
             } else {

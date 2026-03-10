@@ -183,7 +183,6 @@ const updateStock = async (req, res) => {
       return res.status(404).json({ message: "Stock not found" });
     }
 
-    // ถ้ามีการส่ง product_type มา ให้ update shelf ด้วย
     if (product_type) {
       await pool.query(
         `UPDATE shelf
@@ -220,7 +219,6 @@ const createStock = async (req, res) => {
 
     await conn.beginTransaction();
 
-    // หา capacity ของ warehouse
     const [warehouse] = await conn.query(
       `SELECT capacity FROM warehouse WHERE wh_id = ?`,
       [wh_id]
@@ -233,7 +231,6 @@ const createStock = async (req, res) => {
 
     const warehouseCapacity = Number(warehouse[0].capacity);
 
-    // หา capacity ที่ใช้ไปแล้ว
     const [used] = await conn.query(
       `SELECT COALESCE(SUM(capacity),0) AS used_capacity
        FROM stock
@@ -243,7 +240,6 @@ const createStock = async (req, res) => {
 
     const usedCapacity = Number(used[0].used_capacity);
 
-    // เช็คความจุรวม
     if (usedCapacity + stockCapacity > warehouseCapacity) {
       await conn.rollback();
       return res.status(400).json({
@@ -251,7 +247,6 @@ const createStock = async (req, res) => {
       });
     }
 
-    // เพิ่ม stock
     const [result] = await conn.query(
       `INSERT INTO stock (stock_name, capacity, wh_id) VALUES (?, ?, ?)`,
       [stock_name, stockCapacity, wh_id]
@@ -259,7 +254,6 @@ const createStock = async (req, res) => {
 
     const stockId = result.insertId;
 
-    // สร้าง shelf อัตโนมัติ (ช่องละ 10)
     let remaining = stockCapacity;
 
     while (remaining > 0) {

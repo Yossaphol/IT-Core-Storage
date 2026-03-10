@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
     <style>
-        /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
         body { margin: 0; overflow: auto; background-color: #0E1324; }
         canvas { display: block; }
 
@@ -358,19 +357,14 @@
                     <label for="password" class="text-[16px] text-[#9E9E9E] mt-2">รหัสผ่าน</label>
                     <input type="text" id="password" name="password" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
                 
-                    <!-- บทบาท -->
                     <div class="mt-2">
                         <label class="block text-[#9E9E9E] text-[16px]">บทบาท</label>
 
-                        <!-- แสดง Tag บทบาทที่เลือกแล้ว -->
                         <div id="add_selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2">
-                        <!-- Tag จะถูกเพิ่มที่นี่ด้วย JavaScript -->
                         </div>
 
-                        <!-- Hidden inputs สำหรับส่งค่า roles ไปกับ form -->
                         <div id="add_hiddenInputs"></div>
 
-                        <!-- ปุ่มเพิ่มบทบาท + Dropdown -->
                         <div class="relative inline-block">
                             <button
                                 type="button"
@@ -382,7 +376,6 @@
                                 <i class="fa-solid fa-plus" style="color: sky-400;"></i>
                                 เพิ่มบทบาท
                             </button>
-                            <!-- Dropdown เลือกบทบาท -->
                             <div
                                 id="add_roleDropdown"
                                 class="hidden absolute left-0 top-full mt-2 bg-white border border-gray-200 

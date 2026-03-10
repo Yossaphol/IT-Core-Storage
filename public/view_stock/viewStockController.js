@@ -1,4 +1,3 @@
-// popup
 const popup = document.getElementById('stock-popup');
 const detailPanel = document.getElementById('detail-panel');
 
