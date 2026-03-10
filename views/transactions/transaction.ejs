@@ -180,6 +180,9 @@
                                         ประเภท</th>
                                     <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
                                         วันที่ เวลา</th>
+                                    <th
+                                        class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50 text-center">
+                                        จำนวน</th>
                                     <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
                                         ผู้ส่ง</th>
                                     <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal">เจ้าหน้าที่รับ</th>
@@ -193,86 +196,6 @@
                                             <td
                                                 class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
                                                 <%= item.trans_id %>
-                                            </td>
-                                            <td
-                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                <div class="flex items-center gap-2 lg:gap-3">
-                                                    <div
-                                                        class="w-6 h-6 lg:w-7 lg:h-7 bg-white rounded-full flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden">
-                                                        <img src="<%= item.prod_img %>" onerror="this.onerror=null; "
-                                                            class="object-contain w-full h-full">
-                                                    </div>
-                                                    <span class="truncate-text">
-                                                        <%= item.prod_name %>
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td
-                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                <%= item.brand %>
-                                            </td>
-                                            <td
-                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                <%= item.prod_code %>
-                                            </td>
-                                            <td
-                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                <%= item.prod_type %>
-                                            </td>
-                                            <td
-                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                <%= new Date(item.date_time).toLocaleString('th-TH', {
-                                                    dateStyle: 'short' , timeStyle: 'short' }) %>น.
-                                            </td>
-                                            <td
-                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                <%= item.sender || '-' %>
-                                            </td>
-                                            <td class="px-4 lg:px-5 py-3 lg:py-4">
-                                                <%= item.emp_firstname %>
-                                                    <%= item.emp_lastname %>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td colspan="8" class="text-center py-10 text-gray-500">
-                                                        ไม่พบข้อมูลสินค้าเข้า</td>
-                                                </tr>
-                                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div id="tab-outbound" class="tab-content hidden min-w-[800px]">
-                        <table class="w-full text-left text-xs lg:text-[13px] whitespace-nowrap">
-                            <thead class="bg-[#182642] text-[#69B4E3]">
-                                <tr>
-                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">ID
-                                    </th>
-                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
-                                        ชื่อสินค้า</th>
-                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
-                                        แบรนด์</th>
-                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
-                                        รหัสสินค้า</th>
-                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
-                                        ประเภท</th>
-                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
-                                        วันที่ เวลา</th>
-                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
-                                        ผู้ขอเบิก</th>
-                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal">เจ้าหน้าที่ยืนยัน</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-[#D4D4D4]">
-                                <% if (typeof outboundData !=='undefined' && outboundData.length> 0) { %>
-                                    <% outboundData.forEach(item=> { %>
-                                        <tr
-                                            class="data-row border-b border-[#182642] hover:bg-[#182642]/30 transition group">
-                                            <td
-                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                TR-<%= item.trans_id %>
                                             </td>
                                             <td
                                                 class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
@@ -305,6 +228,97 @@
                                                     dateStyle: 'short' , timeStyle: 'short' }) %>น.
                                             </td>
                                             <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50 text-center font-bold text-[#6EE7B7]">
+                                                <%= item.amount %>
+                                            </td>
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
+                                                <%= item.sender || '-' %>
+                                            </td>
+                                            <td class="px-4 lg:px-5 py-3 lg:py-4">
+                                                <%= item.emp_firstname %>
+                                                    <%= item.emp_lastname %>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="9" class="text-center py-10 text-gray-500">
+                                                        ไม่พบข้อมูลสินค้าเข้า</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="tab-outbound" class="tab-content hidden min-w-[800px]">
+                        <table class="w-full text-left text-xs lg:text-[13px] whitespace-nowrap">
+                            <thead class="bg-[#182642] text-[#69B4E3]">
+                                <tr>
+                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">ID
+                                    </th>
+                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
+                                        ชื่อสินค้า</th>
+                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
+                                        แบรนด์</th>
+                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
+                                        รหัสสินค้า</th>
+                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
+                                        ประเภท</th>
+                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
+                                        วันที่ เวลา</th>
+                                    <th
+                                        class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50 text-center">
+                                        จำนวน</th>
+                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal border-r border-[#2A354D]/50">
+                                        ผู้ขอเบิก</th>
+                                    <th class="px-4 lg:px-5 py-3 lg:py-4 font-normal">เจ้าหน้าที่ยืนยัน</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[#D4D4D4]">
+                                <% if (typeof outboundData !=='undefined' && outboundData.length> 0) { %>
+                                    <% outboundData.forEach(item=> { %>
+                                        <tr
+                                            class="data-row border-b border-[#182642] hover:bg-[#182642]/30 transition group">
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
+                                                <%= item.trans_id %>
+                                            </td>
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
+                                                <div class="flex items-center gap-2 lg:gap-3">
+                                                    <div
+                                                        class="w-6 h-6 lg:w-7 lg:h-7 bg-white rounded-full flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden">
+                                                        <img src="<%= item.prod_img %>" onerror="this.onerror=null;"
+                                                            class="object-contain w-full h-full">
+                                                    </div>
+                                                    <span class="truncate-text">
+                                                        <%= item.prod_name %>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
+                                                <%= item.brand %>
+                                            </td>
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
+                                                <%= item.prod_code %>
+                                            </td>
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
+                                                <%= item.prod_type %>
+                                            </td>
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
+                                                <%= new Date(item.date_time).toLocaleString('th-TH', {
+                                                    dateStyle: 'short' , timeStyle: 'short' }) %>น.
+                                            </td>
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50 text-center font-bold text-[#F87171]">
+                                                <%= item.amount %>
+                                            </td>
+                                            <td
                                                 class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
                                                 <%= item.requester || '-' %>
                                             </td>
@@ -316,7 +330,7 @@
                                         <% }) %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="8" class="text-center py-10 text-gray-500">
+                                                    <td colspan="9" class="text-center py-10 text-gray-500">
                                                         ไม่พบข้อมูลการเบิกจ่าย</td>
                                                 </tr>
                                                 <% } %>
@@ -354,7 +368,7 @@
                                             class="data-row border-b border-[#182642] hover:bg-[#182642]/30 transition group">
                                             <td
                                                 class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
-                                                TR-<%= item.trans_id %>
+                                                <%= item.trans_id %>
                                             </td>
                                             <td
                                                 class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
@@ -389,9 +403,22 @@
                                             </td>
                                             <td
                                                 class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50 text-center font-medium">
-                                                <%= item.amount %>
+                                                <% if (item.amount> 0) { %>
+                                                    <span class="text-[#6EE7B7]">
+                                                        <%= item.amount %> <i
+                                                                class="fa-solid fa-caret-up text-[10px]"></i>
+                                                    </span>
+                                                    <% } else if (item.amount < 0) { %>
+                                                        <span class="text-[#F87171]">
+                                                            <%= Math.abs(item.amount) %> <i
+                                                                    class="fa-solid fa-caret-down text-[10px]"></i>
+                                                        </span>
+                                                        <% } else { %>
+                                                            <span class="text-gray-400">0</span>
+                                                            <% } %>
                                             </td>
-                                            <td class="px-4 lg:px-5 py-3 lg:py-4">
+                                            <td
+                                                class="px-4 lg:px-5 py-3 lg:py-4 border-r border-[#182642] group-hover:border-[#2A354D]/50">
                                                 <%= item.emp_firstname %>
                                                     <%= item.emp_lastname %>
                                             </td>
@@ -399,7 +426,7 @@
                                         <% }) %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="8" class="text-center py-10 text-gray-500">
+                                                    <td colspan="9" class="text-center py-10 text-gray-500">
                                                         ไม่พบข้อมูลการปรับแก้ไข</td>
                                                 </tr>
                                                 <% } %>

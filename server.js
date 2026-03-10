@@ -313,9 +313,14 @@ app.get("/user_management", async (req, res) => {
             SELECT * FROM employees 
             WHERE available = 1 
             AND (emp_firstname LIKE ? OR emp_lastname LIKE ? OR CONCAT(emp_firstname, ' ', emp_lastname) LIKE ?)
-            LIMIT ? OFFSET ?`;
+            ORDER BY ${orderBy}
+            LIMIT ? OFFSET ?
+        `;
 
-        const [employees] = await pool.query(sql, [searchQuery, searchQuery, searchQuery, limit, offset]);
+        const [employees] = await pool.query(
+            sql,
+            [searchQuery, searchQuery, searchQuery, limit, offset]
+        );
 
         // นับจำนวนทั้งหมดเพื่อทำ Pagination
         const [countResult] = await pool.query(
