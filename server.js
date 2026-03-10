@@ -498,8 +498,62 @@ app.post("/user_management/edit/:id", uploadUserImg.single('emp_img'), async (re
 });
 
 
-app.get("/product_management", (req, res) => {
-  res.render("management/product");
+app.get("/product_management", async (req, res) => {
+try {
+    const page   = parseInt(req.query.page)  || 1;
+    const limit  = parseInt(req.query.limit) || 5;
+    const search = req.query.search || "";
+    const sort   = req.query.sort   || "DESC"; 
+    const offset = (page - 1) * limit;
+
+    const searchPattern = `%${search}%`;
+
+    let orderBy = "";
+
+    if (sort === "NAME_ASC") {
+        // A-Z ก-ฮ
+        orderBy = `
+            CASE WHEN prod_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+            prod_name COLLATE utf8mb4_unicode_ci ASC`;
+    } else if (sort === "NAME_DESC") {
+        // Z-A ฮ-ก
+        orderBy = `
+            CASE WHEN prod_name REGEXP '^[A-Za-z]' THEN 1 ELSE 2 END ASC, 
+            prod_name COLLATE utf8mb4_unicode_ci DESC`;
+    } else if (sort === "ASC") {
+        orderBy = "prod_id ASC";
+    } else {
+        orderBy = "prod_id DESC";
+    }
+
+    const [rows] = await pool.query(
+      `SELECT products.*, IFNULL(shelf_items.amount, 0) AS amount 
+       FROM products 
+       LEFT JOIN shelf_items ON products.prod_id = shelf_items.prod_id 
+       WHERE products.available = 1 AND products.prod_name LIKE ? 
+       ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
+      [searchPattern, limit, offset]
+    );
+
+    const [[{ total }]] = await pool.query(
+      "SELECT COUNT(*) as total FROM products WHERE available = 1 AND prod_name LIKE ?",
+      [searchPattern]
+    );
+
+    res.render("management/product", {
+      products: rows,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      limit,
+      total,
+      search,
+      sort 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Database Error");
+  }
+  
 });
 
 app.get("/supplier_management", async (req, res) => {

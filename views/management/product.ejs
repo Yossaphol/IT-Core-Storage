@@ -6,9 +6,28 @@
     <title>Product Management</title>
     <style>
         /* เปลี่ยนสีพื้นหลัง CSS ให้ตรงกับ Three.js */
-        body { margin: 0; overflow: hidden; background-color: #0E1324; }
+        body { margin: 0; overflow: auto; background-color: #0E1324; }
         canvas { display: block; }
+
+        .custom-check {
+            appearance: none; -webkit-appearance: none;
+            width: 1.3rem; height: 1.3rem;
+            border: 2px solid #6b7280; border-radius: 0.3rem;
+            background-color: transparent; cursor: pointer;
+            position: relative; transition: all 0.15s ease;
+        }
+        .custom-check:checked { background-color: #22c55e; border-color: #22c55e; }
+        .custom-check:checked::after {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            content: '\f00c'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); color: white; font-size: 0.8rem; font-weight: bold;
+        }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #2a3a6e; border-radius: 3px; }
     </style>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +36,7 @@
     <link rel="stylesheet" href="/css/font.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/flowbite@latest/dist/flowbite.min.js"></script>
+    <script src="management/product.js"></script>
 </head>
 <body>
     
@@ -28,18 +48,21 @@
         <p class="text-gray-400 text-[15px] font-light">เพิ่ม / แก้ไข / ลบ ข้อมูลสินค้า ได้ที่นี่</p>
     </div>
 
-    <img class="fixed w-70 right-10" src="/images/chklist.png" alt="">
+    <img class="fixed w-70 right-10 top-0" src="/images/chklist.png" alt="">
 
-    <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-center">
-        <p class="text-white text-[20px]">สินค้าทั้งหมด</p>
-        <p id="amount_user"></p>
+    <div class="absolute top-[37%] inset-x-[12%] right-[10%] flex items-start justify-between">
+        
+        <div class="flex h-14 items-center">
+            <p class="text-white text-[20px]">สินค้าทั้งหมด <%= total %> รายการ</p>
+        </div>
                 
-        <div class="flex items-center ml-auto gap-5">
+        <div class="flex items-start gap-5">
 
             <!-- Search Bar -->
             <div class="relative flex h-14 w-[500px] items-center overflow-hidden rounded-full border border-[#4BA3E3]/20 bg-transparent">
-                <input type="text" placeholder="ค้นหา ชื่อ, รหัสสินค้า" 
+                <input type="text" id="searchInput" placeholder="ค้นหา ชื่อ, รหัสสินค้า" 
                     class="h-full flex-1 bg-transparent px-8 text-white placeholder-gray-500 outline-none"
+                    value="<%= search %>"
                 />
 
                 <div class="relative h-full w-32 shrink-0">
@@ -57,39 +80,173 @@
             <button class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] border border-[#4BA3E3]/50 rounded-[11px] bg-transparent gap-3">
                 <i class="fi fi-br-bars-filter mt-2"></i>
                 กรอง</button>
-            <button data-modal-target="add-product-modal" data-modal-toggle="add-product-modal"
-                class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
-                <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
-                เพิ่มสินค้า
-            </button>
+
+            <!-- Add/Delete Product Button -->
+            <div class="flex flex-col gap-3 items-end">
+                <button data-modal-target="add-product-modal" data-modal-toggle="add-product-modal"
+                    class="text-[white] text-[20px] flex justify-center items-center w-[132px] h-[50px] rounded-[11px] bg-[#E2A829] gap-3">
+                    <i class="fa-solid fa-plus" style="color: rgb(255, 255, 255);"></i>
+                    เพิ่มสินค้า
+                </button>
+                <button id="bulkDeleteBtn" type="button" 
+                        class="hidden text-[white] text-[20px] flex justify-center items-center w-[160px] h-[50px] rounded-[11px] bg-[#FF0000] gap-3 hover:bg-[#CC0000] transition-colors cursor-pointer">
+                        <i class="fas fa-trash text-white"></i>
+                        ลบทั้งหมด
+                </button>
+            </div>
         </div>
 
     </div>
 
-    <!-- User Table -->
-    <div class="relative z-10 text-white mt-[27%] w-[1147px] mx-auto">
+    <!-- Product Table -->
+    <div id="tableContainer" class="relative z-10 transition-transform duration-300">
 
-        <div class="bg-[#16233B] rounded-xl overflow-hidden mb-10">
-                <table class="w-full text-left">
-                    <thead class="bg-[#203354] text-gray-300 text-sm">
+        <div class="rounded-2xl overflow-hidden ml-[12%] mt-[26%]" style="width: 1147px;">
+            <table class="w-full table-fixed  shadow-2xl rounded-2xl border border-[#4BA3E3]/20 border-separate border-spacing-0">
+                    <thead class="bg-[#1B3563] text-gray-300">
                         <tr>
-                            <th class="p-4">
-                                <input type="checkbox">
-                                ชื่อสินค้า</th>
-                            <th class="p-4">แบรนด์</th>
-                            <th class="p-4">รหัสสินค้า</th>
-                            <th class="p-4">รหัสสินค้า</th>
-                            <th class="p-4">ประเภท</th>
-                            <th class="p-4">จำนวน</th>
-                            <th class="p-4">จัดการสินค้า</th>
+                            <th class="py-4 px-5 text-left" style="width: 55px;">
+                                <input type="checkbox" id="checkAll" class="custom-check" />
+                            </th>
+                            <th class="p-4 w-[350px] text-left text-[18px] font-medium">ชื่อสินค้า</th>
+                            <th class="p-4 w-[150px] text-left text-[18px] font-medium">แบรนด์</th>
+                            <th class="p-4 w-[150px] text-left text-[18px] font-medium">รหัสสินค้า</th>
+                            <th class="p-4 w-[120px] text-left text-[18px] font-medium">ประเภท</th>
+                            <th class="p-4 w-[120px] text-left text-[18px] font-medium">จำนวน</th>
+                            <th class="p-4 text-left text-[18px] font-medium">จัดการสินค้า</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
                         <tr class="border-t border-white/5 hover:bg-white/5">
-                            
+                            <% if (products.length === 0) { %>
+                        <tr>
+                            <td colspan="4" class="text-center text-gray-400 py-28 text-xl border-none">
+                                <i class="fas fa-inbox text-5xl mb-4 block text-gray-600"></i>
+                                <span class="font-light">ไม่พบสินค้าที่คุณค้นหา</span>
+                            </td>
+                        </tr>
+                    <% } else { %>
+                        <% products.forEach((prod) => { %>
+                            <tr class="sup-row border-t border-[#2a3a6e]/60 hover:bg-[#1e2b50]/50 transition-colors">
+                                <td class="py-4 px-5 border-t border-[#4BA3E3]/20">
+                                    <input type="checkbox" name="selected" value="<%= prod.prod_id %>" class="row-check custom-check" />
+                                </td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">
+                                    <span class="text-white text-[16px]"><%= prod.prod_name %></span>
+                                </td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">
+                                    <span class="text-white text-[16px]"><%= prod.brand %></span>
+                                </td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">
+                                    <span class="text-white text-[16px]"><%= prod.prod_code %></span>
+                                </td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">
+                                    <span class="text-white text-[16px]"><%= prod.prod_type %></span>
+                                </td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">
+                                    <span class="text-white text-[16px]"><%= prod.amount %></span>
+                                </td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">
+                                    <div class="flex gap-4">
+                                        <button onclick="openEditModal(<%= prod.prod_id %>, `<%= prod.prod_name %>`, `<%= prod.brand %>`, `<%= prod.prod_code %>`, `<%= prod.prod_type %>`)"
+                                            class="bg-[#4BA3E3] hover:bg-[#2C8BD0] text-white px-4 py-2 rounded-lg font-normal text-[14px] transition-colors shadow flex items-center gap-2">
+                                            <i class="fas fa-pen-to-square text-s"></i> แก้ไข
+                                        </button>
+                                        <button onclick="confirmDelete(<%= prod.prod_id %>, `<%= prod.prod_name %>`, `<%= prod.brand %>`, `<%= prod.prod_code %>`, `<%= prod.prod_type %>`)"
+                                            class="bg-[#FF0000] hover:bg-[#DC2626] text-white px-4 py-2 rounded-lg font-normal text-[14px] transition-colors shadow flex items-center gap-2">
+                                            <i class="fas fa-trash text-xs"></i> ลบ
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+
+                        <% for (let i = products.length; i < limit; i++) { %>
+                            <tr>
+                                <td class="py-4 px-5 border-t border-[#4BA3E3]/20">&nbsp;</td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">&nbsp;</td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">&nbsp;</td>
+                                <td class="py-4 px-4 border-t border-[#4BA3E3]/20">&nbsp;</td>
+                            </tr>
+                        <% } %>
+                    <% } %>
                         </tr>
                     </tbody>
                 </table>
+
+                <!-- Pagination -->
+                <div class="flex items-center justify-between py-4 text-white text-[14px]" style="width: 1147px;">
+
+                    <!-- Left -->
+                    <div class="flex items-center gap-3">
+                        <span class="text-gray-400">จำนวนแถวต่อ 1 หน้า</span>
+                        <select id="limitSelect" onchange="changeLimit(this.value)"
+                                class="bg-[#1a2342] border border-[#4BA3E3]/40 text-white rounded-md
+                                    pl-2 py-1 text-[14px] focus:outline-none cursor-pointer">
+                            <option value="5"  <%= limit===5  ? 'selected':'' %>>5</option>
+                            <option value="10" <%= limit===10 ? 'selected':'' %>>10</option>
+                            <option value="20" <%= limit===20 ? 'selected':'' %>>20</option>
+                        </select>
+                    </div>
+
+                    <!-- Right -->
+                    <div class="flex items-center gap-0.5">
+
+                        <a href="/product_management?page=1&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                        class="w-8 h-8 flex items-center justify-center <%= currentPage <= 1 ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                            <i class="fas fa-angles-left text-xs"></i>
+                        </a>
+
+                        <a href="/product_management?page=<%= Math.max(1, currentPage-1) %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                        class="w-8 h-8 flex items-center justify-center <%= currentPage <= 1 ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                            <i class="fas fa-chevron-left text-xs"></i>
+                        </a>
+
+                        <% if (totalPages <= 7) { %>
+                            <% for (let p = 1; p <= totalPages; p++) { %>
+                                <a href="/product_management?page=<%= p %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                                class="w-8 h-8 flex items-center justify-center text-[14px] font-medium rounded-md
+                                        <%= p === currentPage ? 'border border-[#4BA3E3] text-white bg-[#4BA3E3]/10' : 'text-gray-400 hover:text-white' %>">
+                                    <%= p %>
+                                </a>
+                            <% } %>
+                        <% } else { %>
+                            <% if (currentPage > 3) { %>
+                                <a href="/product_management?page=1&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white">1</a>
+                                <span class="w-8 h-8 flex items-center justify-center text-gray-500">...</span>
+                            <% } %>
+
+                            <% 
+                                let start = Math.max(1, currentPage - 2);
+                                let end = Math.min(totalPages, currentPage + 2);
+                                if (currentPage <= 3) end = Math.min(totalPages, 5);
+                                if (currentPage >= totalPages - 2) start = Math.max(1, totalPages - 4);
+                            %>
+                            <% for (let p = start; p <= end; p++) { %>
+                                <a href="/product_management?page=<%= p %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                                class="w-8 h-8 flex items-center justify-center text-[14px] font-medium rounded-md
+                                        <%= p === currentPage ? 'border border-[#4BA3E3] text-white bg-[#4BA3E3]/10' : 'text-gray-400 hover:text-white' %>">
+                                    <%= p %>
+                                </a>
+                            <% } %>
+
+                            <% if (currentPage < totalPages - 2) { %>
+                                <span class="w-8 h-8 flex items-center justify-center text-gray-500">...</span>
+                                <a href="/product_management?page=<%= totalPages %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white"><%= totalPages %></a>
+                            <% } %>
+                        <% } %>
+
+                        <a href="/product_management?page=<%= Math.min(totalPages, currentPage+1) %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                        class="w-8 h-8 flex items-center justify-center <%= currentPage >= totalPages ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                            <i class="fas fa-chevron-right text-xs"></i>
+                        </a>
+
+                        <a href="/product_management?page=<%= totalPages %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>"
+                        class="w-8 h-8 flex items-center justify-center <%= currentPage >= totalPages ? 'text-slate-600 pointer-events-none' : 'text-gray-400 hover:text-white' %>">
+                            <i class="fas fa-angles-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
