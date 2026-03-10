@@ -1,7 +1,7 @@
 <div class="fixed top-0 left-0 z-40 flex flex-col w-[110px] h-screen items-center gap-5 pt-10 pb-10 pointer-events-auto backdrop-blur-md bg-[#0E1324]/20 border-r border-white/5">
     <!-- sidebar -->
-    <div class="text-white font-bold text-[14px] h-10 mb-2">
-        <div class="w-[7px] h-[6px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px] mb-1"></div>
+    <div class="text-white font-bold text-[14px] h-10 text-center mb-2">
+        <div class="w-[7px] h-[6px] bg-[#ECC164] rounded-[5px] rounded-tr-[0px] mx-auto mb-1"></div>
         <a href="/">
             <p class="leading-none text-[10px]">IT CORE</p>
             <p class="leading-none text-[10px]">STORAGE</p>
@@ -67,26 +67,25 @@
     </div>
 
     <div class="flex flex-col items-center gap-4 mt-auto relative group px-4 py-2">
-        <img src="/images/profile/<%= user && user.profile_image ? user.profile_image : 'user.png' %>" class="w-[45px] h-[45px] rounded-full cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all">
-        
-        <!-- <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-[45px] h-[45px] rounded-full cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all"> -->
-        
-        <div class="absolute left-[60px] bottom-0 hidden group-hover:block pl-6 z-50">
-            <div class="w-60 bg-white rounded-xl shadow-2xl p-4 border border-gray-100">
-                <div class="flex items-center gap-3 mb-4">
-                    <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-12 h-12 rounded-full shadow-sm object-cover overflow-hidden border-transparent group-hover:border-[#838CF1] transition-all">
-                    <div>
-                        <p class="text-[14px] font-bold text-gray-800 leading-tight"><%= user.username %></p>
-                        <p class="text-[11px] text-blue-600 font-medium"><%= role %></p>
+            <!-- <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-[45px] h-[45px] rounded-full cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all"> -->
+            <img 
+            src="/images/profile/<%= user : user.profile_image ? user.profile_image : 'user.png' %>" 
+            class="w-[45px] h-[45px] rounded-full object-cover overflow-hidden cursor-pointer border-2 border-transparent group-hover:border-[#838CF1] transition-all">
+            <div class="absolute left-[60px] bottom-0 hidden group-hover:block pl-6 z-50">
+                <div class="w-60 bg-white rounded-xl shadow-2xl p-4 border border-gray-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="/images/profile/<%= user.profile_image ? user.profile_image : 'user.png' %>" class="w-12 h-12 rounded-full shadow-sm object-cover overflow-hidden border-transparent group-hover:border-[#838CF1] transition-all">
+                        <div>
+                            <p class="text-[14px] font-bold text-gray-800 leading-tight"> <%= user.username %></p>
+                            <p class="text-[11px] text-blue-600 font-medium"><%= role %></p>
+                        </div>
                     </div>
+                    <a href="/profile" class="w-full py-2.5 bg-yellow-500 hover:bg-yellow-400 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition-all">
+                        <i class="fa-solid fa-user-gear"></i> ตั้งค่าบัญชีผู้ใช้
+                    </a>
                 </div>
-                <a href="/profile" class="w-full py-2.5 bg-yellow-500 hover:bg-yellow-400 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-2 transition-all">
-                    <i class="fa-solid fa-user-gear"></i> ตั้งค่าบัญชีผู้ใช้
-                </a>
             </div>
         </div>
-
-    </div>
     <a href="/logout">
         <i class="fa-solid fa-arrow-right-from-bracket text-red-500 text-[25px] cursor-pointer hover:scale-110 transition-transform"></i>
     </a>
