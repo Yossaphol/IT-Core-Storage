@@ -1,9 +1,11 @@
 require("dotenv").config();
+const fs = require('fs');
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const bcrypt = require("bcrypt");
 const pool = require("./db");
+const multer = require("multer");
 const session = require("express-session");
 const warehouseAPI = require("./api/warehouse.api");
 const transactionAPI = require("./api/transaction.api");
@@ -343,7 +345,7 @@ app.get("/user_management", async (req, res) => {
     }
 });
 
-const multer = require("multer");
+
 const userStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public/images/profile"); 
@@ -486,6 +488,7 @@ app.post("/user_management/edit/:id", uploadUserImg.single('emp_img'), async (re
 });
 
 
+
 app.get("/product_management", async (req, res) => {
 try {
     const page   = parseInt(req.query.page)  || 1;
@@ -541,6 +544,94 @@ try {
   }
   
 });
+
+app.post("/product_management/delete/:id", async (req, res) => {
+  try {
+    await pool.query(
+      "UPDATE products SET available = 0 WHERE prod_id = ?",
+      [req.params.id]
+    );
+    res.redirect("/product_management");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/product_management");
+  }
+});
+
+app.post("/product_management/bulk-delete", async (req, res) => {
+  try {
+    const idsString = req.body.deleteIds;
+
+    if (!idsString) {
+      return res.redirect("/product_management");
+    }
+
+    const idsArray = idsString.split(',');
+
+    await pool.query(
+      "UPDATE products SET available = 0 WHERE prod_id IN (?)",
+      [idsArray] 
+    );
+    
+    res.redirect("/product_management");
+  } catch (err) {
+    console.error("Error bulk deleting products:", err);
+    res.redirect("/product_management");
+  }
+});
+
+// ตั้งค่าให้ Multer เซฟชื่อไฟล์ชั่วคราวไปก่อน
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/images/products_img'); 
+    },
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname); 
+        // เซฟเป็นชื่อชั่วคราว เช่น temp-1701234567.png
+        cb(null, 'temp-' + Date.now() + ext); 
+    }
+});
+
+const upload = multer({ storage: storage });
+
+app.post('/product_management', upload.single('product_img'), async (req, res) => {
+    try {
+        const { prod_name, description, prod_code, brand, prod_type } = req.body;
+        
+        let prod_img = '/images/products_img/no-product-image.jpeg'; 
+        
+        if (req.file) {
+            const ext = path.extname(req.file.originalname);
+            const newFilename = `${prod_code}${ext}`; 
+            
+            const oldPath = req.file.path; 
+            const newPath = path.join(req.file.destination, newFilename); 
+
+            fs.renameSync(oldPath, newPath);
+
+            prod_img = `/images/products_img/${newFilename}`; 
+        }
+
+        const sql = `
+            INSERT INTO products 
+            (prod_code, prod_name, description, prod_type, prod_img, brand) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        
+        const values = [prod_code, prod_name, description, prod_type, prod_img, brand];
+
+        await pool.query(sql, values);
+
+        res.redirect('/product_management');
+
+    } catch (error) {
+        console.error("Error adding product:", error);
+        res.status(500).send("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    }
+});
+
+
+
 
 app.get("/supplier_management", async (req, res) => {
   try {
