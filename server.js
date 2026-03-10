@@ -598,38 +598,63 @@ app.post('/product_management', upload.single('product_img'), async (req, res) =
     try {
         const { prod_name, description, prod_code, brand, prod_type } = req.body;
         
-        let prod_img = '/images/products_img/no-product-image.jpeg'; 
+        const [existingProduct] = await pool.query(
+            "SELECT * FROM products WHERE prod_code = ?",
+            [prod_code]
+        );
+
+        let prod_img;
         
         if (req.file) {
-            const ext = path.extname(req.file.originalname);
-            const newFilename = `${prod_code}${ext}`; 
-            
-            const oldPath = req.file.path; 
-            const newPath = path.join(req.file.destination, newFilename); 
+            try {
+                const ext = path.extname(req.file.originalname);
+                const newFilename = `${prod_code}${ext}`; 
+                
+                const oldPath = req.file.path; 
+                const newPath = path.join(req.file.destination, newFilename); 
 
-            fs.renameSync(oldPath, newPath);
+                fs.renameSync(oldPath, newPath);
 
-            prod_img = `/images/products_img/${newFilename}`; 
+                prod_img = `/images/products_img/${newFilename}`; 
+            } catch (fileError) {
+                console.error(fileError);
+                prod_img = `/images/products_img/${req.file.filename}`; 
+            }
+        } else {
+            if (existingProduct.length > 0) {
+                prod_img = existingProduct[0].prod_img;
+            } else {
+                prod_img = '/images/products_img/no-product-image.jpeg';
+            }
         }
 
-        const sql = `
-            INSERT INTO products 
-            (prod_code, prod_name, description, prod_type, prod_img, brand) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
-        
-        const values = [prod_code, prod_name, description, prod_type, prod_img, brand];
-
-        await pool.query(sql, values);
+        if (existingProduct.length > 0) {
+            const sqlUpdate = `
+                UPDATE products 
+                SET prod_name = ?, description = ?, prod_type = ?, brand = ?, prod_img = ?, available = 1
+                WHERE prod_code = ?
+            `;
+            const updateValues = [prod_name, description, prod_type, brand, prod_img, prod_code];
+            
+            await pool.query(sqlUpdate, updateValues);
+        } else {
+            const sqlInsert = `
+                INSERT INTO products 
+                (prod_code, prod_name, description, prod_type, prod_img, brand) 
+                VALUES (?, ?, ?, ?, ?, ?)
+            `;
+            const insertValues = [prod_code, prod_name, description, prod_type, prod_img, brand];
+            
+            await pool.query(sqlInsert, insertValues);
+        }
 
         res.redirect('/product_management');
 
     } catch (error) {
-        console.error("Error adding product:", error);
-        res.status(500).send("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        console.error(error);
+        res.status(500).send("Database Error");
     }
 });
-
 
 
 

@@ -146,7 +146,15 @@
                                 </td>
                                 <td class="py-4 px-4 border-t border-[#4BA3E3]/20">
                                     <div class="flex gap-4">
-                                        <button onclick="openEditModal(<%= prod.prod_id %>, `<%= prod.prod_name %>`, `<%= prod.brand %>`, `<%= prod.prod_code %>`, `<%= prod.prod_type %>`)"
+                                        <button type="button" 
+                                            onclick="openEditModal(this)"
+                                            data-id="<%= prod.prod_id %>"
+                                            data-code="<%= prod.prod_code %>"
+                                            data-name="<%= prod.prod_name %>"
+                                            data-brand="<%= prod.brand %>"
+                                            data-type="<%= prod.prod_type %>"
+                                            data-desc="<%= prod.description %>"
+                                            data-img="<%= prod.prod_img %>"
                                             class="bg-[#4BA3E3] hover:bg-[#2C8BD0] text-white px-4 py-2 rounded-lg font-normal text-[14px] transition-colors shadow flex items-center gap-2">
                                             <i class="fas fa-pen-to-square text-s"></i> แก้ไข
                                         </button>
@@ -341,106 +349,6 @@
         </form>
     </div>
 
-
-
-    <!-- <div id="add-product-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-[100] hidden w-full p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full flex items-center justify-center">
-        <div class="relative w-full max-w-4xl max-h-full">
-            <div class="relative bg-white rounded-2xl shadow-2xl">
-                <button type="button" class="absolute top-4 right-4 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center z-[110]" data-modal-hide="add-product-modal">
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                    </svg>
-                    <span class="sr-only">Close modal</span>
-                </button>
-
-                <div class="relative py-16 px-16 z-16 bg-white rounded-2xl">
-                    <div class="header">
-                        <p class="text-[#9E9E9E]">แก้ไขข้อมูล</p>
-                        <h2 class="text-3xl font-semibold mb-6 text-[#1B3563]">เพิ่มสินค้า</h2>
-                    </div>
-                    
-                    <div class="inputform">
-                        <div class="flex">
-                            <div class="left w-[40%] flex justify-center items-center">
-                                <img src="/images/ram000.jpg" alt="" class="w-[250px] h-[250px]">
-                            </div>
-                            <div class="flex flex-col w-[60%] pt-3">
-                                <span>
-                                    <label for="prod_name" class=" text-[16px] text-[#9E9E9E]">ชื่อสินค้า</label>
-                                    <input type="text" id="prod_name" name="prod_name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
-                                </span>
-                                <span class="flex gap-2 w-[100%]">
-                                    <div class="flex flex-col w-[50%]">
-                                        <label for="prod_code" class=" text-[16px] text-[#9E9E9E]">รหัสสินค้า</label>
-                                        <input type="text" id="prod_code" name="prod_code" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
-                                    </div>
-                                    <div class="flex flex-col w-[50%]">
-                                        <label for="brand" class=" text-[16px] text-[#9E9E9E]">แบรนด์</label>
-                                        <input type="text" id="brand" name="brand" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
-                                    </div>
-                                </span>
-                                <span class="flex gap-2 w-[100%]">
-                                    <div class="flex flex-col w-[50%]">
-                                        <label for="prod_type" class=" text-[16px] text-[#9E9E9E]">ประเภท</label>
-                                        <select name="prod_type" id="prod_type" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 px-2 w-[100%] text-[#1B3563]">
-                                            <option value="">CPU</option>
-                                            <option value="">Mainboard</option>
-                                            <option value="">GPU</option>
-                                            <option value="">Memory</option>
-                                            <option value="">Hard disk</option>
-                                            <option value="">Solid state drive</option>
-                                            <option value="">Case</option>
-                                            <option value="">Power Supply</option>
-                                            <option value="">CPU Cooler</option>
-                                            <option value="">CPU liquid Cooler</option>
-                                            <option value="">Monitor</option>
-                                            <option value="">Keyboard</option>
-                                            <option value="">Mouse</option>
-                                            <option value="">Headphone</option>
-                                        </select>
-                                    </div>
-                                    <div class="flex flex-col w-[50%]">
-                                        <label for="amount" class=" text-[16px] text-[#9E9E9E]">จำนวน</label>
-                                        <input type="text" id="amount" name="amount" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
-                                    </div>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="down">
-                            <span class="flex gap-2 w-[100%]">
-                                <div class="flex flex-col w-[50%]">
-                                    <label for="username" class=" text-[16px] text-[#9E9E9E]">เจ้าหน้าที่รับเข้า</label>
-                                    <input type="text" id="username" name="username" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
-                                </div>
-                                <div class="flex flex-col w-[50%]">
-                                    <div class="flex flex-col w-full">
-                                        <label for="date_time" class="text-[16px] text-[#9E9E9E]">รับเข้าเมื่อ</label>
-                                        <div class="relative">
-                                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                                <svg class="w-4 h-4 text-[#1B3563]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10h16m-8-3V4M7 7V4m10 3V4M5 20h14a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z" />
-                                                </svg>
-                                            </div>
-                                            <input datepicker datepicker-autohide datepicker-orientation="top left" datepicker-format="dd/mm/yyyy" id="date_time" name="date_time" type="text" class="block w-full pl-9 bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-none p-3 text-[#1B3563]" placeholder="เลือกวันที่">
-                                        </div>
-                                    </div>
-                                </div>
-                            </span>
-                            <label for="comp_name" class=" text-[16px] text-[#9E9E9E]">ผู้ส่งสินค้า</label>
-                            <input type="text" id="comp_name" name="comp_name" class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563]">
-                        </div>
-                    </div>
-                    <div class="btn">
-                        <div class="w-[100%] flex justify-end pt-5 gap-5">
-                            <a href="" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">ยืนยันการรับเข้า</a>
-                            <a href="" class="px-[32px] py-[12px] bg-[#F00] rounded-[8px] text-white">ยกเลิก</a>
-                        </div>
-                    </div>
-                </div>
-                </div>
-        </div>
-    </div> -->
-
     <!-- Delete Product Modal -->
     <div id="deleteModal"
         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -483,68 +391,97 @@
 
 
 <!-- Edit Product Modal -->
-    <div id="edit-sup-modal" tabindex="-1" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <form id="editForm" method="POST" enctype="multipart/form-data" class="flex flex-col bg-white rounded-xl shadow-lg w-[750px] h-[610px] p-6">
+    <div id="edit-product-modal" tabindex="-1"
+        class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        
+        <form id="editForm" method="POST" enctype="multipart/form-data"
+            class="relative flex flex-col bg-white rounded-2xl shadow-2xl w-[850px] p-10">
             
-            <div class="flex justify-between">
-                <p class="text-md font-normal text-[#9E9E9E] ml-5 mt-3">แก้ไขข้อมูล</p>
-                <button type="button" onclick="closeEditModal()" class="mr-3">
-                    <i class="fa-solid fa-xmark text-2xl" style="color: #9E9E9E;"></i>
+            <button type="button" onclick="closeEditModal()" class="absolute top-6 right-6 text-gray-400 hover:text-gray-700 transition-colors">
+                <i class="fa-solid fa-xmark text-3xl"></i>
+            </button>
+
+            <div class="mb-8 pl-2">
+                <p class="text-[16px] font-normal text-[#9E9E9E]">แก้ไขข้อมูล</p>
+                <h1 class="text-[36px] font-semibold text-[#1B3563] leading-none mt-1">แก้ไขสินค้า</h1>
+            </div>
+
+            <div class="flex gap-10">
+                
+                <div class="w-[40%] flex flex-col">
+                    <div class="relative cursor-pointer group w-full h-[260px] border border-gray-200 bg-white flex items-center justify-center overflow-hidden" 
+                        onclick="document.getElementById('edit_imageInput').click()">
+                        <img id="edit_imgPreview" class="w-full h-full object-contain group-hover:opacity-40 transition-opacity" 
+                            src="/images/products_img/no-product-image.jpeg" alt="Product Image">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-[#1B3563]/20">
+                            <i class="fa-solid fa-camera text-white text-4xl drop-shadow-md"></i>
+                        </div>
+                    </div>
+                    <input type="file" id="edit_imageInput" name="product_img" accept="image/*" class="hidden" onchange="previewEditImage(event)">
+                </div>
+
+                <div class="w-[60%] flex flex-col gap-6 pt-1">
+                    
+                    <div class="flex flex-col">
+                        <label for="edit_prod_name" class="text-[16px] text-[#9E9E9E] mb-1">ชื่อสินค้า</label>
+                        <input type="text" id="edit_prod_name" name="prod_name" required 
+                            class="bg-[#F8F9FA] border-b-2 border-[#1B3563] h-[45px] outline-none px-3 w-full text-[#1B3563] text-[18px]">
+                    </div>
+                    
+                    <div class="flex gap-6">
+                        <div class="flex flex-col w-1/2">
+                            <label for="edit_prod_code" class="text-[16px] text-[#9E9E9E] mb-1">รหัสสินค้า</label>
+                            <input type="text" id="edit_prod_code" name="prod_code" required 
+                                class="bg-[#F8F9FA] border-b-2 border-[#1B3563] h-[45px] outline-none px-3 w-full text-[#1B3563] text-[18px]">
+                        </div>
+                        <div class="flex flex-col w-1/2">
+                            <label for="edit_brand" class="text-[16px] text-[#9E9E9E] mb-1">แบรนด์</label>
+                            <input type="text" id="edit_brand" name="brand" required 
+                                class="bg-[#F8F9FA] border-b-2 border-[#1B3563] h-[45px] outline-none px-3 w-full text-[#1B3563] text-[18px]">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col relative">
+                        <label for="edit_prod_type" class="text-[16px] text-[#9E9E9E] mb-1">ประเภท</label>
+                        <select id="edit_prod_type" name="prod_type" required 
+                                class="appearance-none bg-[#F8F9FA] border-b-2 border-[#1B3563] h-[45px] outline-none px-3 w-full text-[#1B3563] text-[18px] cursor-pointer">
+                                    <option value="CPU">CPU</option>
+                                    <option value="GPU">GPU</option>
+                                    <option value="RAM">RAM</option>
+                                    <option value="Mainboard">Mainboard</option>
+                                    <option value="HDD">HDD</option>
+                                    <option value="SSD">SSD</option>
+                                    <option value="Case">Case</option>
+                                    <option value="PowerSupply">PowerSupply</option>
+                                    <option value="CPUCooler">CPUCooler</option>
+                                    <option value="Monitor">Monitor</option>
+                                    <option value="Other">Other</option>
+                            </select>
+                        <i class="fa-solid fa-caret-down absolute right-3 bottom-[12px] text-[#1B3563] pointer-events-none"></i>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="edit_description" class="text-[16px] text-[#9E9E9E] mb-1">คำอธิบาย</label>
+                        <textarea name="description" id="edit_description" rows="2" 
+                            class="bg-[#F8F9FA] border-b-2 border-[#1B3563] outline-none p-3 w-full text-[#1B3563] text-[18px] resize-none custom-scroll"></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="w-[100%] flex justify-end gap-4 mt-8">
+                <button type="submit" 
+                        class="px-[36px] py-[12px] bg-[#223961] hover:bg-[#15243E] transition-colors rounded-lg text-white font-medium text-[18px]">
+                    ยืนยันการแก้ไข
+                </button>
+                <button type="button" onclick="closeEditModal()"
+                        class="px-[36px] py-[12px] bg-[#E53935] hover:bg-[#C62828] transition-colors rounded-lg text-white font-medium text-[18px]">
+                    ยกเลิก
                 </button>
             </div>
-            <h1 class="text-[36px] ml-5">สินค้า</h1>
-
-            <div class="flex gap-3 ml-5 mt-8">
-                
-                <div class="relative cursor-pointer group shrink-0" onclick="document.getElementById('edit_imageInput').click()">
-                    <img id="edit_imgPreview" class="w-[260px] h-[260px] rounded-full object-cover group-hover:opacity-50 transition-opacity" src="/images/products_img/no-product-image.jpeg" alt="Product Image">
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-full w-[260px] h-[260px]">
-                        <i class="fa-solid fa-camera text-white text-4xl"></i>
-                    </div>
-                </div>
-                
-                <input type="file" id="edit_imageInput" name="emp_img" accept="image/png, image/jpeg, image/jpg" class="hidden" onchange="previewEditImage(event)">
-
-                <div class="flex flex-col w-[50%] ml-8">
-                    <span class="flex gap-3 mt-2">
-                        <div>
-                            <label for="edit_emp_firstname" class="text-[16px] text-[#9E9E9E]">ชื่อจริง</label>
-                            <input type="text" id="edit_emp_firstname" name="emp_firstname" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
-                        </div>
-                        <div>
-                            <label for="edit_emp_lastname" class="text-[16px] text-[#9E9E9E] mt-2">นามสกุล</label>
-                            <input type="text" id="edit_emp_lastname" name="emp_lastname" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
-                        </div>
-                    </span>
-
-                    <label for="edit_username" class="text-[16px] text-[#9E9E9E] mt-2">ชื่อผู้ใช้</label>
-                    <input type="text" id="edit_username" name="username" required class="bg-[#F5F5F5] border-b-2 border-[#1B3563] h-[40px] outline-0 p-3 w-[100%] text-[#1B3563] mt-1">
-                
-                    <div class="mt-2">
-                        <label class="block text-[#9E9E9E] text-[16px]">บทบาท</label>
-                        <div id="edit_selectedRoles" class="flex flex-wrap gap-3 mb-4 mt-2"></div>
-                        <div id="edit_hiddenInputs"></div>
-                        <div class="relative inline-block">
-                            <button type="button" id="edit_addRoleBtn" class="border-2 border-dashed border-sky-400 text-sky-500 px-6 py-2 rounded-full hover:bg-sky-50 transition-colors flex items-center gap-2 font-medium">
-                                <i class="fa-solid fa-plus" style="color: sky-400;"></i> เพิ่มบทบาท
-                            </button>
-                            <div id="edit_roleDropdown" class="hidden absolute left-0 top-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl z-10 overflow-hidden min-w-[200px]">
-                                <button type="button" data-role="manager" class="role-option w-full text-left px-5 py-3 hover:bg-purple-50 text-gray-700 transition-colors text-base font-medium border-b border-gray-100">ผู้จัดการ</button>
-                                <button type="button" data-role="sysadmin" class="role-option w-full text-left px-5 py-3 hover:bg-red-50 text-gray-700 transition-colors text-base font-medium border-b border-gray-100">เจ้าหน้าที่ระบบ</button>
-                                <button type="button" data-role="warehouse" class="role-option w-full text-left px-5 py-3 hover:bg-green-50 text-gray-700 transition-colors text-base font-medium">เจ้าหน้าที่คลังสินค้า</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="w-[100%] flex justify-end pt-5 gap-5 mt-auto mb-3 pr-3">
-                <button type="submit" class="px-[32px] py-[12px] bg-[#1B3563] rounded-[8px] text-white">ยืนยันการแก้ไข</button>
-                <button type="button" onclick="closeEditModal()" class="px-[32px] py-[12px] bg-[#F00] rounded-[8px] text-white">ยกเลิก</button>
-            </div>
+            
         </form>
     </div>
-
 
 
     <script>

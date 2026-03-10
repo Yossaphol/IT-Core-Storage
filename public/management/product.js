@@ -116,53 +116,55 @@ function previewAddImage(event) {
     }
 }
 
-// window.openEditModal = function(id, prod_name, prod_code, brand, prod_type, amount, prod_img) {
+function openEditModal(button) {
+    // 1. ดึงข้อมูลจาก data-attributes ของปุ่มที่ถูกกด
+    const id = button.getAttribute('data-id');
+    const code = button.getAttribute('data-code');
+    const name = button.getAttribute('data-name');
+    const brand = button.getAttribute('data-brand');
+    const type = button.getAttribute('data-type');
+    const description = button.getAttribute('data-desc');
+    const imgPath = button.getAttribute('data-img');
 
-//     document.getElementById('edit_emp_firstname').value = firstname;
-//     document.getElementById('edit_emp_lastname').value = lastname;
-//     document.getElementById('edit_username').value = username;
+    // 2. นำข้อมูลไปใส่ใน Input แต่ละช่อง
+    document.getElementById('edit_prod_code').value = code || '';
+    document.getElementById('edit_prod_name').value = name || '';
+    document.getElementById('edit_brand').value = brand || '';
+    document.getElementById('edit_prod_type').value = type || 'Other';
+    document.getElementById('edit_description').value = description || ''; // นำคำอธิบายมาใส่
 
-//     const imgPreview = document.getElementById('edit_imgPreview');
-//     if (img && img !== 'null' && img !== 'undefined' && img !== '') {
-//         imgPreview.src = `/images/profile/${img}`; 
-//     } else {
-//         imgPreview.src = `/images/profile/user.png`;
-//     }
-
-//     document.getElementById('edit_imageInput').value = "";
-
-//     roleState['edit'].clear();
+    // 3. จัดการรูปภาพพรีวิว
+    const imgPreview = document.getElementById('edit_imgPreview');
     
-//     if (role && role !== 'null' && role !== 'undefined') {
-//         const rolesArray = String(role).split(','); 
-        
-//         rolesArray.forEach(r => {
-//             let dbRole = r.trim().toUpperCase(); 
-//             let finalRoleKey = "";
-            
-//             if (dbRole === "MANAGER" || dbRole === "ผู้จัดการ") {
-//                 finalRoleKey = "manager";
-//             } 
-//             else if (dbRole === "SYSTEM" || dbRole === "เจ้าหน้าที่ระบบ") {
-//                 finalRoleKey = "system"; 
-//             } 
-//             else if (dbRole === "WAREHOUSE" || dbRole === "เจ้าหน้าที่คลังสินค้า") {
-//                 finalRoleKey = "warehouse";
-//             }
+    // เช็คว่ามีรูปภาพไหม (ต้องไม่ใช่ค่าว่าง, null, หรือ undefined)
+    if (imgPath && imgPath !== 'null' && imgPath !== 'undefined' && imgPath !== '') {
+        imgPreview.src = imgPath; // ตอนนี้ใน DB เป็น Path เต็มแล้ว ใส่ได้เลย
+    } else {
+        imgPreview.src = '/images/products_img/no-product-image.jpeg';
+    }
 
-//             if (finalRoleKey !== "" && rolesConfig[finalRoleKey]) {
-//                 roleState['edit'].add(finalRoleKey);
-//             }
-//         });
-//     }
-    
-//     renderTags('edit'); 
+    // เคลียร์ค่า input file เผื่อผู้ใช้เคยเลือกรูปค้างไว้
+    document.getElementById('edit_imageInput').value = "";
 
-//     document.getElementById('editForm').action = `/user_management/edit/${id}`;
+    // 4. กำหนด URL ปลายทางสำหรับการ Update
+    document.getElementById('editForm').action = `/product_management/edit/${id}`;
 
-//     document.getElementById('edit-sup-modal').classList.remove('hidden');
-// };
+    // 5. แสดง Modal
+    document.getElementById('edit-product-modal').classList.remove('hidden');
+}
 
-// window.closeEditModal = function() {
-//     document.getElementById('edit-sup-modal').classList.add('hidden');
-// };
+// ฟังก์ชันสำหรับพรีวิวรูปตอนเลือกไฟล์ใหม่ (ยังใช้เหมือนเดิม)
+function previewEditImage(event) {
+    const input = event.target;
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('edit_imgPreview').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function closeEditModal() {
+    document.getElementById('edit-product-modal').classList.add('hidden');
+}
