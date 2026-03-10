@@ -37,7 +37,7 @@ const adjustProductAmount = async (req, res) => {
             (type, sup_id, emp_id, prod_id, amount, status, date_time, remaining)
             VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)`,
             [
-                "ADJUSTMENT",
+                "AJ",
                 sup_id,
                 emp_id,
                 prod_id,
