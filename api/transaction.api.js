@@ -61,7 +61,7 @@ exports.getTransactions = async (req, res) => {
             ORDER BY st.date_time DESC
         `, outCondition.paramsArr);
 
-        const adjustCondition = buildConditions("ADJUST");
+        const adjustCondition = buildConditions("ADJUSTMENT");
         const [adjustData] = await pool.query(`
             SELECT st.trans_id, p.prod_img, p.prod_name, p.brand, p.prod_code, p.prod_type, 
                    st.date_time, st.amount, e.emp_firstname, e.emp_lastname
