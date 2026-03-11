@@ -283,6 +283,8 @@ app.get("/api/search", searchAPI.search_query)
 // adjustment
 app.post("/api/adjustment", isLoggedIn, adjustmentAPI.adjustProductAmount);
 
+
+// User Management
 app.get("/user_management", async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -345,14 +347,14 @@ app.get("/user_management", async (req, res) => {
     }
 });
 
-
+// upload profile
 const userStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/images/profile"); 
+    cb(null, "public/images/profile");
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const filename = "user_" + Date.now() + ext;
+    const filename = "emp_" + req.session.user.emp_id + "_" + Date.now() + ext;
     cb(null, filename);
   }
 });
@@ -451,7 +453,13 @@ app.post("/user_management/edit/:id", uploadUserImg.single('emp_img'), async (re
     const id = req.params.id;
     const { emp_firstname, emp_lastname, username, roles } = req.body;
 
-    const roleStr = Array.isArray(roles) ? roles.join(',') : roles;
+    const roleArray = Array.isArray(roles) ? roles : [roles];
+    const roleStr = roleArray.map(r => {
+        if (r === 'system') return 'SYSTEM';
+        if (r === 'manager') return 'MANAGER';
+        if (r === 'warehouse') return 'WAREHOUSE';
+        return r.toUpperCase();
+    }).join(',');
 
     const [rows] = await pool.query(
       "SELECT emp_img FROM employees WHERE emp_id = ?",
@@ -487,8 +495,7 @@ app.post("/user_management/edit/:id", uploadUserImg.single('emp_img'), async (re
   }
 });
 
-
-
+// Product Management
 app.get("/product_management", async (req, res) => {
 try {
     const page   = parseInt(req.query.page)  || 1;
@@ -580,6 +587,7 @@ app.post("/product_management/bulk-delete", async (req, res) => {
   }
 });
 
+// upload product
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'public/images/products_img'); 
@@ -656,7 +664,7 @@ app.post('/product_management', upload.single('product_img'), async (req, res) =
 });
 
 
-
+// Supplier Management
 app.get("/supplier_management", async (req, res) => {
   try {
     const page   = parseInt(req.query.page)  || 1;
