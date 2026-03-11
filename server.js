@@ -587,14 +587,12 @@ app.post("/product_management/bulk-delete", async (req, res) => {
   }
 });
 
-// upload product
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'public/images/products_img'); 
     },
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname); 
-        // เซฟเป็นชื่อชั่วคราว เช่น temp-1701234567.png
         cb(null, 'temp-' + Date.now() + ext); 
     }
 });
